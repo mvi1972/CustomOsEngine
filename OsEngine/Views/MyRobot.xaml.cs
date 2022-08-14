@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OsEngine.Market;
+using OsEngine.Market.Servers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +24,19 @@ namespace OsEngine.Views
         public MyRobot()
         {
             InitializeComponent();
+            ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
+        }
+
+        private IServer _server;
+
+        private void ServerMaster_ServerCreateEvent(IServer server)
+        {
+            _server = server;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            ServerMaster.ShowDialog(false);
         }
     }
 }

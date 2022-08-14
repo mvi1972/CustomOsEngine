@@ -96,7 +96,7 @@ namespace OsEngine
             CommandLineInterfaceProcess();
 
             Task.Run(ClearOptimizerWorkResults);
-
+            this.Hide();
             StartMyWindow();
             ProccesIsWorked = false;
             this.Close();

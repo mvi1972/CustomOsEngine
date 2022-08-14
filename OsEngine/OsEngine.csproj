@@ -1014,6 +1014,8 @@
     <Compile Include="Robots\Patterns\ThreeSoldier.cs" />
     <Compile Include="Robots\MarketMaker\TwoLegArbitrage.cs" />
     <Compile Include="Robots\CounterTrend\WilliamsRangeTrade.cs" />
+    <Compile Include="ViewModels\MyRobotVM.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\MyRobot.xaml.cs">
       <DependentUpon>MyRobot.xaml</DependentUpon>
     </Compile>
