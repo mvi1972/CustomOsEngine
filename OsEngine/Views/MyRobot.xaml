@@ -6,13 +6,13 @@
         xmlns:local="clr-namespace:OsEngine.Views"
         mc:Ignorable="d"
         Title="MyRobot" Height="450" Width="800">
-    <StackPanel Orientation ="Horizontal">
-        <TextBlock Text="Робот"
+    <StackPanel Orientation ="Vertical">
+        <TextBlock Text="Это робот"
                    FontSize="30">
 
         </TextBlock>
-        <Button Click="Button_Click"
-                Content="Servers">
+        <Button Content="Servers"
+                Command="{Binding ComandServerConect}">
             
         </Button>
     </StackPanel>
