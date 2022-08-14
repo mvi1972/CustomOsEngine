@@ -24,6 +24,7 @@ namespace OsEngine.Commands
             return true;
         }
 
+
         public void Execute(object parameter)
         {
             _function?.Invoke(parameter);
