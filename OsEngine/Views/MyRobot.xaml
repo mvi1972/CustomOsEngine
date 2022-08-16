@@ -13,7 +13,10 @@
         </TextBlock>
         <Button Content="Servers"
                 Command="{Binding ComandServerConect}">
-            
         </Button>
+        <ComboBox ItemsSource="{Binding ListSecurities}"
+                  SelectedItem="{Binding SelectedSecurity}">
+            
+        </ComboBox>
     </StackPanel>
 </Window>
