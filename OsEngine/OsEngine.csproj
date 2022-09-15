@@ -1017,6 +1017,8 @@
     <Compile Include="Robots\CounterTrend\WilliamsRangeTrade.cs" />
     <Compile Include="ViewModels\MyRobotVM.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="Views\DecimalTextBox.cs" />
+    <Compile Include="Views\IntTextBox.cs" />
     <Compile Include="Views\MyRobot.xaml.cs">
       <DependentUpon>MyRobot.xaml</DependentUpon>
     </Compile>
