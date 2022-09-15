@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OsEngine.Views"
         mc:Ignorable="d"
-        Title="MyRobot" Height="450" Width="800">
+        Title="Бабло!" Height="450" Width="800">
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="MinWidth" Value="60"/>
@@ -37,11 +37,28 @@
         </StackPanel>
             <GroupBox Header="Параметры"
                       Grid.Row="1"
-                      Width="300"
-                      HorizontalAlignment="Left">
+                      Width="300" Height="280 "
+                      HorizontalAlignment="Left" VerticalAlignment="Top">
             <UniformGrid Columns="2">
-                <TextBlock Text="Точка Старта "/>
+                <TextBlock Text="Точка Старта"/>
                 <local:DecimalTextBox Text="{Binding StartPoint}"/>
+                <TextBlock Text="Количество уровней"/>
+                <local:IntTextBox Text="{Binding CountLevels}"/>
+                <TextBlock Text="Направление сделки"/>
+                <ComboBox ItemsSource="{Binding Directions}"
+                          SelectedItem="{Binding Direction}"/>
+                <TextBlock Text="Лот на уровень"/>
+                <local:DecimalTextBox Text="{Binding Lot}"/>
+                <TextBlock Text="Тип шага"/>
+                <ComboBox ItemsSource="{Binding StepTypes}"
+                          SelectedItem="{Binding StepType}"/>
+                <TextBlock Text="Шаг уровня"/>
+                <local:DecimalTextBox Text="{Binding StepLevel}"/>
+                <TextBlock Text="Профит"/>
+                <local:DecimalTextBox Text="{Binding TakeLevel}"/>
+                <TextBlock Text="Миксимально уровней"/>
+                <local:IntTextBox Text="{Binding MaxActiveLevel}"/>  
+
 
             </UniformGrid>
                 

@@ -23,7 +23,27 @@ namespace OsEngine.Views
 
         private void DecimalTextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            if (!Char.IsDigit(e.Text, 0) && !e.Text.Contains("."))
+            if (!Char.IsDigit(e.Text, 0) && !e.Text.Contains(".") && !e.Text.Contains("-"))
+            {
+                e.Handled = true;
+            }
+            if ((sender as TextBox).SelectionStart !=0 && e.Text =="-")
+            {
+                e.Handled = true;
+            }
+            if ((sender as TextBox).Text.IndexOf("-")>-1 && e.Text == "-")
+            {
+                e.Handled = true;
+            }
+            if ((sender as TextBox).Text.IndexOf(".") > -1 && e.Text == ".")
+            {
+                e.Handled = true;
+            }
+            if ((sender as TextBox).SelectionStart ==0 && e.Text == ".")
+            {
+                e.Handled = true;
+            }
+            if (e.Text == "." && (sender as TextBox).Text.Last().ToString()== "-")
             {
                 e.Handled = true;
             }
