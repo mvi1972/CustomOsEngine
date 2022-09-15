@@ -17,6 +17,7 @@ namespace OsEngine.ViewModels
         public MyRobotVM()
         {
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
+            
         }
 
  
@@ -43,7 +44,7 @@ namespace OsEngine.ViewModels
             {
                 _selectedSecurity = value;  
                 OnPropertyChanged(nameof(SelectedSecurity));
-                _security = GetSecuritiesFofName(_selectedSecurity);
+                _security = GetSecuritiesForName(_selectedSecurity);
                 StartSecuritiy(_security);
             }
         }
@@ -121,7 +122,18 @@ namespace OsEngine.ViewModels
             _server.NewOrderIncomeEvent += Newserver_NewOrderIncomeEvent;
             _server.NewMyTradeEvent += Newserver_NewMyTradeEvent;
             _server.ConnectStatusChangeEvent += Newserver_ConnectStatusChangeEvent;
+            _server.NewCandleIncomeEvent += _server_NewCandleIncomeEvent;
+            
+        }
 
+        private void _server_NewCandleIncomeEvent(CandleSeries candleSeries)
+        {
+            candleSeries.СandleUpdeteEvent += CandleSeries_СandleUpdeteEvent;
+        }
+
+        private void CandleSeries_СandleUpdeteEvent(CandleSeries candle)
+        {
+          
         }
 
         private void Newserver_ConnectStatusChangeEvent(string conenect)
@@ -153,7 +165,7 @@ namespace OsEngine.ViewModels
         {
             
         }
-        private Security GetSecuritiesFofName(string name)
+        private Security GetSecuritiesForName(string name)
         {
             for (int i = 0; i < _securities.Count; i++)
             {
@@ -164,7 +176,7 @@ namespace OsEngine.ViewModels
             }
             return null;
         }
-        private void Newserver_SecuritiesChangeEvent(List<Entity.Security> securities)
+        private void Newserver_SecuritiesChangeEvent(List<Security> securities)
         {
             ObservableCollection<string> listsecurities = new ObservableCollection<string>();
             for (int i = 0; i < securities.Count; i++)
@@ -177,7 +189,7 @@ namespace OsEngine.ViewModels
             _securities = securities;
         }
 
-        private void Newserver_PortfoliosChangeEvent(List<Entity.Portfolio> portfolios)
+        private void Newserver_PortfoliosChangeEvent(List<Portfolio> portfolios)
         {
             
         }

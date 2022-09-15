@@ -6,17 +6,21 @@
         xmlns:local="clr-namespace:OsEngine.Views"
         mc:Ignorable="d"
         Title="MyRobot" Height="450" Width="800">
-    <StackPanel Orientation ="Vertical">
-        <TextBlock Text="Это робот"
-                   FontSize="30">
-
-        </TextBlock>
-        <Button Content="Servers"
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition Height ="30"/>
+            <RowDefinition Height ="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel>
+     
+            <Button Content="Servers"
                 Command="{Binding ComandServerConect}">
-        </Button>
-        <ComboBox ItemsSource="{Binding ListSecurities}"
+            </Button>
+            <ComboBox ItemsSource="{Binding ListSecurities}"
                   SelectedItem="{Binding SelectedSecurity}">
-            
-        </ComboBox>
-    </StackPanel>
+
+            </ComboBox> 
+        </StackPanel>
+   
+    </Grid>
 </Window>
