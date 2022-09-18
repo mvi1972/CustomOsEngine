@@ -6,7 +6,17 @@
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:OsEngine"
         mc:Ignorable="d"
-        Title="RobotWindow" Height="450" Width="800">
+        Title="БАБЛО" Height="450" Width="800">
+    <mah:MetroWindow.LeftWindowCommands>
+        <mah:WindowCommands>
+            <Button 
+                Content="Сервера"
+                ToolTip="Соедениться с биржей"
+                Command="{Binding ComandServerConect}">
+    
+            </Button>
+        </mah:WindowCommands>
+    </mah:MetroWindow.LeftWindowCommands>
     <Grid>
         
     </Grid>

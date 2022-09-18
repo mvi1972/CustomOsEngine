@@ -99,20 +99,12 @@ namespace OsEngine
 
             // дичь ))
             this.Hide();
-            StartMyWindow();
             ProccesIsWorked = false;
             this.Close();
             Thread.Sleep(7000);
             Process.GetCurrentProcess().Kill();
         }
-        private void StartMyWindow()
-        {
-            MyRobot robot = new MyRobot();
-            robot.ShowDialog();
-
-        }
-
-
+ 
         private void ChangeText()
         {
             Title = OsLocalization.MainWindow.Title;
