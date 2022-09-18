@@ -2,6 +2,7 @@
 using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
+using OsEngine.MyEntity;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static protobuf.ws.TradesRequest;
+using Direction = OsEngine.MyEntity.Direction;
 
 namespace OsEngine.ViewModels
 {
@@ -37,6 +40,9 @@ namespace OsEngine.ViewModels
         #region Свойства ================================================================================== 
 
         public ObservableCollection <string> ListSecurities { get; set; } =  new ObservableCollection<string>();
+        /// <summary>
+        /// Выбранная бумага
+        /// </summary>
         public string SelectedSecurity
         { 
             get => _selectedSecurity;
@@ -49,6 +55,196 @@ namespace OsEngine.ViewModels
             }
         }
         private string _selectedSecurity = "";
+
+        /// <summary>
+        /// точка страта работы робота (цена)
+        /// </summary>
+        public decimal StartPoint
+        { 
+            get => _startPoint;
+            set
+            {
+                _startPoint = value;
+                OnPropertyChanged(nameof(StartPoint));
+            }
+        }
+        private decimal _startPoint;
+
+        /// <summary>
+        /// количество уровней 
+        /// </summary>
+        public int   CountLevels
+        {
+            get => _сountLevels;
+            set
+            {
+                _сountLevels = value;
+                OnPropertyChanged(nameof(CountLevels));
+            }
+        }
+        private int _сountLevels;
+
+        /// <summary>
+        /// направление сделок StepType
+        /// </summary>
+        public Direction Direction
+        {
+            get => _direction;
+            set
+            {
+                _direction = value;
+                OnPropertyChanged(nameof(Direction));
+            }
+        }
+        private Direction _direction;
+        public List<Direction> Directions { get; set; } = new List<Direction>()
+        {
+            Direction.BUY, Direction.SELL, Direction.BUYSELL
+        };
+
+        /// <summary>
+        ///  Lot
+        /// </summary>
+        public decimal Lot
+        {
+            get => _lot;
+            set
+            {
+                _lot = value;
+                OnPropertyChanged(nameof(Lot));
+            }
+        }
+        private decimal _lot;
+
+        /// <summary>
+        /// тип расчета  
+        /// </summary>
+        public StepType StepType
+        {
+            get => _stepType;
+            set
+            {
+                _stepType = value;
+                OnPropertyChanged(nameof(StepType));
+            }
+        }
+        private StepType _stepType;
+        public List<StepType> StepTypes { get; set; } = new List<StepType>()
+        {
+           StepType.PERCENT, StepType.PUNKT
+        };
+
+        /// <summary>
+        /// Шаг уровня 
+        /// </summary>
+        public decimal StepLevel
+        {
+            get => _stepLevel;
+            set
+            {
+                _stepLevel = value;
+                OnPropertyChanged(nameof(StepLevel));
+            }
+        }
+        private decimal _stepLevel;
+
+        /// <summary>
+        /// Профит уровня 
+        /// </summary>
+        public decimal TakeLevel
+        {
+            get => _takeLevel;
+            set
+            {
+                _takeLevel = value;
+                OnPropertyChanged(nameof(TakeLevel));
+            }
+        }
+        private decimal _takeLevel;
+
+        /// <summary>
+        /// количество активных уровней 
+        /// </summary>
+        public int MaxActiveLevel
+        {
+            get => _maxActiveLevel;
+            set
+            {
+                _maxActiveLevel = value;
+                OnPropertyChanged(nameof(MaxActiveLevel));
+            }
+        }
+        private int _maxActiveLevel;
+
+        /// <summary>
+        /// всего позиций 
+        /// </summary>
+        public int AllPositionsCount
+        {
+            get => _allPositionsCount;
+            set
+            {
+                _allPositionsCount = value;
+                OnPropertyChanged(nameof(AllPositionsCount));
+            }
+        }
+        private int _allPositionsCount;
+
+        /// <summary>
+        /// Средняя цена 
+        /// </summary>
+        public decimal PriceAverege
+        {
+            get => _priceAverege;
+            set
+            {
+                _priceAverege = value;
+                OnPropertyChanged(nameof(PriceAverege));
+            }
+        }
+        private decimal _priceAverege;
+
+        /// <summary>
+        /// Комиссия  
+        /// </summary>
+        public decimal VarMargine
+        {
+            get => _varMargine;
+            set
+            {
+                _varMargine = value;
+                OnPropertyChanged(nameof(VarMargine));
+            }
+        }
+        private decimal _varMargine;
+
+        /// <summary>
+        /// Прибыль 
+        /// </summary>
+        public decimal Accum
+        {
+            get => _accum;
+            set
+            {
+                _accum = value;
+                OnPropertyChanged(nameof(Accum));
+            }
+        }
+        private decimal _accum;
+
+        /// <summary>
+        /// Итого  
+        /// </summary>
+        public decimal Total
+        {
+            get => _total;
+            set
+            {
+                _total = value;
+                OnPropertyChanged(nameof(Total));
+            }
+        }
+        private decimal _total;
 
         #endregion
 
