@@ -1,7 +1,4 @@
 ﻿using MahApps.Metro.Controls;
-using OsEngine.Market;
-using OsEngine.Market.Servers;
-using OsEngine.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,20 +13,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace OsEngine.Views
+namespace OsEngine 
 {
     /// <summary>
-    /// Логика взаимодействия для MyRobot.xaml
+    /// Логика взаимодействия для RobotWindow.xaml
     /// </summary>
-    public partial class MyRobot : MetroWindow
+    public partial class RobotWindow : MetroWindow
     {
-        public MyRobot()
+        public RobotWindow()
         {
             InitializeComponent();
-            vm = new MyRobotVM();
-            DataContext = vm;   
         }
-
-        private MyRobotVM vm;
     }
 }

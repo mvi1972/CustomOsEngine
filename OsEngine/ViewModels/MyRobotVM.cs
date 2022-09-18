@@ -256,7 +256,7 @@ namespace OsEngine.ViewModels
             {
                 if (comandServerConect == null)
                 {
-                    comandServerConect = new DelegateCommand(ServerConect);
+                    comandServerConect = new DelegateCommand(ServerConect); 
                 }
                 return comandServerConect;
             }
