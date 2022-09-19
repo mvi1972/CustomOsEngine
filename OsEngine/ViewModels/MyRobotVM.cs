@@ -258,19 +258,6 @@ namespace OsEngine.ViewModels
 
         #region Команды =====================================================================================
 
-        private DelegateCommand comandServerConect;
-        public DelegateCommand ComandServerConect
-        {
-            get
-            {
-                if (comandServerConect == null)
-                {
-                    comandServerConect = new DelegateCommand(ServerConect); 
-                }
-                return comandServerConect;
-            }
-        }
-
         #endregion
 
         #region Методы =====================================================================================
@@ -399,10 +386,6 @@ namespace OsEngine.ViewModels
             
         }
 
-        void ServerConect (object o)
-        {
-            ServerMaster.ShowDialog(false);
-        }
 
         #endregion
     }

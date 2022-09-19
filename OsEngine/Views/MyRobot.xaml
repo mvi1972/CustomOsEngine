@@ -23,8 +23,7 @@
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
 
-            <Button Content="Сервер"
-                Command="{Binding ComandServerConect}"/>
+  
             <TextBlock Text="{Binding ServerType}"/>
             <TextBlock Text="{Binding StatusServer}"/>
             <TextBlock Text="Счет"/>

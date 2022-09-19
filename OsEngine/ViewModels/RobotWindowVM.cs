@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace OsEngine.ViewModels
 {
@@ -99,7 +100,11 @@ namespace OsEngine.ViewModels
             }
             if (delRobot != null)
             {
-                Robots.Remove(delRobot);
+                MessageBoxResult res= MessageBox.Show("Удалить вкладку " + header + "?", header, MessageBoxButton.YesNo);
+                if (res == MessageBoxResult.Yes)
+                {
+                    Robots.Remove(delRobot);
+                }    
             }
         }
 
