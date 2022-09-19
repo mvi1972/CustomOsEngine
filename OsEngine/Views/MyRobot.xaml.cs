@@ -21,15 +21,15 @@ namespace OsEngine.Views
     /// <summary>
     /// Логика взаимодействия для MyRobot.xaml
     /// </summary>
-    public partial class MyRobot : MetroWindow
+    public partial class MyRobot : UserControl
     {
         public MyRobot()
         {
             InitializeComponent();
-            vm = new MyRobotVM();
-            DataContext = vm;   
+            //vm = new MyRobotVM();
+            //DataContext = vm;   
         }
 
-        private MyRobotVM vm;
+        // MyRobotVM vm;
     }
 }

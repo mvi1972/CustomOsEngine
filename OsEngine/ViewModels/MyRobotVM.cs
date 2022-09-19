@@ -20,13 +20,10 @@ namespace OsEngine.ViewModels
         public MyRobotVM()
         {
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
-            
         }
 
  
         #region Поля =====================================================================================
-
-        private DelegateCommand comandServerConect;
 
         // List<IServer> _servers = new List<IServer>();
         IServer _server;
@@ -38,6 +35,17 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region Свойства ================================================================================== 
+
+        public string Header
+        {
+            get => _selectedSecurity;
+            set
+            {
+                _selectedSecurity = value;
+                OnPropertyChanged(nameof(Header));
+            }
+        }
+        private string _header;
 
         public ObservableCollection <string> ListSecurities { get; set; } =  new ObservableCollection<string>();
         /// <summary>
@@ -250,6 +258,7 @@ namespace OsEngine.ViewModels
 
         #region Команды =====================================================================================
 
+        private DelegateCommand comandServerConect;
         public DelegateCommand ComandServerConect
         {
             get

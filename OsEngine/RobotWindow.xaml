@@ -4,20 +4,42 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:local="clr-namespace:OsEngine"
+        xmlns:local="clr-namespace:OsEngine.Views"
         mc:Ignorable="d"
         Title="БАБЛО" Height="450" Width="800">
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
-            <Button 
+            <StackPanel Orientation="Horizontal">
+                <Button 
                 Content="Сервера"
                 ToolTip="Соедениться с биржей"
                 Command="{Binding ComandServerConect}">
-    
-            </Button>
+                </Button>
+                <Button 
+                Content="Добавить робота"
+                Command="{Binding ComandAddRobot}">
+                </Button>
+            </StackPanel>
+ 
         </mah:WindowCommands>
     </mah:MetroWindow.LeftWindowCommands>
     <Grid>
-        
+        <TabControl ItemsSource="{Binding Robots}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Header}"/>
+                    </StackPanel>
+
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <local:MyRobot>
+                        
+                    </local:MyRobot>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
     </Grid>
 </mah:MetroWindow>

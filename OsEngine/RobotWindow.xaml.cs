@@ -41,7 +41,9 @@ namespace OsEngine
             this.Closed += RobotWindow_Closed; //событие закрытия окна
 
         }
-
+        /// <summary>
+        /// закрываем все рабочие процессы осы
+        /// </summary>
         private void RobotWindow_Closed(object sender, EventArgs e)
         {
             ProccesIsWorked = false;
