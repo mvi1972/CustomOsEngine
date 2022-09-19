@@ -49,6 +49,18 @@ namespace OsEngine.ViewModels
                 return comandAddRobot;
             } 
         }
+        private DelegateCommand comandDeleteRobot;
+        public DelegateCommand ComandDeleteRobot
+        {
+            get
+            {
+                if (comandDeleteRobot == null)
+                {
+                    comandDeleteRobot = new DelegateCommand(DeleteTabRobot);
+                }
+                return comandDeleteRobot;
+            }
+        }
 
         #endregion
         #region  ================================ Методы =====================================
@@ -69,6 +81,26 @@ namespace OsEngine.ViewModels
                 Header = "Tab" + (Robots.Count +1)
             });
              
+        }
+
+        void DeleteTabRobot(object obj)
+        {
+            string header= (string)obj;
+
+            MyRobotVM delRobot =null;
+
+            foreach (var robot in Robots)
+            {
+                if (robot.Header == header )
+                {
+                    delRobot = robot;
+                    break;
+                }
+            }
+            if (delRobot != null)
+            {
+                Robots.Remove(delRobot);
+            }
         }
 
         #endregion

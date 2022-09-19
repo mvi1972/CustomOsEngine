@@ -27,8 +27,14 @@
         <TabControl ItemsSource="{Binding Robots}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel>
+                    <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Header}"/>
+                        <Button Content="X"
+                                Command="{Binding DataContext.ComandDeleteRobot,
+                            RelativeSource= {RelativeSource AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding Header}">
+                            
+                        </Button>
                     </StackPanel>
 
                 </DataTemplate>
