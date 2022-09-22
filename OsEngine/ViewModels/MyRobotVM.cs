@@ -3,6 +3,7 @@ using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.MyEntity;
+using OsEngine.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,7 +16,7 @@ using Direction = OsEngine.MyEntity.Direction;
 
 namespace OsEngine.ViewModels
 {
-    public class MyRobotVM : ViewModelBase
+    public class MyRobotVM : BaseVM
     {
         public MyRobotVM()
         {
@@ -32,6 +33,7 @@ namespace OsEngine.ViewModels
 
         private Security _security;
 
+   
         #endregion
 
         #region Свойства ================================================================================== 
@@ -258,10 +260,38 @@ namespace OsEngine.ViewModels
 
         #region Команды =====================================================================================
 
+        // SelectSecurity
+        private DelegateCommand _commandSelectSecurity;
+        public DelegateCommand CommandSelectSecurity
+        {
+            get
+            {
+                if (_commandSelectSecurity == null)
+                {
+                    _commandSelectSecurity = new DelegateCommand(SelectSecurity);
+                }
+                return _commandSelectSecurity;
+            }
+        }
+
         #endregion
 
         #region Методы =====================================================================================
-
+        /// <summary>
+        /// выбрать бумагу
+        /// </summary>
+        void SelectSecurity (object o)
+        {
+            if (RobotWindowVM.ChengeEmitendWidow != null ) 
+            {
+                return;
+            }
+            RobotWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow();
+            RobotWindowVM.ChengeEmitendWidow.ShowDialog();
+        }
+        /// <summary>
+        /// Насать получать данные по бумге
+        /// </summary>
         private void StartSecuritiy(Security security)
         {
             if (security == null)

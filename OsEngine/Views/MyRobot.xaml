@@ -31,10 +31,10 @@
                       SelectedItem="{Binding Portfolio}"/>
             
             <TextBlock Text="Бумага"/>
-            <ComboBox ItemsSource="{Binding ListSecurities}"
-                  SelectedItem="{Binding SelectedSecurity}">
+            <Button Content="Выбрать бумагу"
+                  Command="{Binding CommandSelectSecurity}">
 
-            </ComboBox> 
+            </Button> 
         </StackPanel>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

@@ -798,6 +798,7 @@
     <Compile Include="Market\Services\RestChannel.cs" />
     <Compile Include="Market\Services\WsSource.cs" />
     <Compile Include="MyEntity\Direction.cs" />
+    <Compile Include="MyEntity\Emitent.cs" />
     <Compile Include="MyEntity\StepType.cs" />
     <Compile Include="OsConverter\OsCandleConverterUi.xaml.cs">
       <DependentUpon>OsCandleConverterUi.xaml</DependentUpon>
@@ -1036,7 +1037,7 @@
     <Compile Include="ViewModels\ChangeEmitentVM.cs" />
     <Compile Include="ViewModels\MyRobotVM.cs" />
     <Compile Include="ViewModels\RobotWindowVM.cs" />
-    <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="ViewModels\BaseVM.cs" />
     <Compile Include="Views\ChengeEmitendWidow.xaml.cs">
       <DependentUpon>ChengeEmitendWidow.xaml</DependentUpon>
     </Compile>

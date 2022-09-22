@@ -1,5 +1,6 @@
 ﻿using OsEngine.Commands;
 using OsEngine.Market;
+using OsEngine.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,7 +11,7 @@ using System.Windows;
 
 namespace OsEngine.ViewModels
 {
-    public class RobotWindowVM : ViewModelBase  
+    public class RobotWindowVM : BaseVM  
     {
         public RobotWindowVM()
         {
@@ -18,10 +19,16 @@ namespace OsEngine.ViewModels
         }
         #region  ================================ Свойства =====================================
 
-        public ObservableCollection <MyRobotVM> Robots { get; set; } = new ObservableCollection<MyRobotVM>(); 
+        public ObservableCollection <MyRobotVM> Robots { get; set; } = new ObservableCollection<MyRobotVM>();
+
+
 
         #endregion
         #region  ================================ Поля =====================================
+        /// <summary>
+        /// окно выбора инструмента
+        /// </summary>
+        public static ChengeEmitendWidow ChengeEmitendWidow = null;
 
         #endregion
         #region  ================================ Команды =====================================
@@ -83,7 +90,9 @@ namespace OsEngine.ViewModels
             });
              
         }
-
+        /// <summary>
+        /// Удаление вкладки робота
+        /// </summary>
         void DeleteTabRobot(object obj)
         {
             string header= (string)obj;
