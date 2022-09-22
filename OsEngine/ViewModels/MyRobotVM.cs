@@ -315,7 +315,7 @@ namespace OsEngine.ViewModels
             _server.NewMyTradeEvent += Newserver_NewMyTradeEvent;
             _server.ConnectStatusChangeEvent += Newserver_ConnectStatusChangeEvent;
             _server.NewCandleIncomeEvent += _server_NewCandleIncomeEvent;
-            
+  
         }
 
         private void _server_NewCandleIncomeEvent(CandleSeries candleSeries)

@@ -1,0 +1,47 @@
+﻿<Window x:Class="OsEngine.Views.ChengeEmitendWidow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OsEngine.Views"
+        mc:Ignorable="d"
+        Title="Выбор инструмента" Height="600" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition MinHeight="200"/>
+                <RowDefinition MinHeight="300"/>
+            </Grid.RowDefinitions>
+            <ItemsControl ItemsSource="{Binding ExChanges}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Content ="{Binding ExChanges}"
+                                Command="{Binding CommandSetExChange}"/>
+ 
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl Grid.Row="1"
+                ItemsSource="{Binding EmitClasses}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Content ="{Binding EmitClass}"
+                                Command="{Binding CommandSetEmitClass}"/>
+
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+        <DataGrid ItemsSource="{Binding Securites}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding NameSec}"/>
+
+            </DataGrid.Columns>
+            
+        </DataGrid>
+    </Grid>
+</Window>
