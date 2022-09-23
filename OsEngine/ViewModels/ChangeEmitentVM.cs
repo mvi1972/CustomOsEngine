@@ -22,7 +22,7 @@ namespace OsEngine.ViewModels
         }
 
         #region Свойства ===============================================================================
-        public ObservableCollection<ServerType> ExChanges { get; set; } = new ObservableCollection<ServerType>();
+        public ObservableCollection<ExChenge> ExChanges { get; set; } = new ObservableCollection<ExChenge>();
 
         public ObservableCollection<string> EmitClasses { get; set; } = new ObservableCollection<string>();
 
@@ -40,13 +40,17 @@ namespace OsEngine.ViewModels
         /// </summary>
         void Init()
         {
-            List<IServer> servers = ServerMaster.GetServers();  
+            List<IServer> servers = ServerMaster.GetServers();
+
             ExChanges.Clear();
+ 
             foreach (IServer server in servers)
-            { 
-                ExChanges.Add(server.ServerType);
+            {
+                ExChanges.Add( new ExChenge(server.ServerType));
 
             }
+         
+            OnPropertyChanged(nameof(ExChanges));
         } 
 
         #endregion

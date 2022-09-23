@@ -19,7 +19,7 @@
             <ItemsControl ItemsSource="{Binding ExChanges}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Content ="{Binding ExChanges}"
+                        <Button Content ="{Binding Server}"
                                 Command="{Binding CommandSetExChange}"/>
  
                     </DataTemplate>
@@ -36,7 +36,8 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </Grid>
-        <DataGrid ItemsSource="{Binding Securites}">
+        <DataGrid Grid.Column="1"
+            ItemsSource="{Binding Securites}">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding NameSec}"/>
 

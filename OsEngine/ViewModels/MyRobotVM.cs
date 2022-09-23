@@ -288,6 +288,8 @@ namespace OsEngine.ViewModels
             }
             RobotWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow();
             RobotWindowVM.ChengeEmitendWidow.ShowDialog();
+            RobotWindowVM.ChengeEmitendWidow = null; 
+
         }
         /// <summary>
         /// Насать получать данные по бумге
