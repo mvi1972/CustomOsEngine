@@ -28,7 +28,9 @@ namespace OsEngine.ViewModels
         /// колекция классов бумаг на бирже 
         /// </summary>
         public ObservableCollection<EmitClasses> EmitClasses { get; set; } = new ObservableCollection<EmitClasses>();
-
+        /// <summary>
+        /// колеккция списков всех бумаг
+        /// </summary>
         public ObservableCollection<Emitent> Securites { get; set; } = new ObservableCollection<Emitent>();
 
         #endregion
@@ -37,11 +39,25 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// словарь имен классов бумаг
         /// </summary>
-        Dictionary<string, List<Security>> _classes = new Dictionary<string, List<Security>>();  
+        Dictionary<string, List<Security>> _classes = new Dictionary<string, List<Security>>();
 
         #endregion
 
         #region Команды ===============================================================================
+
+        private DelegateCommand commandSetEmitClass;
+        public DelegateCommand CommandSetEmitClass
+        {
+            get
+            {
+                if (commandSetEmitClass == null)
+                {
+                    commandSetEmitClass = new DelegateCommand(SetEmitClass);
+                }
+                return commandSetEmitClass;
+            }
+        } 
+        
         private DelegateCommand commandSetExChange;
         public DelegateCommand CommandSetExChange
         {
@@ -58,6 +74,19 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region Методы ===============================================================================
+
+        void SetEmitClass(object o)
+        {
+            string classEmit = (string)o;
+            List<Security> securitList = _classes[classEmit];
+            ObservableCollection<Emitent> emis = new ObservableCollection<Emitent>();   // собираем все бумаги 
+            foreach (Security security in securitList)
+            {
+                emis.Add(new Emitent(security));
+            }
+            Securites = emis; 
+            OnPropertyChanged(nameof(Securites));
+        }
 
         void SetExChange(object ob)    
         {
