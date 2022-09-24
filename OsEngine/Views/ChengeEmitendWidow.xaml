@@ -23,8 +23,9 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Button Content ="{Binding Server}"
-                                Command="{Binding CommandSetExChange,
-                                RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                Command="{Binding DataContext.CommandSetExChange,
+                                RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding Server}"/>
 
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -32,16 +33,18 @@
 
             </GroupBox>
             <GroupBox Header="имена классов"  Grid.Row="1" Margin="3">
-                <ItemsControl
-                ItemsSource="{Binding EmitClasses}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Content ="{Binding EmitClass}"
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding EmitClasses}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content ="{Binding ClassEmit}"
                                 Command="{Binding CommandSetEmitClass}"/>
 
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+  
             </GroupBox>
   
   

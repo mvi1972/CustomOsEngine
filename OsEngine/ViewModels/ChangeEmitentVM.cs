@@ -24,10 +24,20 @@ namespace OsEngine.ViewModels
 
         #region Свойства ===============================================================================
         public ObservableCollection<ExChenge> ExChanges { get; set; } = new ObservableCollection<ExChenge>();
-
-        public ObservableCollection<string> EmitClasses { get; set; } = new ObservableCollection<string>();
+        /// <summary>
+        /// колекция классов бумаг на бирже 
+        /// </summary>
+        public ObservableCollection<EmitClasses> EmitClasses { get; set; } = new ObservableCollection<EmitClasses>();
 
         public ObservableCollection<Emitent> Securites { get; set; } = new ObservableCollection<Emitent>();
+
+        #endregion
+        #region Поля ===================================================================================
+
+        /// <summary>
+        /// словарь имен классов бумаг
+        /// </summary>
+        Dictionary<string, List<Security>> _classes = new Dictionary<string, List<Security>>();  
 
         #endregion
 
@@ -49,9 +59,42 @@ namespace OsEngine.ViewModels
 
         #region Методы ===============================================================================
 
-        void SetExChange(object o)    
+        void SetExChange(object ob)    
         {
+            ServerType type = (ServerType)ob;
 
+            List<IServer> servers = ServerMaster.GetServers(); // список подключенных серверов
+            List<Security> securities = null;
+            foreach (IServer server in servers)
+            {
+                if (server.ServerType == type)
+                {
+                    securities = server.Securities;
+                    break; 
+                }
+            }
+            if (securities==null)
+            {
+                return;
+            }
+
+            _classes.Clear();
+            EmitClasses.Clear();
+
+            foreach (Security secu in securities)
+            {
+                if (_classes.ContainsKey (secu.NameClass))
+                {
+                    _classes[secu.NameClass].Add(secu);
+                 }
+                else
+                {
+                    List<Security> secs = new List<Security>();   
+                    secs.Add(secu);
+                    _classes.Add(secu.NameClass, secs);
+                    EmitClasses.Add(new EmitClasses(secu.NameClass));
+                }
+            }
         }
 
         /// <summary>

@@ -10,11 +10,14 @@ namespace OsEngine.MyEntity
 {
     public class ExChenge : BaseVM 
     {
+        /// <summary>
+        /// Биржа
+        /// </summary>
         public ExChenge(ServerType type)
         {
-            Server = type.ToString(); 
+            Server = type; 
         }
-        public string Server 
+        public ServerType Server 
         {
             get => _server;
             set
@@ -23,6 +26,6 @@ namespace OsEngine.MyEntity
                 OnPropertyChanged(nameof(Server));
             }
         }
-        private string _server;
+        private ServerType _server;
     }
 }
