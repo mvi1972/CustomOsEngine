@@ -86,7 +86,7 @@ namespace OsEngine.ViewModels
         {
             Robots.Add(new MyRobotVM()
             {
-                Header = "Tab" + (Robots.Count +1)
+               Header = "Tab" + (Robots.Count +1)
             });
              
         }

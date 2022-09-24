@@ -20,10 +20,10 @@ namespace OsEngine.Views
     /// </summary>
     public partial class ChengeEmitendWidow : Window
     {
-        public ChengeEmitendWidow()
+        public ChengeEmitendWidow(MyRobotVM robot)
         {
             InitializeComponent();
-            DataContext = new ChangeEmitentVM();
+            DataContext = new ChangeEmitentVM(robot);
         }
     }
-}
+} 

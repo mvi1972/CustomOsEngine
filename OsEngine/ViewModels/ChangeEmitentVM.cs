@@ -3,6 +3,7 @@ using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.MyEntity;
+using OsEngine.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,8 +18,10 @@ namespace OsEngine.ViewModels
     /// </summary>
     public class ChangeEmitentVM :BaseVM
     {
-        public ChangeEmitentVM()
+        public ChangeEmitentVM(MyRobotVM robot)
         {
+            _robot=robot;
+
             Init();
         }
 
@@ -33,6 +36,17 @@ namespace OsEngine.ViewModels
         /// </summary>
         public ObservableCollection<Emitent> Securites { get; set; } = new ObservableCollection<Emitent>();
 
+        public Emitent SelectedEmitent
+        {
+            get => _selectedEmitent;
+            set
+            {
+                _selectedEmitent = value;
+                OnPropertyChanged(nameof(SelectedEmitent));
+            }
+        }
+        private Emitent _selectedEmitent;
+           
         #endregion
         #region Поля ===================================================================================
 
@@ -41,7 +55,9 @@ namespace OsEngine.ViewModels
         /// </summary>
         Dictionary<string, List<Security>> _classes = new Dictionary<string, List<Security>>();
 
-        #endregion
+        private MyRobotVM _robot;
+
+        #endregion 
 
         #region Команды ===============================================================================
 
@@ -70,10 +86,30 @@ namespace OsEngine.ViewModels
                 return commandSetExChange;
             }
         }
+        private DelegateCommand commandChenge;
+        public DelegateCommand CommandChenge
+        {
+            get
+            {
+                if (commandChenge == null)
+                {
+                    commandChenge = new DelegateCommand(Chenge);
+                }
+                return commandChenge;
+            }
+        }
 
         #endregion
 
         #region Методы ===============================================================================
+
+        void Chenge (object o)
+        {
+            if (SelectedEmitent !=null && SelectedEmitent.Security != null)
+            {
+                _robot.SelectedSecurity = SelectedEmitent.Security; 
+            }
+        }
 
         void SetEmitClass(object o)
         {
@@ -85,7 +121,7 @@ namespace OsEngine.ViewModels
                 emis.Add(new Emitent(security));
             }
             Securites = emis; 
-            OnPropertyChanged(nameof(Securites));
+            OnPropertyChanged(nameof(Securites));  
         }
 
         void SetExChange(object ob)    

@@ -4,14 +4,9 @@ using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.MyEntity;
 using OsEngine.Views;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static protobuf.ws.TradesRequest;
 using Direction = OsEngine.MyEntity.Direction;
 
 namespace OsEngine.ViewModels
@@ -29,42 +24,46 @@ namespace OsEngine.ViewModels
         // List<IServer> _servers = new List<IServer>();
         IServer _server;
 
-        List<Security> _securities = new List<Security>();
-
-        private Security _security;
-
-   
         #endregion
 
         #region Свойства ================================================================================== 
 
         public string Header
         {
-            get => _selectedSecurity;
+            get
+            {
+                if (SelectedSecurity !=null)
+                {
+                    return SelectedSecurity.Name; 
+                }
+                else
+                {
+                    return _header;
+                }
+            }
             set
             {
-                _selectedSecurity = value;
+                _header = value;
                 OnPropertyChanged(nameof(Header));
             }
         }
         private string _header;
 
-        public ObservableCollection <string> ListSecurities { get; set; } =  new ObservableCollection<string>();
         /// <summary>
         /// Выбранная бумага
         /// </summary>
-        public string SelectedSecurity
+        public Security SelectedSecurity
         { 
             get => _selectedSecurity;
             set
             {
                 _selectedSecurity = value;  
                 OnPropertyChanged(nameof(SelectedSecurity));
-                _security = GetSecuritiesForName(_selectedSecurity);
-                StartSecuritiy(_security);
+                OnPropertyChanged(nameof(Header));
+                //  StartSecuritiy(_security);
             }
         }
-        private string _selectedSecurity = "";
+        private Security _selectedSecurity =null;
 
         /// <summary>
         /// точка страта работы робота (цена)
@@ -286,14 +285,14 @@ namespace OsEngine.ViewModels
             {
                 return;
             }
-            RobotWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow();
+            RobotWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow(this);
             RobotWindowVM.ChengeEmitendWidow.ShowDialog();
             RobotWindowVM.ChengeEmitendWidow = null; 
 
         }
         /// <summary>
         /// Насать получать данные по бумге
-        /// </summary>
+        /// </summary> 
         private void StartSecuritiy(Security security)
         {
             if (security == null)
@@ -315,31 +314,12 @@ namespace OsEngine.ViewModels
         }
         private void ServerMaster_ServerCreateEvent(IServer newserver)
         {
-            /*
-            foreach (IServer server in _servers)
-            {
-                if (newserver == server)
-                {
-                    return;
-                }
-            } 
-            _servers.Add(newserver);
-            newserver.PortfoliosChangeEvent += Newserver_PortfoliosChangeEvent;
-            newserver.SecuritiesChangeEvent += Newserver_SecuritiesChangeEvent;
-            newserver.NeadToReconnectEvent += Newserver_NeadToReconnectEvent;
-            newserver.NewMarketDepthEvent += Newserver_NewMarketDepthEvent;
-            newserver.NewTradeEvent += Newserver_NewTradeEvent;
-            newserver.NewOrderIncomeEvent += Newserver_NewOrderIncomeEvent;
-            newserver.NewMyTradeEvent += Newserver_NewMyTradeEvent;
-            newserver.ConnectStatusChangeEvent += Newserver_ConnectStatusChangeEvent;
-            */
             if (newserver == _server)
             {
                 return;
             }
             _server =newserver;
             _server.PortfoliosChangeEvent += Newserver_PortfoliosChangeEvent;
-            _server.SecuritiesChangeEvent += Newserver_SecuritiesChangeEvent;
             _server.NeadToReconnectEvent += Newserver_NeadToReconnectEvent;
             _server.NewMarketDepthEvent += Newserver_NewMarketDepthEvent;
             _server.NewTradeEvent += Newserver_NewTradeEvent;
@@ -388,29 +368,6 @@ namespace OsEngine.ViewModels
         private void Newserver_NeadToReconnectEvent()
         {
             
-        }
-        private Security GetSecuritiesForName(string name)
-        {
-            for (int i = 0; i < _securities.Count; i++)
-            {
-                if (_securities[i].Name == name)
-                {
-                    return _securities[i];
-                }
-            }
-            return null;
-        }
-        private void Newserver_SecuritiesChangeEvent(List<Security> securities)
-        {
-            ObservableCollection<string> listsecurities = new ObservableCollection<string>();
-            for (int i = 0; i < securities.Count; i++)
-            {
-                listsecurities.Add(securities[i].Name);
-            }
-
-            ListSecurities = listsecurities;
-            OnPropertyChanged(nameof(ListSecurities));
-            _securities = securities;
         }
 
         private void Newserver_PortfoliosChangeEvent(List<Portfolio> portfolios)

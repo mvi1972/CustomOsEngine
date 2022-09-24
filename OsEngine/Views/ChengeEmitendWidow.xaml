@@ -11,7 +11,7 @@
             <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-
+ 
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="200"/>
@@ -49,22 +49,44 @@
   
             </GroupBox>
   
-  
         </Grid>
         <GroupBox Header="список бумаг"
                    Grid.Column="1"
                   Margin="3">
-            <DataGrid
-                ItemsSource="{Binding Securites}">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding NameSec}"/>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="3"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal"> 
+                    <TextBlock Text="Выбраная бумага"
+                               Height="25"/>
+                    <TextBlock Text="{Binding SelectedEmitent.NameSec, Mode=OneWay}"
+                               Width="100 "
+                               Height="25"
+                               Margin="5,2  "/>
+                    <Button Content="Выбрать"
+                        Command="{Binding CommandChenge}"/>
 
-                </DataGrid.Columns>
+                </StackPanel>
+                <GridSplitter Grid.Row="1">
+                    
+                </GridSplitter>
 
-            </DataGrid>
+                <DataGrid Grid.Row="2"
+                ItemsSource="{Binding Securites}" 
+                SelectedItem="{Binding SelectedEmitent}"
+                          Margin="10">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding NameSec, Mode=OneWay}"/>
+
+                    </DataGrid.Columns>
+
+                </DataGrid>
+            </Grid>
+
         </GroupBox>
 
-        
- 
     </Grid>
 </Window>
