@@ -11,38 +11,55 @@
             <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="200"/>
                 <RowDefinition MinHeight="300"/>
             </Grid.RowDefinitions>
-            <ItemsControl ItemsSource="{Binding ExChanges}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Content ="{Binding Server}"
-                                Command="{Binding CommandSetExChange}"/>
- 
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <ItemsControl Grid.Row="1"
+            <GroupBox Header="Подкюченные сервера"
+                   Margin="3">
+                <ItemsControl ItemsSource="{Binding ExChanges}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content ="{Binding Server}"
+                                Command="{Binding CommandSetExChange,
+                                RelativeSource={RelativeSource AncestorType=Window}}"/>
+
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </GroupBox>
+            <GroupBox Header="имена классов"  Grid.Row="1" Margin="3">
+                <ItemsControl
                 ItemsSource="{Binding EmitClasses}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Content ="{Binding EmitClass}"
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content ="{Binding EmitClass}"
                                 Command="{Binding CommandSetEmitClass}"/>
 
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </GroupBox>
+  
+  
         </Grid>
-        <DataGrid Grid.Column="1"
-            ItemsSource="{Binding Securites}">
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding NameSec}"/>
+        <GroupBox Header="список бумаг"
+                   Grid.Column="1"
+                  Margin="3">
+            <DataGrid
+                ItemsSource="{Binding Securites}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding NameSec}"/>
 
-            </DataGrid.Columns>
-            
-        </DataGrid>
+                </DataGrid.Columns>
+
+            </DataGrid>
+        </GroupBox>
+
+        
+ 
     </Grid>
 </Window>

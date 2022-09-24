@@ -1,4 +1,5 @@
-﻿using OsEngine.Entity;
+﻿using OsEngine.Commands;
+using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.MyEntity;
@@ -31,10 +32,28 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region Команды ===============================================================================
+        private DelegateCommand commandSetExChange;
+        public DelegateCommand CommandSetExChange
+        {
+            get
+            {
+                if(commandSetExChange == null)
+                {
+                    commandSetExChange = new DelegateCommand(SetExChange);
+                }
+                return commandSetExChange;
+            }
+        }
 
         #endregion
 
         #region Методы ===============================================================================
+
+        void SetExChange(object o)    
+        {
+
+        }
+
         /// <summary>
         ///  Инициализация бумаг сервера для отображения 
         /// </summary>
@@ -49,7 +68,7 @@ namespace OsEngine.ViewModels
                 ExChanges.Add( new ExChenge(server.ServerType));
 
             }
-         
+          
             OnPropertyChanged(nameof(ExChanges));
         } 
 
