@@ -34,34 +34,20 @@ namespace OsEngine
             InitializeComponent();
             DataContext = new RobotWindowVM();
 
-            ProccesIsWorked = true;
-            _window = this;
-
+            MainWindow.ProccesIsWorked = true;
+   
             ServerMaster.ActivateLogging();
             this.Closed += RobotWindow_Closed; //событие закрытия окна
-
         }
         /// <summary>
         /// закрываем все рабочие процессы осы
         /// </summary>
         private void RobotWindow_Closed(object sender, EventArgs e)
         {
-            ProccesIsWorked = false;
+            MainWindow. ProccesIsWorked = false;
             Thread.Sleep(7000);
             Process.GetCurrentProcess().Kill();
         }
-
-        public static Dispatcher GetDispatcher
-        {
-            get { return _window.Dispatcher; }
-        }
-        private static RobotWindow _window;
-
-        /// <summary>
-        /// работает ли приложение или закрывается
-        /// </summary>
-        public static bool ProccesIsWorked;
-
-
+        public static Dispatcher Dispatcher;
     }
 }
