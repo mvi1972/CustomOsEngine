@@ -4,6 +4,7 @@ using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.MyEntity;
 using OsEngine.Views;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
@@ -327,7 +328,7 @@ namespace OsEngine.ViewModels
                 {
                     _сommandCalculate = new DelegateCommand(Calculate);
                 }
-                return _commandSelectSecurity;
+                return _сommandCalculate;
             }
         }
 
@@ -343,16 +344,48 @@ namespace OsEngine.ViewModels
         {
             ObservableCollection<Level> levels = new ObservableCollection<Level>();
 
+            decimal currBuyPrice = StartPoint;
+            decimal currSellPrice = StartPoint;
+
             if (CountLevels <=0)
             {
                 return;
             }
+            for (int i = 0; i < CountLevels; i++)
+            {
+                Level levelBuy = new Level();
+                Level levelSell = new Level();
+
+                if (StepType == StepType.PUNKT)
+                {
+                    currBuyPrice -= StepLevel * SelectedSecurity.PriceStep;
+                    currSellPrice += StepLevel * SelectedSecurity.PriceStep;
+                }
+                else if (StepType == StepType.PERCENT)
+                {
+                    currBuyPrice -= StepLevel * currBuyPrice / 100;
+                    currBuyPrice = Decimal.Round(currBuyPrice, SelectedSecurity.Decimals);
+
+                    currSellPrice += StepLevel * currSellPrice / 100;
+                    currSellPrice = Decimal.Round(currSellPrice, SelectedSecurity.Decimals);
+                }
+                levelSell.PriceLevel = currSellPrice;
+                levelBuy.PriceLevel = currBuyPrice;
+                levels.Add(levelBuy);
+                levels.Insert(0, levelSell);
+            }
+            Levels = levels;
+            OnPropertyChanged(nameof(Levels));
         }
 
         private ObservableCollection<string> GetStringPortfoios(IServer server)
         {
             ObservableCollection<string> stringPortfoios = new ObservableCollection<string>();
             if (server == null)
+            {
+                return stringPortfoios;
+            }
+            if (server.Portfolios == null)
             {
                 return stringPortfoios;
             }

@@ -1,4 +1,5 @@
-﻿using OsEngine.Commands;
+﻿using OkonkwoOandaV20;
+using OsEngine.Commands;
 using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
@@ -174,8 +175,12 @@ namespace OsEngine.ViewModels
         void Init()
         {
             List<IServer> servers = ServerMaster.GetServers();
-
             ExChanges.Clear();
+
+            if (servers == null)
+            {
+                return;
+            }
  
             foreach (IServer server in servers)
             {

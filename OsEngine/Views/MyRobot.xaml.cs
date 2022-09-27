@@ -30,6 +30,6 @@ namespace OsEngine.Views
             //DataContext = vm;   
         }
 
-        // MyRobotVM vm;
+         //MyRobotVM vm;
     }
 }
