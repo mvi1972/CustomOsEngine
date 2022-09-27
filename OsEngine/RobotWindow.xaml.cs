@@ -49,5 +49,10 @@ namespace OsEngine
             Process.GetCurrentProcess().Kill();
         }
         public static Dispatcher Dispatcher;
-    }
+
+        private void TextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            this.DragMove();
+        }
+    } 
 }

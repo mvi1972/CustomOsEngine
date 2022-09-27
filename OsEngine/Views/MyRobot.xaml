@@ -7,14 +7,14 @@
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
         Height="450" Width="800">
-    
+
     <UserControl.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="MinWidth" Value="60"/>
-         </Style>
+        </Style>
         <Style TargetType="ComboBox">
             <Setter Property="MinWidth" Value="60"/>
-        </Style> 
+        </Style>
     </UserControl.Resources>
     <Grid >
         <Grid.RowDefinitions>
@@ -22,32 +22,32 @@
             <RowDefinition Height ="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
-
-  
-            <TextBlock Text="{Binding ServerType}"/>
+            <TextBlock Text="Сервер " Margin="3"/>
+            <TextBlock Text="{Binding ServerType}" Height="20" Margin="3"/>
+            <TextBlock Text="Счет / кошелек " Height="20" Margin="3"/>
             <TextBlock Text="{Binding StatusServer}"/>
-            <TextBlock Text="Счет"/>
-            <ComboBox ItemsSource="{Binding Portfolios}"
-                      SelectedItem="{Binding Portfolio}"/>
-            
-            <TextBlock Text="Бумага"/>
+            <ComboBox ItemsSource="{Binding StringPortfoios}"
+                      SelectedItem="{Binding StringPortfolio}"/>
+
+            <TextBlock Text="Бумага" Margin="3"/>
             <Button Content="Выбрать бумагу"
                   Command="{Binding CommandSelectSecurity}">
 
-            </Button> 
+            </Button>
         </StackPanel>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            
+
             <GroupBox Header="Параметры"
                       Grid.Row="0"
                       Width="300" Height="280 "
-                      HorizontalAlignment="Left" VerticalAlignment="Top">
+                      HorizontalAlignment="Left" VerticalAlignment="Top"
+                      Margin="3">
                 <UniformGrid Columns="2">
-                    
+
                     <TextBlock Text="Точка Старта"/>
                     <local:DecimalTextBox Text="{Binding StartPoint}"/>
                     <TextBlock Text="Количество уровней"/>
@@ -74,8 +74,9 @@
             <GroupBox Header=" Позиция "
                       Grid.Column="1"
                       Height="280"
-                      VerticalAlignment="Top">
-                
+                      VerticalAlignment="Top"
+                      Margin="3">
+
                 <UniformGrid Columns="2">
                     <TextBlock Text="Всего позиций"/>
                     <TextBlock Text="{Binding AllPositionsCount}"/>
@@ -93,7 +94,7 @@
             </GroupBox>
 
         </Grid>
-        
+
 
     </Grid>
 </UserControl>

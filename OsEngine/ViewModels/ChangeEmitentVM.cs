@@ -56,6 +56,10 @@ namespace OsEngine.ViewModels
         Dictionary<string, List<Security>> _classes = new Dictionary<string, List<Security>>();
 
         private MyRobotVM _robot;
+        /// <summary>
+        ///  выбранный сервер
+        /// </summary>
+        IServer _server =null;
 
         #endregion 
 
@@ -107,7 +111,8 @@ namespace OsEngine.ViewModels
         {
             if (SelectedEmitent !=null && SelectedEmitent.Security != null)
             {
-                _robot.SelectedSecurity = SelectedEmitent.Security; 
+                _robot.SelectedSecurity = SelectedEmitent.Security;
+                _robot.Server = _server;
             }
         }
 
@@ -135,6 +140,7 @@ namespace OsEngine.ViewModels
                 if (server.ServerType == type)
                 {
                     securities = server.Securities;
+                    _server = server;
                     break; 
                 }
             }

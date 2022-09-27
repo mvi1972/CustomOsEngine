@@ -5,6 +5,7 @@ using OsEngine.Market.Servers;
 using OsEngine.MyEntity;
 using OsEngine.Views;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Direction = OsEngine.MyEntity.Direction;
@@ -18,15 +19,20 @@ namespace OsEngine.ViewModels
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
         }
 
- 
+
         #region Поля =====================================================================================
 
-        // List<IServer> _servers = new List<IServer>();
-        IServer _server;
 
+        /// <summary>
+        /// список портфелей 
+        /// </summary>
+        public ObservableCollection<string> StringPortfoios { get; set; } = new ObservableCollection<string>();
+
+        Portfolio _portfolio;
         #endregion
 
         #region Свойства ================================================================================== 
+
 
         public string Header
         {
@@ -60,10 +66,34 @@ namespace OsEngine.ViewModels
                 _selectedSecurity = value;  
                 OnPropertyChanged(nameof(SelectedSecurity));
                 OnPropertyChanged(nameof(Header));
-                //  StartSecuritiy(_security);
             }
         }
         private Security _selectedSecurity =null;
+
+        public ServerType ServerType
+        {
+            get
+            {
+                if (Server ==null)
+                {
+                    return ServerType.None;
+                }
+                return Server.ServerType;
+            }
+        }
+        public string StringPortfolio
+        {
+            get => _stringportfolio;
+            set
+            {
+                _stringportfolio = value;
+                OnPropertyChanged(nameof(StringPortfolio));
+
+                _portfolio = GetPortfolio(_stringportfolio);
+            }
+        }
+        private string _stringportfolio;
+
 
         /// <summary>
         /// точка страта работы робота (цена)
@@ -106,10 +136,7 @@ namespace OsEngine.ViewModels
             }
         }
         private Direction _direction;
-        public List<Direction> Directions { get; set; } = new List<Direction>()
-        {
-            Direction.BUY, Direction.SELL, Direction.BUYSELL
-        };
+
 
         /// <summary>
         ///  Lot
@@ -138,10 +165,6 @@ namespace OsEngine.ViewModels
             }
         }
         private StepType _stepType;
-        public List<StepType> StepTypes { get; set; } = new List<StepType>()
-        {
-           StepType.PERCENT, StepType.PUNKT
-        };
 
         /// <summary>
         /// Шаг уровня 
@@ -255,11 +278,29 @@ namespace OsEngine.ViewModels
         }
         private decimal _total;
 
+        public IServer Server
+        {
+            get => _server;
+            set
+            {
+                _server = value;
+                OnPropertyChanged(nameof(ServerType));
+
+                StringPortfoios = GetStringPortfoios(_server);
+                if (StringPortfoios != null || StringPortfoios.Count >0)
+                {
+                    StringPortfolio = StringPortfoios[0];
+                } 
+                OnPropertyChanged(nameof(StringPortfoios));
+            } 
+        }
+        private IServer _server;
+
         #endregion
 
         #region Команды =====================================================================================
 
-        // SelectSecurity
+
         private DelegateCommand _commandSelectSecurity;
         public DelegateCommand CommandSelectSecurity
         {
@@ -276,6 +317,38 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region Методы =====================================================================================
+
+        private ObservableCollection<string> GetStringPortfoios(IServer server)
+        {
+            ObservableCollection<string> stringPortfoios = new ObservableCollection<string>();
+            if (server == null)
+            {
+                return stringPortfoios;
+            }
+           
+            foreach (Portfolio portf in server.Portfolios)
+            {
+                stringPortfoios.Add(portf.Number);
+            }
+            return stringPortfoios;  
+        }
+
+        private Portfolio GetPortfolio(string number)
+        {
+            if (Server == null)
+            {
+                foreach (Portfolio portf in Server.Portfolios)
+                {
+                    if (portf.Number == number)
+                    {
+                        return portf;
+                    }
+                }
+            }
+  
+            return null;
+        }
+
         /// <summary>
         /// выбрать бумагу
         /// </summary>
@@ -289,9 +362,9 @@ namespace OsEngine.ViewModels
             RobotWindowVM.ChengeEmitendWidow.ShowDialog();
             RobotWindowVM.ChengeEmitendWidow = null; 
 
-        }
+        } 
         /// <summary>
-        /// Насать получать данные по бумге
+        /// Начать получать данные по бумге
         /// </summary> 
         private void StartSecuritiy(Security security)
         {
@@ -303,7 +376,7 @@ namespace OsEngine.ViewModels
             {
                 while (true)
                 {
-                    var series = _server.StartThisSecurity(security.Name, new TimeFrameBuilder(), security.NameClass);
+                    var series = Server.StartThisSecurity(security.Name, new TimeFrameBuilder(), security.NameClass);
                     if (series != null)
                     {
                         break;
@@ -312,21 +385,22 @@ namespace OsEngine.ViewModels
                 }
             });
         }
+         
         private void ServerMaster_ServerCreateEvent(IServer newserver)
         {
-            if (newserver == _server)
+            if (newserver == Server)
             {
                 return;
             }
-            _server =newserver;
-            _server.PortfoliosChangeEvent += Newserver_PortfoliosChangeEvent;
-            _server.NeadToReconnectEvent += Newserver_NeadToReconnectEvent;
-            _server.NewMarketDepthEvent += Newserver_NewMarketDepthEvent;
-            _server.NewTradeEvent += Newserver_NewTradeEvent;
-            _server.NewOrderIncomeEvent += Newserver_NewOrderIncomeEvent;
-            _server.NewMyTradeEvent += Newserver_NewMyTradeEvent;
-            _server.ConnectStatusChangeEvent += Newserver_ConnectStatusChangeEvent;
-            _server.NewCandleIncomeEvent += _server_NewCandleIncomeEvent;
+            Server =newserver;
+            Server.PortfoliosChangeEvent += Newserver_PortfoliosChangeEvent;
+            Server.NeadToReconnectEvent += Newserver_NeadToReconnectEvent;
+            Server.NewMarketDepthEvent += Newserver_NewMarketDepthEvent;
+            Server.NewTradeEvent += Newserver_NewTradeEvent;
+            Server.NewOrderIncomeEvent += Newserver_NewOrderIncomeEvent;
+            Server.NewMyTradeEvent += Newserver_NewMyTradeEvent;
+            Server.ConnectStatusChangeEvent += Newserver_ConnectStatusChangeEvent;
+            Server.NewCandleIncomeEvent += _server_NewCandleIncomeEvent;
   
         }
 
