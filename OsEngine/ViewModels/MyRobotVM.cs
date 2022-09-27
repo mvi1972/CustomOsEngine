@@ -23,17 +23,22 @@ namespace OsEngine.ViewModels
         #region Поля =====================================================================================
 
 
-        /// <summary>
-        /// список портфелей 
-        /// </summary>
-        public ObservableCollection<string> StringPortfoios { get; set; } = new ObservableCollection<string>();
-
         Portfolio _portfolio;
         #endregion
 
         #region Свойства ================================================================================== 
 
 
+        /// <summary>
+        /// список портфелей 
+        /// </summary>
+        public ObservableCollection<string> StringPortfoios { get; set; } = new ObservableCollection<string>();
+
+        /// <summary>
+        /// колекция уровней 
+        /// </summary>
+        public ObservableCollection<Level> Levels { get; set; } = new ObservableCollection<Level>() ;
+         
         public string Header
         {
             get
@@ -313,10 +318,36 @@ namespace OsEngine.ViewModels
                 return _commandSelectSecurity;
             }
         }
+        private DelegateCommand _сommandCalculate;
+        public DelegateCommand CommandCalculate
+        {
+            get
+            {
+                if (_сommandCalculate == null)
+                {
+                    _сommandCalculate = new DelegateCommand(Calculate);
+                }
+                return _commandSelectSecurity;
+            }
+        }
+
+
 
         #endregion
 
         #region Методы =====================================================================================
+        /// <summary>
+        /// расчитывает уровни 
+        /// </summary>
+        void Calculate( object o)
+        {
+            ObservableCollection<Level> levels = new ObservableCollection<Level>();
+
+            if (CountLevels <=0)
+            {
+                return;
+            }
+        }
 
         private ObservableCollection<string> GetStringPortfoios(IServer server)
         {
