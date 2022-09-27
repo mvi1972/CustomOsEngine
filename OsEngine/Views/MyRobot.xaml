@@ -26,7 +26,7 @@
             <TextBlock Text="{Binding ServerType}" Height="20" Margin="3"/>
             <TextBlock Text="Счет / кошелек " Height="20" Margin="3"/>
             <TextBlock Text="{Binding StatusServer}"/>
-            <ComboBox ItemsSource="{Binding StringPortfoios}"
+            <ComboBox ItemsSource="{Binding StringPortfolios}"
                       SelectedItem="{Binding StringPortfolio}"/>
 
             <TextBlock Text="Бумага" Margin="3"/>

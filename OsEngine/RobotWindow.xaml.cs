@@ -32,12 +32,13 @@ namespace OsEngine
             ps.PriorityClass = ProcessPriorityClass.RealTime;
 
             InitializeComponent();
-            DataContext = new RobotWindowVM();
+            
 
             MainWindow.ProccesIsWorked = true;
    
             ServerMaster.ActivateLogging();
             this.Closed += RobotWindow_Closed; //событие закрытия окна
+            DataContext = new RobotWindowVM();
         }
         /// <summary>
         /// закрываем все рабочие процессы осы

@@ -60,7 +60,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         ///  выбранный сервер
         /// </summary>
-        IServer _server =null;
+        private IServer _server =null;
 
         #endregion 
 

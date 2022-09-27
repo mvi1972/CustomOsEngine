@@ -35,7 +35,7 @@
                                 Command="{Binding DataContext.ComandDeleteRobot,
                             RelativeSource= {RelativeSource AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding Header}"
-                                Style="{StaticResource WindowButtonStyleIconClose}">
+                                 Style="{StaticResource WindowButtonStyleIconClose}">
                             
                         </Button>
                     </StackPanel>

@@ -33,7 +33,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// список портфелей 
         /// </summary>
-        public ObservableCollection<string> StringPortfoios { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
 
         /// <summary>
         /// колекция уровней 
@@ -135,13 +135,17 @@ namespace OsEngine.ViewModels
         public Direction Direction
         {
             get => _direction;
-            set
+            set 
             {
                 _direction = value;
                 OnPropertyChanged(nameof(Direction));
             }
         }
         private Direction _direction;
+        public List<Direction> Directions { get; set; } = new List<Direction>()
+        {
+            Direction.BUY, Direction.BUY, Direction.BUYSELL
+        };    
 
 
         /// <summary>
@@ -171,6 +175,11 @@ namespace OsEngine.ViewModels
             }
         }
         private StepType _stepType;
+
+        public List<StepType> StepTypes { get; set; } = new List<StepType>()
+        {
+            StepType.PUNKT, StepType.PERCENT
+        };
 
         /// <summary>
         /// Шаг уровня 
@@ -292,12 +301,12 @@ namespace OsEngine.ViewModels
                 _server = value;
                 OnPropertyChanged(nameof(ServerType));
 
-                StringPortfoios = GetStringPortfoios(_server);
-                if (StringPortfoios != null || StringPortfoios.Count >0)
+                StringPortfolios = GetStringPortfolios(_server);
+                if (StringPortfolios != null && StringPortfolios.Count >0)
                 {
-                    StringPortfolio = StringPortfoios[0];
+                    StringPortfolio = StringPortfolios[0];
                 } 
-                OnPropertyChanged(nameof(StringPortfoios));
+                OnPropertyChanged(nameof(StringPortfolios));
             } 
         }
         private IServer _server;
@@ -378,23 +387,23 @@ namespace OsEngine.ViewModels
             OnPropertyChanged(nameof(Levels));
         }
 
-        private ObservableCollection<string> GetStringPortfoios(IServer server)
+        private ObservableCollection<string> GetStringPortfolios(IServer server)
         {
-            ObservableCollection<string> stringPortfoios = new ObservableCollection<string>();
+            ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
             if (server == null)
             {
-                return stringPortfoios;
+                return stringPortfolios;
             }
             if (server.Portfolios == null)
             {
-                return stringPortfoios;
+                return stringPortfolios;
             }
            
             foreach (Portfolio portf in server.Portfolios)
             {
-                stringPortfoios.Add(portf.Number);
+                stringPortfolios.Add(portf.Number);
             }
-            return stringPortfoios;  
+            return stringPortfolios;  
         }
 
         private Portfolio GetPortfolio(string number)
