@@ -1,4 +1,5 @@
-﻿using OsEngine.ViewModels;
+﻿using OsEngine.Entity;
+using OsEngine.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,18 @@ namespace OsEngine.MyEntity
             }  
         }
         public decimal _priceLevel = 0;
+
+        public Side Side
+        {
+            get => _side;
+
+            set
+            {
+                _side = value;
+                OnPropertyChanged(nameof(Side));
+            }
+        }
+        public Side _side;
         /// <summary>
         /// реалькая цена открытой позиции
         /// </summary>

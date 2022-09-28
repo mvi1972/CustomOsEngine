@@ -341,8 +341,6 @@ namespace OsEngine.ViewModels
             }
         }
 
-
-
         #endregion
 
         #region Методы =====================================================================================
@@ -362,8 +360,8 @@ namespace OsEngine.ViewModels
             }
             for (int i = 0; i < CountLevels; i++)
             {
-                Level levelBuy = new Level();
-                Level levelSell = new Level();
+                Level levelBuy = new Level() {Side = Side.Buy};
+                Level levelSell = new Level() { Side = Side.Sell };
 
                 if (StepType == StepType.PUNKT)
                 {
@@ -380,9 +378,17 @@ namespace OsEngine.ViewModels
                 }
                 levelSell.PriceLevel = currSellPrice;
                 levelBuy.PriceLevel = currBuyPrice;
-                levels.Add(levelBuy);
-                levels.Insert(0, levelSell);
+
+                if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
+                {
+                    levels.Add(levelBuy);
+                }
+                if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
+                {
+                    levels.Insert(0, levelSell);
+                }
             }
+
             Levels = levels;
             OnPropertyChanged(nameof(Levels));
         }
