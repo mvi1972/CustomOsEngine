@@ -7,6 +7,7 @@ using OsEngine.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Direction = OsEngine.MyEntity.Direction;
@@ -72,6 +73,10 @@ namespace OsEngine.ViewModels
                 _selectedSecurity = value;  
                 OnPropertyChanged(nameof(SelectedSecurity));
                 OnPropertyChanged(nameof(Header));
+                if (SelectedSecurity != null )
+                {
+                    StartSecuritiy(SelectedSecurity); // запуск бумаги 
+                }
             }
         }
         private Security _selectedSecurity =null;
@@ -252,6 +257,21 @@ namespace OsEngine.ViewModels
         private decimal _priceAverege;
 
         /// <summary>
+        /// Рыночная цена бумаги 
+        /// </summary>
+        public decimal Price
+        {
+            get => _price;
+            set
+            {
+                _price = value;
+                OnPropertyChanged(nameof(Price));
+            }
+        }
+        private decimal _price;
+
+
+        /// <summary>
         /// Комиссия  
         /// </summary>
         public decimal VarMargine
@@ -372,7 +392,7 @@ namespace OsEngine.ViewModels
 
         private void Server_NewTradeEvent(List<Trade> tick)
         {
-            
+            Price = tick.Last().Price;  
         }
 
         private void Server_NewCandleIncomeEvent(CandleSeries candle)
