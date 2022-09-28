@@ -131,7 +131,13 @@
                                             Binding="{Binding PriceLevel}"/>
                         <DataGridTextColumn Header="LimitTake"
                                             Binding="{Binding PriceLevel}"/>
-                        
+                        <DataGridTextColumn Header="Id"
+                                            Binding="{Binding Id}"/>
+                        <DataGridTextColumn Header="PassVolume"
+                                            Binding="{Binding PassVolume}"/>
+                        <DataGridTextColumn Header="PassTake"
+                                            Binding="{Binding PassTake}"/>
+
                     </DataGrid.Columns>
                 </DataGrid>
             </GroupBox>

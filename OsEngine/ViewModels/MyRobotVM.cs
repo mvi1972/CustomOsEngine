@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using Direction = OsEngine.MyEntity.Direction;
 
 namespace OsEngine.ViewModels
@@ -323,6 +324,7 @@ namespace OsEngine.ViewModels
             {
                 _isRun = value;
                 OnPropertyChanged(nameof(IsRun));
+                TradeLogic();
             }
         }
         private bool _isRun;
@@ -390,6 +392,73 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region Методы =====================================================================================
+
+        private void TradeLogic()
+        {
+            if (IsRun == false)
+            {
+                return;
+            }
+
+            decimal stepLevel = 0;
+            if (StepType == StepType.PUNKT)
+            {
+                stepLevel = StepLevel * SelectedSecurity.PriceStep;
+            }
+            else if (StepType == StepType.PERCENT)
+            {
+                stepLevel = StepLevel * Price / 100;
+                stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
+            }
+
+            decimal borderUp = Price + stepLevel * MaxActiveLevel;
+            decimal borderDown = Price - stepLevel * MaxActiveLevel;
+
+            foreach (Level level in Levels)
+            {
+                if (level.PassVolume
+                    && level.PriceLevel !=0
+                    && Math.Abs(level.Volume) + level.LimitVolume < Lot)
+                {
+                    if (level.Side == Side.Sell
+                        && level.PriceLevel <= borderUp)
+                    {
+
+                    }
+                    else if (level.Side == Side.Buy
+                           && level.PriceLevel >= borderDown)
+                    {
+                        decimal worklot = Lot - Math.Abs(level.Volume) + level.LimitVolume;
+                        level.PassVolume = false;
+                        SendOrder(SelectedSecurity, level.PriceLevel, worklot, Side.Buy, level.Id);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        ///  отправить оредер на биржу 
+        /// </summary>
+        private void SendOrder(Security sec, decimal prise, decimal volume, Side side, int id)
+        {
+            if (string.IsNullOrEmpty(StringPortfolio))
+            {
+                // сообщение в лог  сделать 
+                MessageBox.Show(" еще нет портфеля ");
+                return;
+            }
+            Order order = new Order()
+            {
+                Price = prise,  
+                Volume = volume,    
+                Side = side,
+                PortfolioNumber = StringPortfolio,
+                TypeOrder = OrderPriceType.Limit,
+                NumberUser = id,
+                SecurityNameCode = sec.Name,
+                SecurityClassCode = sec.NameClass,
+            };     
+            Server.ExecuteOrder(order);
+        }
  
         private void StartStop( object o)
         {
@@ -475,6 +544,9 @@ namespace OsEngine.ViewModels
                 }
                 levelSell.PriceLevel = currSellPrice;
                 levelBuy.PriceLevel = currBuyPrice;
+
+                levelBuy.Id = 1000+ i;
+                levelSell.Id = 1000+ i;
 
                 if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
                 {

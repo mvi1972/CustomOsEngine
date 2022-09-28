@@ -33,6 +33,7 @@ namespace OsEngine
 
             InitializeComponent();
             
+            Dispatcher = Dispatcher.CurrentDispatcher;
 
             MainWindow.ProccesIsWorked = true;
    

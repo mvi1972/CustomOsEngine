@@ -52,6 +52,21 @@ namespace OsEngine.MyEntity
         public decimal _openPrice =0;
 
         /// <summary>
+        /// номер сделки отправляемый на биржу
+        /// </summary>
+        public int Id
+        {
+            get => _id;
+
+            set
+            {
+                _id = value;
+                OnPropertyChanged(nameof(Id));
+            }
+        }
+        public int _id = 0;
+
+        /// <summary>
         /// объем позиции
         /// </summary>
         public decimal Volume
