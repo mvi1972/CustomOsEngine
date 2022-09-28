@@ -379,7 +379,7 @@
       <DependentUpon>IndicarotCreateUi.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\DelegateCommand.cs" />
-    <Compile Include="Converters\ConvertersGrid.cs" />
+    <Compile Include="Converters\ConvertersColorToSide.cs" />
     <Compile Include="Entity\AcceptDialogUi.xaml.cs">
       <DependentUpon>AcceptDialogUi.xaml</DependentUpon>
     </Compile>

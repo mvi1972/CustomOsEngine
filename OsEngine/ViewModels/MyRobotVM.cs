@@ -17,14 +17,14 @@ namespace OsEngine.ViewModels
     {
         public MyRobotVM()
         {
-            ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
+            
         }
-
 
         #region Поля =====================================================================================
 
 
         Portfolio _portfolio;
+
         #endregion
 
         #region Свойства ================================================================================== 
@@ -300,7 +300,7 @@ namespace OsEngine.ViewModels
             {
                 _server = value;
                 OnPropertyChanged(nameof(ServerType));
-
+                SubscribeToServer(); // подключаемя 
                 StringPortfolios = GetStringPortfolios(_server);
                 if (StringPortfolios != null && StringPortfolios.Count >0)
                 {
@@ -309,7 +309,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(StringPortfolios));
             } 
         }
-        private IServer _server;
+        private IServer _server = null;
 
         #endregion
 
@@ -344,6 +344,52 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region Методы =====================================================================================
+
+        /// <summary>
+        ///  подключиться к серверу
+        /// </summary>
+        private void SubscribeToServer()
+        {
+            if (Server != null)
+            {
+                UnSubscribeToServer();
+            }
+            Server.NewMyTradeEvent += Server_NewMyTradeEvent;
+            Server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
+            Server.NewCandleIncomeEvent += Server_NewCandleIncomeEvent;
+            Server.NewTradeEvent += Server_NewTradeEvent;
+        }
+        /// <summary>
+        ///  отключиться от сервера 
+        /// </summary>
+        private void UnSubscribeToServer()
+        {
+            Server.NewMyTradeEvent -= Server_NewMyTradeEvent;
+            Server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
+            Server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
+            Server.NewTradeEvent -= Server_NewTradeEvent;
+        }
+
+        private void Server_NewTradeEvent(List<Trade> tick)
+        {
+            
+        }
+
+        private void Server_NewCandleIncomeEvent(CandleSeries candle)
+        {
+            
+        }
+
+        private void Server_NewOrderIncomeEvent(Order order)
+        {
+            
+        }
+
+        private void Server_NewMyTradeEvent(MyTrade myTrade)
+        {
+            
+        }
+
         /// <summary>
         /// расчитывает уровни 
         /// </summary>
@@ -367,7 +413,7 @@ namespace OsEngine.ViewModels
                 {
                     currBuyPrice -= StepLevel * SelectedSecurity.PriceStep;
                     currSellPrice += StepLevel * SelectedSecurity.PriceStep;
-                }
+                } 
                 else if (StepType == StepType.PERCENT)
                 {
                     currBuyPrice -= StepLevel * currBuyPrice / 100;
@@ -464,71 +510,8 @@ namespace OsEngine.ViewModels
                 }
             });
         }
-         
-        private void ServerMaster_ServerCreateEvent(IServer newserver)
-        {
-            if (newserver == Server)
-            {
-                return;
-            }
-            Server =newserver;
-            Server.PortfoliosChangeEvent += Newserver_PortfoliosChangeEvent;
-            Server.NeadToReconnectEvent += Newserver_NeadToReconnectEvent;
-            Server.NewMarketDepthEvent += Newserver_NewMarketDepthEvent;
-            Server.NewTradeEvent += Newserver_NewTradeEvent;
-            Server.NewOrderIncomeEvent += Newserver_NewOrderIncomeEvent;
-            Server.NewMyTradeEvent += Newserver_NewMyTradeEvent;
-            Server.ConnectStatusChangeEvent += Newserver_ConnectStatusChangeEvent;
-            Server.NewCandleIncomeEvent += _server_NewCandleIncomeEvent;
-  
-        }
-
-        private void _server_NewCandleIncomeEvent(CandleSeries candleSeries)
-        {
-            candleSeries.СandleUpdeteEvent += CandleSeries_СandleUpdeteEvent;
-        }
-
-        private void CandleSeries_СandleUpdeteEvent(CandleSeries candle)
-        {
-          
-        }
-
-        private void Newserver_ConnectStatusChangeEvent(string conenect)
-        {
-            
-        }
-
-        private void Newserver_NewMyTradeEvent(Entity.MyTrade myTrade)
-        {
-            
-        }
-
-        private void Newserver_NewOrderIncomeEvent(Entity.Order order)
-        {
-           
-        }
-
-        private void Newserver_NewTradeEvent(List<Entity.Trade> trade)
-        {
-            
-        }
-
-        private void Newserver_NewMarketDepthEvent(Entity.MarketDepth marketDepth)
-        {
-            
-        }
-
-        private void Newserver_NeadToReconnectEvent()
-        {
-            
-        }
-
-        private void Newserver_PortfoliosChangeEvent(List<Portfolio> portfolios)
-        {
-            
-        }
-
-
+ 
+    
         #endregion
     }
 }

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OsEngine.Views"
+        xmlns:conver="clr-namespace:OsEngine.Converters"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
              >
@@ -15,6 +16,7 @@
         <Style TargetType="ComboBox">
             <Setter Property="MinWidth" Value="60"/>
         </Style>
+        <conver:ConvertersColorToSide  x:Key="ConvertersColorToSide"/>
     </UserControl.Resources>
     <Grid >
         <Grid.RowDefinitions>
@@ -98,8 +100,36 @@
             </StackPanel>
             <GroupBox  Grid.Column="1"
                        Header=" Уровни ">
-                <DataGrid ItemsSource="{Binding Levels}">
-                    
+                <DataGrid ItemsSource="{Binding Levels}"
+                          AutoGenerateColumns="False">
+                    <DataGrid.Columns >
+                        <DataGridTextColumn Header=" Цена уровня"
+                                            Binding="{Binding PriceLevel}"/>
+                        <DataGridTemplateColumn Header=" Направление">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Side}"
+                                               Foreground="{Binding Side,
+                                       Converter={StaticResource ConvertersColorToSide} }"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header=" Цена открытия"
+                                            Binding="{Binding OpenPrice}"/>
+                        <DataGridTextColumn Header=" объем"
+                                            Binding="{Binding Volume}"/>
+                        <DataGridTextColumn Header="комиссия"
+                                            Binding="{Binding Margin}"/>
+                        <DataGridTextColumn Header=" прибыль"
+                                            Binding="{Binding Accum}"/>
+                        <DataGridTextColumn Header=" Цена профита"
+                                            Binding="{Binding TakePrice}"/>
+                        <DataGridTextColumn Header="LimitVolume"
+                                            Binding="{Binding PriceLevel}"/>
+                        <DataGridTextColumn Header="LimitTake"
+                                            Binding="{Binding PriceLevel}"/>
+                        
+                    </DataGrid.Columns>
                 </DataGrid>
             </GroupBox>
 

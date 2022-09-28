@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace OsEngine.Converters
 {
-    public class ConvertersGrid : IValueConverter
+    public class ConvertersColorToSide : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
