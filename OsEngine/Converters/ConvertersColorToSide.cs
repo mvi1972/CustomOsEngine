@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace OsEngine.Converters
 {
-    public class ConvertersColorToSide : IValueConverter
+    public class ConverterColorToSide : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -28,6 +28,28 @@ namespace OsEngine.Converters
                 }
             }
             return color;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ConverterIsRunToBool : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string str = "СТАРТ";
+
+            if (value is bool)
+            {
+                if ((bool)value ==true)
+                {
+                    str = "СТОП"; 
+                }
+            }
+            return str;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

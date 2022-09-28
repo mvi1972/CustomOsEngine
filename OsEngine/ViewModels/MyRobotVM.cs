@@ -313,6 +313,21 @@ namespace OsEngine.ViewModels
         }
         private decimal _total;
 
+        /// <summary>
+        /// вкл\выкл
+        /// </summary>
+        public bool IsRun
+        {
+            get => _isRun;
+            set
+            {
+                _isRun = value;
+                OnPropertyChanged(nameof(IsRun));
+            }
+        }
+        private bool _isRun;
+
+
         public IServer Server
         {
             get => _server;
@@ -335,7 +350,18 @@ namespace OsEngine.ViewModels
 
         #region Команды =====================================================================================
 
-
+        private DelegateCommand _commandStartStop;
+        public DelegateCommand CommandStartStop
+        {
+            get
+            {
+                if (_commandStartStop == null)
+                {
+                    _commandStartStop = new DelegateCommand(StartStop);
+                }
+                return _commandStartStop;
+            }
+        }
         private DelegateCommand _commandSelectSecurity;
         public DelegateCommand CommandSelectSecurity
         {
@@ -364,6 +390,11 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region Методы =====================================================================================
+ 
+        private void StartStop( object o)
+        {
+            IsRun = !IsRun;
+        }
 
         /// <summary>
         ///  подключиться к серверу

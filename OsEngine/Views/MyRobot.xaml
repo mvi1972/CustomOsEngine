@@ -16,7 +16,8 @@
         <Style TargetType="ComboBox">
             <Setter Property="MinWidth" Value="60"/>
         </Style>
-        <conver:ConvertersColorToSide  x:Key="ConvertersColorToSide"/>
+        <conver:ConverterColorToSide  x:Key="ConvertersColorToSide"/>
+        <conver:ConverterIsRunToBool x:Key="ConverterIsRunToBool"/>
     </UserControl.Resources>
     <Grid >
         <Grid.RowDefinitions>
@@ -35,7 +36,7 @@
                   Command="{Binding CommandSelectSecurity}">
             </Button>
             <TextBlock Text="Цена" Margin="3"/>
-            <TextBlock Text="{Binding Prise}" Margin="3"/>
+            <TextBlock Text="{Binding Price}" Margin="3"/>
         </StackPanel>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -93,10 +94,12 @@
                         <TextBlock Text="{Binding Accum}"/>
                         <TextBlock Text="Итого"/>
                         <TextBlock Text="{Binding Total}"/>
-
                     </UniformGrid>
-
                 </GroupBox>
+                <Button Content="{Binding IsRun,
+                        Converter={StaticResource ConverterIsRunToBool}}" FontSize="30"
+                        Command="{Binding CommandStartStop}"
+                        Height="60" Margin="5"/>
             </StackPanel>
             <GroupBox  Grid.Column="1"
                        Header=" Уровни ">
