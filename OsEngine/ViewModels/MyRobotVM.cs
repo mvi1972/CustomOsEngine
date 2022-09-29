@@ -400,7 +400,8 @@ namespace OsEngine.ViewModels
 
         private void TradeLogic()
         {
-            if (IsRun == false)
+            if (IsRun == false
+                || SelectedSecurity == null)
             {
                 return;
             }
@@ -423,7 +424,7 @@ namespace OsEngine.ViewModels
             {
                 if (level.PassVolume
                     && level.PriceLevel !=0
-                    && Math.Abs(level.Volume) + level.LimitVolume < Lot)
+                    && Math.Abs(level.Volume) + level.OrderVolume  < Lot)
                 {
                     if (level.Side == Side.Sell
                         && level.PriceLevel <= borderUp)
@@ -433,9 +434,9 @@ namespace OsEngine.ViewModels
                     else if (level.Side == Side.Buy
                            && level.PriceLevel >= borderDown)
                     {
-                        decimal worklot = Lot - Math.Abs(level.Volume) + level.LimitVolume;
+                        decimal worklot = Lot - Math.Abs(level.Volume) + level.OrderVolume;
                         level.PassVolume = false;
-                        SendOrder(SelectedSecurity, level.PriceLevel, worklot, Side.Buy, level.Id);
+                        level.Order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, Side.Buy);
                     }
                 }
             }
@@ -443,26 +444,27 @@ namespace OsEngine.ViewModels
         /// <summary>
         ///  отправить оредер на биржу 
         /// </summary>
-        private void SendOrder(Security sec, decimal prise, decimal volume, Side side, int id)
+        private Order SendOrder(Security sec, decimal prise, decimal volume, Side side)
         {
             if (string.IsNullOrEmpty(StringPortfolio))
             {
                 // сообщение в лог  сделать 
                 MessageBox.Show(" еще нет портфеля ");
-                return;
+                return null;
             }
             Order order = new Order()
             {
                 Price = prise,  
                 Volume = volume,    
-                Side = side,
+                Side = side, 
                 PortfolioNumber = StringPortfolio,
                 TypeOrder = OrderPriceType.Limit,
-                NumberUser = id,
+                NumberUser = NumberGen.GetNumberOrder(StartProgram.IsOsTrader),
                 SecurityNameCode = sec.Name,
                 SecurityClassCode = sec.NameClass,
             };     
             Server.ExecuteOrder(order);
+            return order;
         }
  
         private void StartStop( object o)
@@ -516,7 +518,13 @@ namespace OsEngine.ViewModels
                 && order.ServerType == Server.ServerType
                 && order.PortfolioNumber == _portfolio.Number)
             {
-                 
+                foreach (Level level in Levels)
+                {
+                    if (level.Order != null)
+                    {
+
+                    }
+                }
             }
         }
 
@@ -559,9 +567,6 @@ namespace OsEngine.ViewModels
                 }
                 levelSell.PriceLevel = currSellPrice;
                 levelBuy.PriceLevel = currBuyPrice;
-
-                levelBuy.Id = 1000+ i;
-                levelSell.Id = 1000+ i;
 
                 if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
                 {
