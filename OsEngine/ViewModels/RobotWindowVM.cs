@@ -2,10 +2,13 @@
 using OsEngine.Market;
 using OsEngine.Views;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -15,6 +18,10 @@ namespace OsEngine.ViewModels
     {
         public RobotWindowVM()
         {
+            Task.Run(() =>
+            {
+                RecordLog();
+            });
   
         }
         #region  ================================ Свойства =====================================
@@ -25,6 +32,12 @@ namespace OsEngine.ViewModels
 
         #endregion
         #region  ================================ Поля =====================================
+
+        /// <summary>
+        /// коллекция  для логов из разных потоков 
+        /// </summary>
+        private static ConcurrentQueue<string> _logMessges = new ConcurrentQueue<string>();    
+
         /// <summary>
         /// окно выбора инструмента
         /// </summary>
@@ -114,6 +127,40 @@ namespace OsEngine.ViewModels
                 {
                     Robots.Remove(delRobot);
                 }    
+            }
+        }
+
+        /// <summary>
+        /// Очередь логирования
+        /// </summary>
+        public static void Log(string str)
+        {
+            _logMessges.Enqueue(str);
+        }
+        /// <summary>
+        /// Запись логa 
+        /// </summary>
+        private static void RecordLog()
+        {
+            if (!Directory.Exists (@"Log"))
+            {
+                Directory.CreateDirectory(@"Log");
+            }
+            while (MainWindow.ProccesIsWorked)
+            {
+                string str;
+
+                if (_logMessges.TryDequeue (out str))
+                {
+                    string name = "Log"+ DateTime.Now.ToShortDateString() + ".txt";
+
+                    using (StreamWriter writer = new StreamWriter(@"Log\" + name, true))
+                    {
+                        writer.WriteLine(str);
+                        writer.Close();
+                    }
+                }
+                Thread.Sleep(10);
             }
         }
 
