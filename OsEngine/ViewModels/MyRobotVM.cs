@@ -335,10 +335,15 @@ namespace OsEngine.ViewModels
             get => _server;
             set
             {
+                if (Server != null)
+                {
+                    UnSubscribeToServer();
+                    _server =null;
+                }
                 _server = value;
                 OnPropertyChanged(nameof(ServerType));
-                SubscribeToServer(); // подключаемя 
-                StringPortfolios = GetStringPortfolios(_server);
+                SubscribeToServer(); // подключаемя к бир
+                StringPortfolios = GetStringPortfolios(_server); // грузим портфели
                 if (StringPortfolios != null && StringPortfolios.Count >0)
                 {
                     StringPortfolio = StringPortfolios[0];
@@ -490,9 +495,13 @@ namespace OsEngine.ViewModels
             Server.NewTradeEvent -= Server_NewTradeEvent;
         }
 
-        private void Server_NewTradeEvent(List<Trade> tick)
+        private void Server_NewTradeEvent(List<Trade> trades)
         {
-            Price = tick.Last().Price;  
+            if (trades != null
+                && trades[0].SecurityNameCode == SelectedSecurity.Name)
+            {
+                Price = trades.Last().Price;
+            }
         }
 
         private void Server_NewCandleIncomeEvent(CandleSeries candle)
