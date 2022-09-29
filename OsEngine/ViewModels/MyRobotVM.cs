@@ -512,6 +512,12 @@ namespace OsEngine.ViewModels
         private void Server_NewOrderIncomeEvent(Order order)
         {
             RobotWindowVM.Log("NewOrderIncomeEvent = " + GetStringForSave (order));
+            if (order.SecurityNameCode == SelectedSecurity.Name
+                && order.ServerType == Server.ServerType
+                && order.PortfolioNumber == _portfolio.Number)
+            {
+                 
+            }
         }
 
         private void Server_NewMyTradeEvent(MyTrade myTrade)

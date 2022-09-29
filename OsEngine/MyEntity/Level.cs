@@ -122,22 +122,22 @@ namespace OsEngine.MyEntity
         /// <summary>
         /// объем выставленной лимитки на покуп
         /// </summary>
-        public decimal LimitVolume
+        public Order Order
         {
-            get => _limitVolume;
+            get => _order;
 
             set
             {
-                _limitVolume = value;
-                OnPropertyChanged(nameof(LimitVolume));
+                _order = value;
+                OnPropertyChanged(nameof(Order));
             }
         }
-        public decimal _limitVolume = 0;
+        public Order _order = null;
 
         /// <summary>
         /// лимитка на тейк
         /// </summary>
-        public decimal LimitTake
+        public Order LimitTake
         {
             get => _limitTake;
 
@@ -145,9 +145,26 @@ namespace OsEngine.MyEntity
             {
                 _limitTake = value;
                 OnPropertyChanged(nameof(LimitTake));
+                OnPropertyChanged(nameof(TakeVolume));
             }
         }
-        public decimal _limitTake = 0;
+        public Order _limitTake = null;
+
+        public decimal TakeVolume
+        {
+            get
+            {
+                if (LimitTake != null
+                    &&
+                    (LimitTake.State == OrderStateType.Activ
+                    || LimitTake.State == OrderStateType.Patrial
+                    || LimitTake.State == OrderStateType.Pending))
+                {
+                    return LimitTake.Volume - LimitTake.VolumeExecute;    
+                }
+                return 0;
+            }
+        }
 
         /// <summary>
         /// разрешение открыть позицию        
