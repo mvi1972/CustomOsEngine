@@ -153,7 +153,7 @@ namespace OsEngine.MyEntity
             }
         }
         /// <summary>
-        /// статус ордера 
+        /// статус ордера открытия поз
         /// </summary>
         public OrderStateType StateOrder
         {
@@ -177,7 +177,7 @@ namespace OsEngine.MyEntity
             set
             {
                 _limitTake = value;
-                OnPropertyChanged(nameof(LimitTake));
+                OnPropertyChanged(nameof(StateTake));
                 OnPropertyChanged(nameof(TakeVolume));
             }
         }
@@ -198,6 +198,20 @@ namespace OsEngine.MyEntity
                 return 0;
             }
         }
+        /// <summary>
+        /// статус тейк ордера закрытия поз
+        /// </summary>
+        public OrderStateType StateTake
+        {
+            get
+            {
+                if (LimitTake != null)
+                {
+                    return LimitTake.State;
+                }
+                return 0;
+            }
+        }
 
         /// <summary>
         /// разрешение открыть позицию        
@@ -210,6 +224,8 @@ namespace OsEngine.MyEntity
             {
                 _passVolume = value;
                 OnPropertyChanged(nameof(PassVolume));
+                OnPropertyChanged(nameof(OrderVolume));
+                OnPropertyChanged(nameof(StateOrder));
             }
         }
         public bool _passVolume = true ;
@@ -225,6 +241,8 @@ namespace OsEngine.MyEntity
             {
                 _passTake = value;
                 OnPropertyChanged(nameof(PassTake));
+                OnPropertyChanged(nameof(StateTake));
+                OnPropertyChanged(nameof(TakeVolume));
             }
         }
         public bool _passTake = true;
