@@ -131,7 +131,7 @@ namespace OsEngine.ViewModels
         }
 
         /// <summary>
-        /// Очередь логирования
+        /// отправка строки в лог
         /// </summary>
         public static void Log(string str)
         {

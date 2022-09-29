@@ -511,7 +511,7 @@ namespace OsEngine.ViewModels
 
         private void Server_NewOrderIncomeEvent(Order order)
         {
-            
+            RobotWindowVM.Log("NewOrderIncomeEvent = " + GetStringForSave (order));
         }
 
         private void Server_NewMyTradeEvent(MyTrade myTrade)
@@ -643,7 +643,26 @@ namespace OsEngine.ViewModels
             });
         }
 
+        /// <summary>
+        ///  формируем строку для ордера
+        /// </summary>
+        private string GetStringForSave(Order order)
+        {
+            string str = "";
 
+            str += order.SecurityNameCode + " | ";
+            str += order.PortfolioNumber + " | ";
+            str += order.TimeCreate + " | ";
+            str += order.State + " | ";
+            str += order.Side + " | ";
+            str += "Объем = " + order.Volume + " | ";
+            str += "Цена = " + order.Price + " | ";
+            str += "Мой Номер = " + order.NumberUser + " | ";
+            str += "Номер биржи = " + order.NumberMarket + " | ";
+            //str += order.SecurityNameCode + " | ";
+
+            return str;
+        }
     
         #endregion
     }
