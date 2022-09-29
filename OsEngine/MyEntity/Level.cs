@@ -120,7 +120,7 @@ namespace OsEngine.MyEntity
         public decimal _tacePrice = 0;
 
         /// <summary>
-        /// объем выставленной лимитки на покуп
+        ///  лимитка на позицию
         /// </summary>
         public Order Order
         {
@@ -129,10 +129,43 @@ namespace OsEngine.MyEntity
             set
             {
                 _order = value;
-                OnPropertyChanged(nameof(Order));
+                OnPropertyChanged(nameof(OrderVolume));
+                OnPropertyChanged(nameof(StateOrder)); 
             }
         }
         public Order _order = null;
+        /// <summary>
+        /// объем ордера 
+        /// <summary>
+        public decimal OrderVolume
+        {
+            get
+            {
+                if (Order != null
+                    &&
+                    (Order.State == OrderStateType.Activ
+                    || Order.State == OrderStateType.Patrial
+                    || Order.State == OrderStateType.Pending))
+                {
+                    return Order.Volume - Order.VolumeExecute;
+                }
+                return 0;
+            }
+        }
+        /// <summary>
+        /// статус ордера 
+        /// </summary>
+        public OrderStateType StateOrder
+        {
+            get
+            {
+                if (Order != null)
+                {
+                    return Order.State;
+                }
+                return 0;
+            }
+        }
 
         /// <summary>
         /// лимитка на тейк
