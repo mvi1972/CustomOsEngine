@@ -24,7 +24,6 @@ namespace OsEngine.ViewModels
 
         #region Поля =====================================================================================
 
-
         Portfolio _portfolio;
 
         #endregion
@@ -106,7 +105,6 @@ namespace OsEngine.ViewModels
         }
         private string _stringportfolio;
 
-
         /// <summary>
         /// точка страта работы робота (цена)
         /// </summary>
@@ -152,7 +150,6 @@ namespace OsEngine.ViewModels
         {
             Direction.BUY, Direction.BUY, Direction.BUYSELL
         };    
-
 
         /// <summary>
         ///  Lot
@@ -270,7 +267,6 @@ namespace OsEngine.ViewModels
             }
         }
         private decimal _price;
-
 
         /// <summary>
         /// Комиссия  
@@ -513,16 +509,28 @@ namespace OsEngine.ViewModels
 
         private void Server_NewOrderIncomeEvent(Order order)
         {
-            RobotWindowVM.Log("NewOrderIncomeEvent = " + GetStringForSave (order));
             if (order.SecurityNameCode == SelectedSecurity.Name
-                && order.ServerType == Server.ServerType
-                && order.PortfolioNumber == _portfolio.Number)
+                && order.ServerType == Server.ServerType) // && order.PortfolioNumber == _portfolio.Number
             {
+                RobotWindowVM.Log("NewOrderIncomeEvent = " + GetStringForSave(order));
+
                 foreach (Level level in Levels)
                 {
                     if (level.Order != null)
                     {
+                        if (level.Order.NumberUser == order.NumberUser
+                           || level.Order.NumberMarket == order.NumberMarket)
+                        {
+                            RobotWindowVM.Log("лимитный ордер " );
 
+                            level.Order.NumberMarket = order.NumberMarket;
+                            level.Order.State = order.State;
+                            level.Order.Volume = order.Volume;
+
+                            level.PassVolume = true;
+
+                            RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
+                        }
                     }
                 }
             }

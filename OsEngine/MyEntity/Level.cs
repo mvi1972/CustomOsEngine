@@ -2,6 +2,7 @@
 using OsEngine.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,10 +11,15 @@ namespace OsEngine.MyEntity
 {
     public class Level : BaseVM
     {
+        #region ======================================Поля===========================================
+        CultureInfo CultureInfo = new CultureInfo("ru-RU");
+
+        #endregion
+        #region ======================================Свойства===============================================
         /// <summary>
         /// расчеткая цена уровня
         /// </summary>
-        public decimal PriceLevel 
+        public decimal PriceLevel
         {
             get => _priceLevel;
 
@@ -21,7 +27,7 @@ namespace OsEngine.MyEntity
             {
                 _priceLevel = value;
                 OnPropertyChanged(nameof(PriceLevel));
-            }  
+            }
         }
         public decimal _priceLevel = 0;
 
@@ -49,9 +55,9 @@ namespace OsEngine.MyEntity
                 OnPropertyChanged(nameof(OpenPrice));
             }
         }
-        public decimal _openPrice =0;
+        public decimal _openPrice = 0;
 
- 
+
         /// <summary>
         /// объем позиции
         /// </summary>
@@ -65,7 +71,7 @@ namespace OsEngine.MyEntity
                 OnPropertyChanged(nameof(Volume));
             }
         }
-        public decimal _volume =0 ;
+        public decimal _volume = 0;
 
         public decimal Margine
         {
@@ -77,8 +83,8 @@ namespace OsEngine.MyEntity
                 OnPropertyChanged(nameof(Margine));
             }
         }
-        public decimal  _margine = 0; 
-        
+        public decimal _margine = 0;
+
         public decimal Accum
         {
             get => _accum;
@@ -116,7 +122,7 @@ namespace OsEngine.MyEntity
             {
                 _order = value;
                 OnPropertyChanged(nameof(OrderVolume));
-                OnPropertyChanged(nameof(StateOrder)); 
+                OnPropertyChanged(nameof(StateOrder));
             }
         }
         public Order _order = null;
@@ -179,7 +185,7 @@ namespace OsEngine.MyEntity
                     || LimitTake.State == OrderStateType.Patrial
                     || LimitTake.State == OrderStateType.Pending))
                 {
-                    return LimitTake.Volume - LimitTake.VolumeExecute;    
+                    return LimitTake.Volume - LimitTake.VolumeExecute;
                 }
                 return 0;
             }
@@ -214,12 +220,12 @@ namespace OsEngine.MyEntity
                 OnPropertyChanged(nameof(StateOrder));
             }
         }
-        public bool _passVolume = true ;
+        public bool _passVolume = true;
 
         /// <summary>
         /// разрешение выставить тейк     
         /// </summary>
-        public bool PassTake 
+        public bool PassTake
         {
             get => _passTake;
 
@@ -232,5 +238,32 @@ namespace OsEngine.MyEntity
             }
         }
         public bool _passTake = true;
+        #endregion
+        #region ======================================Методы===============================================
+        /// <summary>
+        ///  формируем строку для сохранения
+        /// </summary>
+        public string GetStringForSave()
+        {
+            string str = "";
+
+            str += "Volume = " + Volume.ToString(CultureInfo) + " | ";
+            str += "PriceLevel = " + PriceLevel.ToString(CultureInfo) + " | ";
+            str += "OpenPrice = " + OpenPrice.ToString(CultureInfo) + " | ";
+            str += Side + " | ";
+            str += "PassVolume = " + PassVolume.ToString(CultureInfo) + " | ";
+            str += "PassTake = " + PassTake.ToString(CultureInfo) + " | ";
+            str += "OrderVolume = " + OrderVolume.ToString(CultureInfo) + " | ";
+            str += "StateOrder = " + StateOrder + " | ";
+            str += "TakeVolume = " + TakeVolume.ToString(CultureInfo) + " | ";
+            str += "TacePrice = " + TacePrice.ToString(CultureInfo) + " | ";
+            str += "StateTake = " + StateTake + " | ";
+
+
+            return str;
+        }
+
+        #endregion
+
     }
 }

@@ -107,7 +107,8 @@
                           AutoGenerateColumns="False">
                     <DataGrid.Columns >
                         <DataGridTextColumn Header=" Цена уровня"
-                                            Binding="{Binding PriceLevel}"/>
+                                            Binding="{Binding PriceLevel,
+                                                       StringFormat={}{0:0.###########}}"/>
                         <DataGridTemplateColumn Header=" Направление">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -117,24 +118,34 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header=" Цена открытия"
-                                            Binding="{Binding OpenPrice}"/>
                         <DataGridTextColumn Header=" объем"
-                                            Binding="{Binding Volume}"/>
+                                            Binding="{Binding Volume,
+                                                       StringFormat={}{0:0.###########}}"/>
+                        <DataGridTextColumn Header=" Цена открытия"
+                                            Binding="{Binding OpenPrice,
+                                                       StringFormat={}{0:0.###########}}"/>
                         <DataGridTextColumn Header="комиссия"
-                                            Binding="{Binding Margin}"/>
+                                            Binding="{Binding Margin,
+                                                       StringFormat={}{0:0.###########}}"/>
                         <DataGridTextColumn Header=" прибыль"
-                                            Binding="{Binding Accum}"/>
-                        <DataGridTextColumn Header=" Цена профита"
-                                            Binding="{Binding TakePrice}"/>
-                        <DataGridTextColumn Header="LimitVolume"
-                                            Binding="{Binding PriceLevel}"/>
-                        <DataGridTextColumn Header="LimitTake"
-                                            Binding="{Binding PriceLevel}"/>
-                        <DataGridTextColumn Header="Id"
-                                            Binding="{Binding Id}"/>
+                                            Binding="{Binding Accum,
+                                                       StringFormat={}{0:0.###########}}"/>
+                         <DataGridTextColumn Header="Order Volume"
+                                            Binding="{Binding OrderVolume,
+                                                       StringFormat={}{0:0.###########}}"/>
+                        <DataGridTextColumn Header="State Order"
+                                            Binding="{Binding StateOrder}"/>
                         <DataGridTextColumn Header="PassVolume"
                                             Binding="{Binding PassVolume}"/>
+                        <DataGridTextColumn Header=" Цена профита"
+                                            Binding="{Binding TakePrice,
+                                                       StringFormat={}{0:0.###########}}"/>
+                        <DataGridTextColumn Header="Take Volume"
+                                            Binding="{Binding TakeVolume,
+                                                       StringFormat={}{0:0.###########}}"/>
+                        <DataGridTextColumn Header="Status Take"
+                                            Binding="{Binding StateTake}"/>
+
                         <DataGridTextColumn Header="PassTake"
                                             Binding="{Binding PassTake}"/>
 
