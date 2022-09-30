@@ -320,8 +320,7 @@ namespace OsEngine.ViewModels
             {
                 _isRun = value;
                 OnPropertyChanged(nameof(IsRun));
-                TradeLogic();
-            }
+             }
         }
         private bool _isRun;
 
@@ -465,7 +464,45 @@ namespace OsEngine.ViewModels
  
         private void StartStop( object o)
         {
+            RobotWindowVM.Log(" \n\n StartStop = " + !IsRun);
+            Thread.Sleep(300);
+
             IsRun = !IsRun;
+
+            if (IsRun)
+            {
+                foreach (Level level in Levels)
+                {
+                    level.PassVolume = true;
+                    level.PassTake = true;
+                }
+                TradeLogic();
+            }
+            else
+            {
+                foreach (Level level in Levels)
+                {
+                    if (level.Order != null
+                        && level.Order.State == OrderStateType.Activ
+                        || level.Order.State == OrderStateType.Patrial
+                        || level.Order.State == OrderStateType.Pending)
+                    {
+                        Server.CancelOrder(level.Order);
+                        RobotWindowVM.Log(" Снимаем лимитку на сервере" + GetStringForSave(level.Order));
+                    }
+                }
+                foreach (Level level in Levels)
+                {
+                    if (level.LimitTake != null
+                        && level.Order.State == OrderStateType.Activ
+                        || level.Order.State == OrderStateType.Patrial
+                        || level.Order.State == OrderStateType.Pending)
+                    {
+                        Server.CancelOrder(level.LimitTake);
+                        RobotWindowVM.Log(" Снимаем тэйк на сервере" + GetStringForSave(level.LimitTake));
+                    }
+                }
+            }
         }
 
         /// <summary>
