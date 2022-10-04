@@ -581,7 +581,26 @@ namespace OsEngine.ViewModels
 
         private void Server_NewMyTradeEvent(MyTrade myTrade)
         {
-            
+            if (myTrade == null || myTrade.SecurityNameCode != SelectedSecurity.Name) 
+            {
+                return; // нашей бумаги нет
+            }
+
+            RobotWindowVM.Log("MyTrade =  " + GetStringForSave(myTrade));
+
+            foreach (Level level in Levels)
+            {
+                if (level.Order != null && level.Order.NumberMarket == myTrade.NumberOrderParent)
+                {
+                    level.AddMyTrade(myTrade);
+                    RobotWindowVM.Log("MyTrade = Limit");
+                }
+                if (level.LimitTake != null && level.LimitTake.NumberMarket == myTrade.NumberOrderParent)
+                {
+                    level.AddMyTrade(myTrade);
+                    RobotWindowVM.Log("MyTrade = Take");
+                }
+            }
         }
 
         /// <summary>
@@ -732,7 +751,22 @@ namespace OsEngine.ViewModels
 
             return str;
         }
-    
+
+   
+        private string GetStringForSave(MyTrade myTrade)
+        {
+            string str = "";
+
+            str += myTrade.SecurityNameCode + " | ";
+            str += myTrade.Side + " | ";
+            str += "Объем = " + myTrade.Volume + " | ";
+            str += "Цена = " + myTrade.Price + " | ";
+            str += "NumberOrderParent = " + myTrade.NumberOrderParent + " | ";
+            str += "NumberTrade = " + myTrade.NumberTrade + " | ";
+  
+            return str;
+        }
+
         #endregion
     }
 }

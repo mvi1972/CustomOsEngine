@@ -259,8 +259,65 @@ namespace OsEngine.MyEntity
             str += "TacePrice = " + TacePrice.ToString(CultureInfo) + " | ";
             str += "StateTake = " + StateTake + " | ";
 
-
             return str;
+        }
+
+        public void AddMyTrade(MyTrade myTrade)
+        {
+            if (Volume ==0)
+            {
+                OpenPrice = myTrade.Price;
+            }
+            else if (Volume > 0)
+            {
+                if (myTrade.Side == Side.Buy)
+                {
+                    OpenPrice = (Volume * OpenPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
+                }
+                else
+                {
+                    if (myTrade.Volume <= Math.Abs(Volume))
+                    {
+                        Accum += (myTrade.Price - OpenPrice) * myTrade.Volume;
+                    }
+                    else
+                    {
+                        Accum += (myTrade.Price - OpenPrice) * Volume;
+                        OpenPrice=myTrade.Price;    
+                    }
+                }
+            }
+            else if ( Volume < 0)
+            {
+                if (myTrade.Side == Side.Buy)
+                {
+                    if (myTrade.Volume <= Math.Abs(Volume))
+                    {
+                        Accum += (myTrade.Price - OpenPrice) * myTrade.Volume;
+                    }
+                    else
+                    {
+                        Accum += (myTrade.Price - OpenPrice) * Volume;
+                        OpenPrice = myTrade.Price;
+                    }
+                }
+                else
+                {
+                    OpenPrice = (Volume * OpenPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
+                }
+            }
+            if (myTrade.Side == Side.Buy)
+            {
+                Volume += myTrade.Volume;
+            }
+            else
+            {
+                Volume -= myTrade.Volume;
+            }
+            if (Volume ==0)
+            {
+                OpenPrice=0;
+            }
         }
 
         #endregion
