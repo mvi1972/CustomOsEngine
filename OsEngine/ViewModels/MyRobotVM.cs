@@ -324,7 +324,6 @@ namespace OsEngine.ViewModels
         }
         private bool _isRun;
 
-
         public IServer Server
         {
             get => _server;
@@ -430,8 +429,12 @@ namespace OsEngine.ViewModels
                            && level.PriceLevel >= borderDown)
                     {
                         decimal worklot = Lot - Math.Abs(level.Volume) + level.OrderVolume;
+                        RobotWindowVM.Log(" Уровень = " + level.GetStringForSave());
+
                         level.PassVolume = false;
                         level.Order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, Side.Buy);
+
+                        RobotWindowVM.Log(" Отправляем лимитку  " + GetStringForSave(level.Order));
                     }
                 }
             }
@@ -488,7 +491,7 @@ namespace OsEngine.ViewModels
                         || level.Order.State == OrderStateType.Pending)
                     {
                         Server.CancelOrder(level.Order);
-                        RobotWindowVM.Log(" Снимаем лимитку на сервере" + GetStringForSave(level.Order));
+                        RobotWindowVM.Log(" Снимаем лимитки на сервере " + GetStringForSave(level.Order));
                     }
                 }
                 foreach (Level level in Levels)
@@ -499,7 +502,7 @@ namespace OsEngine.ViewModels
                         || level.Order.State == OrderStateType.Pending)
                     {
                         Server.CancelOrder(level.LimitTake);
-                        RobotWindowVM.Log(" Снимаем тэйк на сервере" + GetStringForSave(level.LimitTake));
+                        RobotWindowVM.Log(" Снимаем тэйк на сервере " + GetStringForSave(level.LimitTake));
                     }
                 }
             }
@@ -518,6 +521,7 @@ namespace OsEngine.ViewModels
             Server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
             Server.NewCandleIncomeEvent += Server_NewCandleIncomeEvent;
             Server.NewTradeEvent += Server_NewTradeEvent;
+            RobotWindowVM.Log(" Подключаемся к серверу = " + _server.ServerType);
         }
         /// <summary>
         ///  отключиться от сервера 
@@ -528,6 +532,8 @@ namespace OsEngine.ViewModels
             Server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
             Server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
             Server.NewTradeEvent -= Server_NewTradeEvent;
+
+            RobotWindowVM.Log(" Отключаемся от сервера = " + _server.ServerType);
         }
 
         private void Server_NewTradeEvent(List<Trade> trades)
@@ -592,6 +598,7 @@ namespace OsEngine.ViewModels
             {
                 return;
             }
+            RobotWindowVM.Log(" \n\n Calculate " );
             for (int i = 0; i < CountLevels; i++)
             {
                 Level levelBuy = new Level() {Side = Side.Buy};
@@ -621,8 +628,8 @@ namespace OsEngine.ViewModels
                 {
                     levels.Insert(0, levelSell);
                 }
+                RobotWindowVM.Log("Уровень =  " + levels.Last().GetStringForSave());
             }
-
             Levels = levels;
             OnPropertyChanged(nameof(Levels));
         }
@@ -632,6 +639,7 @@ namespace OsEngine.ViewModels
             ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
             if (server == null)
             {
+                RobotWindowVM.Log("GetStringPortfolios server == null ");
                 return stringPortfolios;
             }
             if (server.Portfolios == null)
@@ -641,6 +649,7 @@ namespace OsEngine.ViewModels
            
             foreach (Portfolio portf in server.Portfolios)
             {
+                RobotWindowVM.Log("GetStringPortfolios  портфель =  " + portf.Number);
                 stringPortfolios.Add(portf.Number);
             }
             return stringPortfolios;  
@@ -654,11 +663,13 @@ namespace OsEngine.ViewModels
                 {
                     if (portf.Number == number)
                     {
+                        RobotWindowVM.Log("GetStringPortfolios  портфель =  " + portf.Number);
                         return portf;
                     }
                 }
             }
-  
+
+            RobotWindowVM.Log("GetStringPortfolios  портфель = null ");
             return null;
         }
 
@@ -683,6 +694,7 @@ namespace OsEngine.ViewModels
         {
             if (security == null)
             {
+                RobotWindowVM.Log("StartSecuritiy  security = null ");
                 return;
             }
             Task.Run(() =>
@@ -692,6 +704,7 @@ namespace OsEngine.ViewModels
                     var series = Server.StartThisSecurity(security.Name, new TimeFrameBuilder(), security.NameClass);
                     if (series != null)
                     {
+                        RobotWindowVM.Log("StartSecuritiy  security = " + series.Security.Name);
                         break;
                     }
                     Thread.Sleep(1000);
