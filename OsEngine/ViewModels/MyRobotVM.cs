@@ -443,10 +443,45 @@ namespace OsEngine.ViewModels
                     {
                         if (level.TakeVolume !=0) 
                         {
+                            RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
                             level.PassTake = false;
+
+                            RobotWindowVM.Log("Отзываем Тэйк ордер =  " + GetStringForSave(level.LimitTake));
                             Server.CancelOrder(level.LimitTake);
+
                             return;
                         }
+
+                        stepLevel = 0;
+                        decimal price = 0;
+                        Side side = Side.None;
+
+                        if (StepType == StepType.PUNKT)
+                        {
+                            stepLevel = TakeLevel * SelectedSecurity.PriceStep;
+                        }
+                        else if (StepType == StepType.PERCENT)
+                        {
+                            stepLevel = TakeLevel * Price / 100;
+                            stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
+                        }
+                        if (level.Volume > 0)
+                        {
+                            price = level.OpenPrice + stepLevel;
+                            side = Side.Sell;
+                        }
+                        else if (level.Volume < 0)
+                        {
+                            price = level.OpenPrice - stepLevel;
+                            side = Side.Buy;
+                        }
+                        level.PassTake = false;
+
+                        RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
+
+                        level.LimitTake = SendOrder(SelectedSecurity, price, Math.Abs(level.Volume), side);
+
+                        RobotWindowVM.Log("Отправляем Тэйк ордер =  " + GetStringForSave(level.LimitTake));
                     }
                 }
             }
@@ -585,6 +620,28 @@ namespace OsEngine.ViewModels
                             level.PassVolume = true;
 
                             RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
+
+                            TradeLogic();
+                            break;
+                        }
+                    }
+                    if (level.LimitTake != null)
+                    {
+                        if (level.LimitTake.NumberUser == order.NumberUser
+                           || level.LimitTake.NumberMarket == order.NumberMarket)
+                        {
+                            RobotWindowVM.Log("лимитный ордер ");
+
+                            level.LimitTake.NumberMarket = order.NumberMarket;
+                            level.LimitTake.State = order.State;
+                            level.LimitTake.Volume = order.Volume;
+
+                            level.PassTake = true;
+
+                            RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
+
+                            TradeLogic();
+                            break;
                         }
                     }
                 }
