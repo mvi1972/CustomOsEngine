@@ -23,15 +23,13 @@ namespace OsEngine.ViewModels
             {
                 RecordLog();
             });
-
+            Load();
         }
         #region  ================================ Свойства =====================================
         /// <summary>
         /// колекция созданых роботов
         /// </summary>
         public ObservableCollection<MyRobotVM> Robots { get; set; } = new ObservableCollection<MyRobotVM>();
-
-
 
         #endregion
         #region  ================================ Поля =====================================
@@ -102,12 +100,23 @@ namespace OsEngine.ViewModels
         /// </summary>
         void AddTabRobot(object o)
         {
-            Robots.Add(new MyRobotVM()
+            AddTab("");
+        }
+
+        void AddTab (string name)
+        {
+            Robots.Add(new MyRobotVM());
+            if (name !="")
             {
-                Header = "Tab" + (Robots.Count + 1)
-            });
+                Robots.Last().Header = name;
+            }
+            else
+            {
+                Robots.Last().Header = "Tab " + (Robots.Count + 1);
+            }
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
         }
+
 
         private void RobotWindowVM_OnSelectedSecurity(string name)
         {
@@ -212,23 +221,29 @@ namespace OsEngine.ViewModels
             {
                 return;
             }
-            string str = "";
+            string strTabs = "";
             try
             {
                 using (StreamReader reader = new StreamReader(@"Parametrs\param.txt"))
                 {
-                    str = reader.ReadLine();
-                    // reader.Close();
+                    strTabs = reader.ReadLine();
+                   
                 }
             }
             catch (Exception ex)
             {
                 Log(" Ошибка выгрузки параметров = " + ex.Message);
-
             }
+            string[] tabs = strTabs.Split(';');
+            foreach (string tab in tabs)
+            {
+                if (tab != "")
+                {
+                    AddTab(tab);
+                }
+            }    
 
             #endregion
-
 
         }
     }
