@@ -467,12 +467,12 @@ namespace OsEngine.ViewModels
                         }
                         if (level.Volume > 0)
                         {
-                            price = level.OpenPrice + stepLevel;
+                            price = level.PriceLevel + stepLevel;
                             side = Side.Sell;
                         }
                         else if (level.Volume < 0)
                         {
-                            price = level.OpenPrice - stepLevel;
+                            price = level.PriceLevel - stepLevel;
                             side = Side.Buy;
                         }
                         level.PassTake = false;
