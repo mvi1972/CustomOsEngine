@@ -47,7 +47,7 @@ namespace OsEngine.ViewModels
             {
                 if (SelectedSecurity !=null)
                 {
-                    return SelectedSecurity.Name; 
+                     return SelectedSecurity.Name; 
                 }
                 else
                 {
@@ -76,6 +76,7 @@ namespace OsEngine.ViewModels
                 if (SelectedSecurity != null )
                 {
                     StartSecuritiy(SelectedSecurity); // запуск бумаги 
+                    OnSelectedSecurity?.Invoke(SelectedSecurity.Name); 
                 }
             }
         }
@@ -486,6 +487,7 @@ namespace OsEngine.ViewModels
                 }
             }
         }
+
         /// <summary>
         ///  отправить оредер на биржу 
         /// </summary>
@@ -840,5 +842,11 @@ namespace OsEngine.ViewModels
         }
 
         #endregion
+        #region ============================================События============================================
+
+        public delegate void selectedSecurity(string name);
+        public event selectedSecurity OnSelectedSecurity;
+        #endregion
+
     }
 }

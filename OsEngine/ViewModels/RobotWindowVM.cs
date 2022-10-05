@@ -1,4 +1,5 @@
-﻿using OsEngine.Commands;
+﻿using OsEngine.Charts.CandleChart.Indicators;
+using OsEngine.Commands;
 using OsEngine.Market;
 using OsEngine.Views;
 using System;
@@ -14,7 +15,7 @@ using System.Windows;
 
 namespace OsEngine.ViewModels
 {
-    public class RobotWindowVM : BaseVM  
+    public class RobotWindowVM : BaseVM
     {
         public RobotWindowVM()
         {
@@ -22,11 +23,13 @@ namespace OsEngine.ViewModels
             {
                 RecordLog();
             });
-  
+
         }
         #region  ================================ Свойства =====================================
-
-        public ObservableCollection <MyRobotVM> Robots { get; set; } = new ObservableCollection<MyRobotVM>();
+        /// <summary>
+        /// колекция созданых роботов
+        /// </summary>
+        public ObservableCollection<MyRobotVM> Robots { get; set; } = new ObservableCollection<MyRobotVM>();
 
 
 
@@ -36,7 +39,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// коллекция  для логов из разных потоков 
         /// </summary>
-        private static ConcurrentQueue<string> _logMessges = new ConcurrentQueue<string>();    
+        private static ConcurrentQueue<string> _logMessges = new ConcurrentQueue<string>();
 
         /// <summary>
         /// окно выбора инструмента
@@ -68,7 +71,7 @@ namespace OsEngine.ViewModels
                     comandAddRobot = new DelegateCommand(AddTabRobot);
                 }
                 return comandAddRobot;
-            } 
+            }
         }
         private DelegateCommand comandDeleteRobot;
         public DelegateCommand ComandDeleteRobot
@@ -84,7 +87,9 @@ namespace OsEngine.ViewModels
         }
 
         #endregion
+
         #region  ================================ Методы =====================================
+
         /// <summary>
         ///  подключение к серверу 
         /// </summary>
@@ -93,28 +98,34 @@ namespace OsEngine.ViewModels
             ServerMaster.ShowDialog(false);
         }
         /// <summary>
-        ///  добавление робота 
+        ///  добавление робота на вкладку 
         /// </summary>
         void AddTabRobot(object o)
         {
             Robots.Add(new MyRobotVM()
             {
-               Header = "Tab" + (Robots.Count +1)
+                Header = "Tab" + (Robots.Count + 1)
             });
-             
+            Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
         }
+
+        private void RobotWindowVM_OnSelectedSecurity(string name)
+        {
+            Save();
+        }
+
         /// <summary>
         /// Удаление вкладки робота
         /// </summary>
         void DeleteTabRobot(object obj)
         {
-            string header= (string)obj;
+            string header = (string)obj;
 
-            MyRobotVM delRobot =null;
+            MyRobotVM delRobot = null;
 
             foreach (var robot in Robots)
             {
-                if (robot.Header == header )
+                if (robot.Header == header)
                 {
                     delRobot = robot;
                     break;
@@ -122,11 +133,11 @@ namespace OsEngine.ViewModels
             }
             if (delRobot != null)
             {
-                MessageBoxResult res= MessageBox.Show("Удалить вкладку " + header + "?", header, MessageBoxButton.YesNo);
+                MessageBoxResult res = MessageBox.Show("Удалить вкладку " + header + "?", header, MessageBoxButton.YesNo);
                 if (res == MessageBoxResult.Yes)
                 {
                     Robots.Remove(delRobot);
-                }    
+                }
             }
         }
 
@@ -142,7 +153,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         private static void RecordLog()
         {
-            if (!Directory.Exists (@"Log"))
+            if (!Directory.Exists(@"Log"))
             {
                 Directory.CreateDirectory(@"Log");
             }
@@ -150,9 +161,9 @@ namespace OsEngine.ViewModels
             {
                 string str;
 
-                if (_logMessges.TryDequeue (out str))
+                if (_logMessges.TryDequeue(out str))
                 {
-                    string name = "Log"+ DateTime.Now.ToShortDateString() + ".txt";
+                    string name = "Log" + DateTime.Now.ToShortDateString() + ".txt";
 
                     using (StreamWriter writer = new StreamWriter(@"Log\" + name, true))
                     {
@@ -163,8 +174,62 @@ namespace OsEngine.ViewModels
                 Thread.Sleep(10);
             }
         }
+        /// <summary>
+        /// сохранение параметров робота
+        /// </summary>
+        private void Save()
+        {
+            if (!Directory.Exists(@"Parametrs"))
+            {
+                Directory.CreateDirectory(@"Parametrs");
+            }
 
-        #endregion
+            string str = "";
+            foreach (MyRobotVM robot in Robots)
+            {
+                str += robot.Header + ";";
+            }
+            try
+            {
+                using ( StreamWriter writer = new StreamWriter(@"Parametrs\param.txt"))
+                {
+                    writer.WriteLine(str); 
+                    writer.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(" Ошибка сохранения параметров = " + ex.Message);
 
+            }
+        }
+        /// <summary>
+        /// загрузка в робота параметров 
+        /// </summary>
+        private void Load()
+        {
+            if (!Directory.Exists(@"Parametrs"))
+            {
+                return;
+            }
+            string str = "";
+            try
+            {
+                using (StreamReader reader = new StreamReader(@"Parametrs\param.txt"))
+                {
+                    str = reader.ReadLine();
+                    // reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(" Ошибка выгрузки параметров = " + ex.Message);
+
+            }
+
+            #endregion
+
+
+        }
     }
 }
