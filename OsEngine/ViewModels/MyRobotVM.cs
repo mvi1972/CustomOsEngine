@@ -22,7 +22,10 @@ namespace OsEngine.ViewModels
         {
             Header = header;    
             Load();
+            ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
         }
+
+
         public MyRobotVM()
         {
             
@@ -92,13 +95,22 @@ namespace OsEngine.ViewModels
         {
             get
             {
-                if (Server ==null)
+                if (Server == null)
                 {
-                    return ServerType.None;
+                    return _serverType;
                 }
                 return Server.ServerType;
             }
+            set
+            {
+                if (value != null && value!= _serverType)
+                {
+                    _serverType = value;
+                }
+
+            }
         }
+        ServerType _serverType = ServerType.None;
         public string StringPortfolio
         {
             get => _stringportfolio;
@@ -343,13 +355,9 @@ namespace OsEngine.ViewModels
                 }
                 _server = value;
                 OnPropertyChanged(nameof(ServerType));
+
                 SubscribeToServer(); // подключаемя к бир
-                StringPortfolios = GetStringPortfolios(_server); // грузим портфели
-                if (StringPortfolios != null && StringPortfolios.Count >0)
-                {
-                    StringPortfolio = StringPortfolios[0];
-                } 
-                OnPropertyChanged(nameof(StringPortfolios));
+
             } 
         }
         private IServer _server = null;
@@ -568,25 +576,27 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void SubscribeToServer()
         {
-            if (Server != null)
-            {
-                UnSubscribeToServer();
-            }
-            Server.NewMyTradeEvent += Server_NewMyTradeEvent;
-            Server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
-            Server.NewCandleIncomeEvent += Server_NewCandleIncomeEvent;
-            Server.NewTradeEvent += Server_NewTradeEvent;
+            _server.NewMyTradeEvent += Server_NewMyTradeEvent;
+            _server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
+            _server.NewCandleIncomeEvent += Server_NewCandleIncomeEvent;
+            _server.NewTradeEvent += Server_NewTradeEvent;
+            _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
+            _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
+
             RobotWindowVM.Log(" Подключаемся к серверу = " + _server.ServerType);
         }
+
         /// <summary>
         ///  отключиться от сервера 
         /// </summary>
         private void UnSubscribeToServer()
         {
-            Server.NewMyTradeEvent -= Server_NewMyTradeEvent;
-            Server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
-            Server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
-            Server.NewTradeEvent -= Server_NewTradeEvent;
+            _server.NewMyTradeEvent -= Server_NewMyTradeEvent;
+            _server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
+            _server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
+            _server.NewTradeEvent -= Server_NewTradeEvent;
+            _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
+            _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
 
             RobotWindowVM.Log(" Отключаемся от сервера = " + _server.ServerType);
         }
@@ -732,6 +742,17 @@ namespace OsEngine.ViewModels
             }
             Levels = levels;
             OnPropertyChanged(nameof(Levels));
+        }
+
+        private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
+        {
+
+            StringPortfolios = GetStringPortfolios(_server); // грузим портфели
+            if (StringPortfolios != null && StringPortfolios.Count > 0)
+            {
+                StringPortfolio = StringPortfolios[0];
+            }
+            OnPropertyChanged(nameof(StringPortfolios));
         }
 
         private ObservableCollection<string> GetStringPortfolios(IServer server)
@@ -909,9 +930,33 @@ namespace OsEngine.ViewModels
             ServerType type = ServerType.None;
             if (Enum.TryParse (servType, out type))
             {
+                ServerType = type;  
                 ServerMaster.SetNeedServer(type);
             }
         }
+
+
+        private void ServerMaster_ServerCreateEvent(IServer server)
+        {
+            if (server.ServerType == ServerType)
+            {
+                Server = server;
+            }
+        }
+
+        private void _server_SecuritiesChangeEvent(List<Security> securities)
+        {
+            for (int i = 0; i < securities.Count; i++)
+            {
+                if (securities[i].Name == Header)
+                {
+                    SelectedSecurity = securities[i];   
+                    StartSecuritiy(securities[i]);
+                    break;
+                }
+            }
+        }
+
 
         #endregion
 
