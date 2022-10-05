@@ -437,6 +437,18 @@ namespace OsEngine.ViewModels
                         RobotWindowVM.Log(" Отправляем лимитку  " + GetStringForSave(level.Order));
                     }
                 }
+                if (level.PassTake && level.PriceLevel !=0)
+                {
+                    if (level.Volume !=0 && level.TakeVolume != Math.Abs(level.Volume) )
+                    {
+                        if (level.TakeVolume !=0) 
+                        {
+                            level.PassTake = false;
+                            Server.CancelOrder(level.LimitTake);
+                            return;
+                        }
+                    }
+                }
             }
         }
         /// <summary>
@@ -594,11 +606,15 @@ namespace OsEngine.ViewModels
                 {
                     level.AddMyTrade(myTrade);
                     RobotWindowVM.Log("MyTrade = Limit");
+                    TradeLogic();
+                    break;
                 }
                 if (level.LimitTake != null && level.LimitTake.NumberMarket == myTrade.NumberOrderParent)
                 {
                     level.AddMyTrade(myTrade);
                     RobotWindowVM.Log("MyTrade = Take");
+                    TradeLogic();
+                    break;
                 }
             }
         }
