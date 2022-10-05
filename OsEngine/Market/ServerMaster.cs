@@ -885,11 +885,11 @@ namespace OsEngine.Market
         /// </summary>
         private static async void ThreadStarterWorkArea()
         {
-            await Task.Delay(20000);
+            await Task.Delay(5000);
 
             while (true)
             {
-                await Task.Delay(5000);
+                await Task.Delay(2000);
 
                 if (!MainWindow.ProccesIsWorked)
                 {

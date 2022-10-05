@@ -23,7 +23,10 @@ namespace OsEngine.ViewModels
             {
                 RecordLog();
             });
+
             Load();
+
+            ServerMaster.ActivateAutoConnection();
         }
         #region  ================================ Свойства =====================================
         /// <summary>
@@ -105,13 +108,15 @@ namespace OsEngine.ViewModels
 
         void AddTab (string name)
         {
-            Robots.Add(new MyRobotVM());
+  
             if (name !="")
             {
-                Robots.Last().Header = name;
+                Robots.Add(new MyRobotVM(name));
+                //Robots.Last().Header = name;
             }
             else
             {
+                Robots.Add(new MyRobotVM(name));
                 Robots.Last().Header = "Tab " + (Robots.Count + 1);
             }
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота

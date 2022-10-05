@@ -7,6 +7,7 @@ using OsEngine.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,11 @@ namespace OsEngine.ViewModels
 {
     public class MyRobotVM : BaseVM
     {
+        public MyRobotVM(string header)
+        {
+            Header = header;    
+            Load();
+        }
         public MyRobotVM()
         {
             
@@ -799,6 +805,7 @@ namespace OsEngine.ViewModels
                     if (series != null)
                     {
                         RobotWindowVM.Log("StartSecuritiy  security = " + series.Security.Name);
+                        Save();
                         break;
                     }
                     Thread.Sleep(1000);
@@ -841,7 +848,73 @@ namespace OsEngine.ViewModels
             return str;
         }
 
+        /// <summary>
+        /// сохранение параметров для вкладок
+        /// </summary>
+        private void Save()
+        {
+            if (!Directory.Exists(@"Parametrs\Tabs"))
+            {
+                Directory.CreateDirectory(@"Parametrs\Tabs");
+            }
+
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(@"Parametrs\Tabs\param_" + Header + ".txt", false))
+                {
+                    writer.WriteLine(Header);
+                    writer.WriteLine(ServerType);
+
+                    writer.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                RobotWindowVM.Log(" Ошибка сохранения параметров = " + ex.Message);
+
+            }
+        }
+        /// <summary>
+        /// загрузка во вкладку параметров 
+        /// </summary>
+        private void Load()
+        {
+            if (!Directory.Exists(@"Parametrs\Tabs"))
+            {
+                return;
+            }
+            string servType ="" ;
+            try
+            {
+                using (StreamReader reader = new StreamReader(@"Parametrs\Tabs\param_" + Header + ".txt"))
+                {
+                    Header = reader.ReadLine();
+                    servType = reader.ReadLine();
+                }
+            }
+            catch (Exception ex)
+            {
+                RobotWindowVM.Log(" Ошибка выгрузки параметров = " + ex.Message);
+            }
+            StartServer(servType);
+
+        }
+
+        void StartServer (string servType)
+        {
+            if (servType == "" && servType == "null")
+            {
+                return;
+            }
+            ServerType type = ServerType.None;
+            if (Enum.TryParse (servType, out type))
+            {
+                ServerMaster.SetNeedServer(type);
+            }
+        }
+
         #endregion
+
         #region ============================================События============================================
 
         public delegate void selectedSecurity(string name);
