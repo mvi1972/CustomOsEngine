@@ -69,6 +69,10 @@ namespace OsEngine.MyEntity
             {
                 _volume = value;
                 OnPropertyChanged(nameof(Volume));
+                OnPropertyChanged(nameof(OrderVolume));
+                OnPropertyChanged(nameof(StateOrder));
+                OnPropertyChanged(nameof(TakeVolume));
+                OnPropertyChanged(nameof(StateTake));
             }
         }
         public decimal _volume = 0;
