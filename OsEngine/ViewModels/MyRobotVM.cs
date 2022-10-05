@@ -621,7 +621,7 @@ namespace OsEngine.ViewModels
 
                             RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
 
-                            TradeLogic();
+                            // TradeLogic();
                             break;
                         }
                     }
@@ -640,7 +640,7 @@ namespace OsEngine.ViewModels
 
                             RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
 
-                            TradeLogic();
+                            // TradeLogic();
                             break;
                         }
                     }
@@ -755,7 +755,7 @@ namespace OsEngine.ViewModels
                 {
                     if (portf.Number == number)
                     {
-                        RobotWindowVM.Log("GetStringPortfolios  портфель =  " + portf.Number);
+                        RobotWindowVM.Log(" Выбран портфель =  " + portf.Number);
                         return portf;
                     }
                 }
@@ -825,7 +825,6 @@ namespace OsEngine.ViewModels
             return str;
         }
 
-   
         private string GetStringForSave(MyTrade myTrade)
         {
             string str = "";

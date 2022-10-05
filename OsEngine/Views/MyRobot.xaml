@@ -108,46 +108,59 @@
                     <DataGrid.Columns >
                         <DataGridTextColumn Header=" Цена уровня"
                                             Binding="{Binding PriceLevel,
-                                                       StringFormat={}{0:0.###########}}"/>
+                                            StringFormat={}{0:0.###########},
+                                            UpdateSourceTrigger=PropertyChanged}"/>
                         <DataGridTemplateColumn Header=" Направление">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Side}"
-                                               Foreground="{Binding Side,
-                                       Converter={StaticResource ConvertersColorToSide} }"/>
+                                    <TextBlock Text="{Binding Side,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                                            Foreground="{Binding Side,
+                                            Converter={StaticResource ConvertersColorToSide} }"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTextColumn Header=" объем"
                                             Binding="{Binding Volume,
-                                                       StringFormat={}{0:0.###########}}"/>
+                                                       StringFormat={}{0:0.###########},
+                                            UpdateSourceTrigger=PropertyChanged}"/>
                         <DataGridTextColumn Header=" Цена открытия"
                                             Binding="{Binding OpenPrice,
-                                                       StringFormat={}{0:0.###########}}"/>
+                                                       StringFormat={}{0:0.###########},
+                                            UpdateSourceTrigger=PropertyChanged}"/>
                         <DataGridTextColumn Header="комиссия"
                                             Binding="{Binding Margin,
-                                                       StringFormat={}{0:0.###########}}"/>
+                                            StringFormat={}{0:0.###########},
+                                            UpdateSourceTrigger=PropertyChanged}"/>
                         <DataGridTextColumn Header=" прибыль"
                                             Binding="{Binding Accum,
-                                                       StringFormat={}{0:0.###########}}"/>
+                                            StringFormat={}{0:0.###########},
+                                            UpdateSourceTrigger=PropertyChanged}"/>
                          <DataGridTextColumn Header="Order Volume"
                                             Binding="{Binding OrderVolume,
-                                                       StringFormat={}{0:0.###########}}"/>
+                                            StringFormat={}{0:0.###########},
+                                            UpdateSourceTrigger=PropertyChanged}"/>
                         <DataGridTextColumn Header="State Order"
-                                            Binding="{Binding StateOrder}"/>
+                                            Binding="{Binding StateOrder,
+                                            UpdateSourceTrigger=PropertyChanged}"/>
                         <DataGridTextColumn Header="PassVolume"
-                                            Binding="{Binding PassVolume}"/>
+                                            Binding="{Binding PassVolume,
+                                            UpdateSourceTrigger=PropertyChanged}"/>
                         <DataGridTextColumn Header=" Цена профита"
                                             Binding="{Binding TakePrice,
-                                                       StringFormat={}{0:0.###########}}"/>
+                                            StringFormat={}{0:0.###########},
+                                            UpdateSourceTrigger=PropertyChanged}"/>
                         <DataGridTextColumn Header="Take Volume"
                                             Binding="{Binding TakeVolume,
-                                                       StringFormat={}{0:0.###########}}"/>
+                                            StringFormat={}{0:0.###########},
+                                            UpdateSourceTrigger=PropertyChanged}"/>
                         <DataGridTextColumn Header="Status Take"
-                                            Binding="{Binding StateTake}"/>
+                                            Binding="{Binding StateTake,
+                                            UpdateSourceTrigger=PropertyChanged}"/>
 
                         <DataGridTextColumn Header="PassTake"
-                                            Binding="{Binding PassTake}"/>
+                                            Binding="{Binding PassTake,
+                                            UpdateSourceTrigger=PropertyChanged}"/>
 
                     </DataGrid.Columns>
                 </DataGrid>

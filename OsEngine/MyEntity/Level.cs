@@ -99,17 +99,22 @@ namespace OsEngine.MyEntity
         /// <summary>
         /// расчетная цена для тейк профита 
         /// </summary>
-        public decimal TacePrice
+        public decimal TakePrice
         {
-            get => _tacePrice;
-
-            set
+            get
             {
-                _tacePrice = value;
-                OnPropertyChanged(nameof(TacePrice));
+                if (LimitTake != null
+                   &&
+                 (LimitTake.State == OrderStateType.Activ
+                   || LimitTake.State == OrderStateType.Patrial
+                   || LimitTake.State == OrderStateType.Pending))
+                {
+                    return LimitTake.Price;
+                }
+                return 0;
             }
         }
-        public decimal _tacePrice = 0;
+
 
         /// <summary>
         ///  лимитка на позицию
@@ -171,6 +176,7 @@ namespace OsEngine.MyEntity
                 _limitTake = value;
                 OnPropertyChanged(nameof(StateTake));
                 OnPropertyChanged(nameof(TakeVolume));
+                OnPropertyChanged(nameof(TakePrice));
             }
         }
         public Order _limitTake = null;
@@ -235,6 +241,7 @@ namespace OsEngine.MyEntity
                 OnPropertyChanged(nameof(PassTake));
                 OnPropertyChanged(nameof(StateTake));
                 OnPropertyChanged(nameof(TakeVolume));
+                OnPropertyChanged(nameof(TakePrice));
             }
         }
         public bool _passTake = true;
@@ -256,7 +263,7 @@ namespace OsEngine.MyEntity
             str += "OrderVolume = " + OrderVolume.ToString(CultureInfo) + " | ";
             str += "StateOrder = " + StateOrder + " | ";
             str += "TakeVolume = " + TakeVolume.ToString(CultureInfo) + " | ";
-            str += "TacePrice = " + TacePrice.ToString(CultureInfo) + " | ";
+            str += "TacePrice = " + TakePrice.ToString(CultureInfo) + " | ";
             str += "StateTake = " + StateTake + " | ";
 
             return str;
