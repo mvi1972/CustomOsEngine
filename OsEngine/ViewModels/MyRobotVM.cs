@@ -122,7 +122,7 @@ namespace OsEngine.ViewModels
                 _portfolio = GetPortfolio(_stringportfolio);
             }
         }
-        private string _stringportfolio;
+        private string _stringportfolio ="";
 
         /// <summary>
         /// точка страта работы робота (цена)
@@ -746,11 +746,23 @@ namespace OsEngine.ViewModels
 
         private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
         {
-
             StringPortfolios = GetStringPortfolios(_server); // грузим портфели
+
+            OnPropertyChanged(nameof(StringPortfolios));
+
             if (StringPortfolios != null && StringPortfolios.Count > 0)
             {
-                StringPortfolio = StringPortfolios[0];
+                if (StringPortfolio == "")
+                {
+                    StringPortfolio = StringPortfolios[0];
+                }
+                for (int i = 0; i < portfolios.Count; i++)
+                {
+                    if (portfolios[i].Number == StringPortfolio)
+                    {
+                        _portfolio = portfolios[i];
+                    }
+                }
             }
             OnPropertyChanged(nameof(StringPortfolios));
         }
@@ -778,7 +790,7 @@ namespace OsEngine.ViewModels
 
         private Portfolio GetPortfolio(string number)
         {
-            if (Server == null)
+            if (Server != null && Server.Portfolios != null)
             {
                 foreach (Portfolio portf in Server.Portfolios)
                 {
@@ -885,6 +897,7 @@ namespace OsEngine.ViewModels
                 {
                     writer.WriteLine(Header);
                     writer.WriteLine(ServerType);
+                    writer.WriteLine(StringPortfolio);
 
                     writer.Close();
                 }
@@ -909,8 +922,9 @@ namespace OsEngine.ViewModels
             {
                 using (StreamReader reader = new StreamReader(@"Parametrs\Tabs\param_" + Header + ".txt"))
                 {
-                    Header = reader.ReadLine();
-                    servType = reader.ReadLine();
+                    Header = reader.ReadLine(); // загружаем заголовок
+                    servType = reader.ReadLine(); // загружаем название сервера
+                    StringPortfolio = reader.ReadLine();  // загружаем бумагу 
                 }
             }
             catch (Exception ex)
