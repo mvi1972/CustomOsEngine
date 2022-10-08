@@ -898,6 +898,16 @@ namespace OsEngine.ViewModels
                     writer.WriteLine(Header);
                     writer.WriteLine(ServerType);
                     writer.WriteLine(StringPortfolio);
+                    writer.WriteLine(StartPoint);
+                    writer.WriteLine(CountLevels);
+                    writer.WriteLine(Direction);
+                    writer.WriteLine(Lot);
+                    writer.WriteLine(StepType);
+                    writer.WriteLine(StepLevel);
+                    writer.WriteLine(TakeLevel);
+                    writer.WriteLine(MaxActiveLevel);
+                    writer.WriteLine(PriceAverege);
+                    writer.WriteLine(Accum);
 
                     writer.Close();
                 }
@@ -925,6 +935,30 @@ namespace OsEngine.ViewModels
                     Header = reader.ReadLine(); // загружаем заголовок
                     servType = reader.ReadLine(); // загружаем название сервера
                     StringPortfolio = reader.ReadLine();  // загружаем бумагу 
+                    StartPoint = GetDecimalForString(reader.ReadLine());
+                    CountLevels = (int)GetDecimalForString(reader.ReadLine());
+
+                    Direction direct = Direction.BUY;
+                    if (Enum.TryParse(reader.ReadLine(), out direct))
+                    {
+                        Direction = direct;
+                    }
+
+                    Lot = GetDecimalForString(reader.ReadLine());
+
+                    StepType step = StepType.PUNKT;
+                    if (Enum.TryParse(reader.ReadLine(), out direct))
+                    {
+                        StepType = step;
+                    }
+
+                    StepLevel = GetDecimalForString(reader.ReadLine());
+                    TakeLevel = GetDecimalForString(reader.ReadLine());
+                    MaxActiveLevel = (int)GetDecimalForString(reader.ReadLine());
+                    PriceAverege = GetDecimalForString(reader.ReadLine());
+                    Accum = GetDecimalForString(reader.ReadLine());
+
+                    reader.Close();
                 }
             }
             catch (Exception ex)
@@ -933,6 +967,15 @@ namespace OsEngine.ViewModels
             }
             StartServer(servType);
 
+        }
+        /// <summary>
+        ///  преобразует строку из файла сохранения в дефимал 
+        /// </summary>
+        private decimal GetDecimalForString(string str)
+        {
+            decimal value = 0;
+            decimal.TryParse(str, out value);
+            return value;   
         }
 
         void StartServer (string servType)
