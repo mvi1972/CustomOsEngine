@@ -705,7 +705,7 @@ namespace OsEngine.ViewModels
             decimal currBuyPrice = StartPoint;
             decimal currSellPrice = StartPoint;
 
-            if (CountLevels <=0)
+            if (CountLevels <=0 || SelectedSecurity == null )
             {
                 return;
             }
@@ -743,6 +743,8 @@ namespace OsEngine.ViewModels
             }
             Levels = levels;
             OnPropertyChanged(nameof(Levels));
+
+            Save();
         }
 
         private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)

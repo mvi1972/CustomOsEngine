@@ -1,5 +1,6 @@
 ﻿using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Commands;
+using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Views;
 using System;
@@ -19,6 +20,8 @@ namespace OsEngine.ViewModels
     {
         public RobotWindowVM()
         {
+            ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
+
             Task.Run(() =>
             {
                 RecordLog();
@@ -28,6 +31,8 @@ namespace OsEngine.ViewModels
 
             ServerMaster.ActivateAutoConnection();
         }
+
+
         #region  ================================ Свойства =====================================
         /// <summary>
         /// колекция созданых роботов
@@ -46,6 +51,11 @@ namespace OsEngine.ViewModels
         /// окно выбора инструмента
         /// </summary>
         public static ChengeEmitendWidow ChengeEmitendWidow = null;
+        /// <summary>
+        /// многопоточный словарь для ордеров
+        /// </summary>
+        public static ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> Orders =
+            new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();   
 
         #endregion
         #region  ================================ Команды =====================================
@@ -90,6 +100,31 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region  ================================ Методы =====================================
+        /// <summary>
+        /// событие создания нового сервера 
+        /// </summary>
+        private void ServerMaster_ServerCreateEvent(Market.Servers.IServer server)
+        {
+            server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
+        }
+        /// <summary>
+        /// добвляет или обновляет пришедшие ордера с биржы в словарь ордеров на компе
+        /// </summary>
+        private void Server_NewOrderIncomeEvent(Order order)
+        {
+            ConcurrentDictionary<string, Order> numberOrders = null;
+            if (Orders.TryGetValue(order.SecurityNameCode, out numberOrders))
+            {
+                numberOrders.AddOrUpdate(order.NumberMarket, order, (key, value) => value= order);
+            }
+            else
+            {
+                numberOrders = new ConcurrentDictionary<string, Order>();
+                numberOrders.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
+
+                Orders.AddOrUpdate(order.SecurityNameCode, numberOrders, (key, value) => value = numberOrders);
+            }
+        }
 
         /// <summary>
         ///  подключение к серверу 
