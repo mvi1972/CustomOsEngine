@@ -1,4 +1,5 @@
-﻿using OsEngine.Commands;
+﻿using Newtonsoft.Json;
+using OsEngine.Commands;
 using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
@@ -909,6 +910,8 @@ namespace OsEngine.ViewModels
                     writer.WriteLine(PriceAverege);
                     writer.WriteLine(Accum);
 
+                    writer.WriteLine(JsonConvert.SerializeObject(Levels));
+
                     writer.Close();
                 }
             }
@@ -957,6 +960,8 @@ namespace OsEngine.ViewModels
                     MaxActiveLevel = (int)GetDecimalForString(reader.ReadLine());
                     PriceAverege = GetDecimalForString(reader.ReadLine());
                     Accum = GetDecimalForString(reader.ReadLine());
+
+                    Levels = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Level>());
 
                     reader.Close();
                 }
