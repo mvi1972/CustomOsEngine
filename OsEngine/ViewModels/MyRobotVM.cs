@@ -767,7 +767,7 @@ namespace OsEngine.ViewModels
             OnPropertyChanged(nameof(StringPortfolios));
         }
 
-        private ObservableCollection<string> GetStringPortfolios(IServer server)
+        public ObservableCollection<string> GetStringPortfolios(IServer server)
         {
             ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
             if (server == null)
@@ -937,7 +937,7 @@ namespace OsEngine.ViewModels
 
         void StartServer (string servType)
         {
-            if (servType == "" && servType == "null")
+            if (servType == "" || servType == "null")
             {
                 return;
             }
