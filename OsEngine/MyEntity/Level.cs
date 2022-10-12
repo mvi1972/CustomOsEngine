@@ -1,4 +1,5 @@
 ﻿using OsEngine.Entity;
+using OsEngine.Market.Servers;
 using OsEngine.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,17 @@ namespace OsEngine.MyEntity
     {
         #region ======================================Поля===========================================
         CultureInfo CultureInfo = new CultureInfo("ru-RU");
+
+        /// <summary>
+        ///  список лимиток на тейк
+        /// </summary>
+        public List<Order> OrdersForClose = new List<Order>();
+
+
+        /// <summary>
+        /// лимитки на открытие позиций 
+        /// </summary>
+        public List<Order> OrdersForOpen = new List<Order>();
 
         #endregion
         #region ======================================Свойства===============================================
@@ -57,6 +69,18 @@ namespace OsEngine.MyEntity
         }
         public decimal _openPrice = 0;
 
+        public decimal TakePrice
+        {
+            get => _takePrice;
+
+            set
+            {
+                _takePrice = value;
+                OnPropertyChanged(nameof(TakePrice));
+            }
+        }
+        public decimal _takePrice = 0;
+
 
         /// <summary>
         /// объем позиции
@@ -68,11 +92,7 @@ namespace OsEngine.MyEntity
             set
             {
                 _volume = value;
-                OnPropertyChanged(nameof(Volume));
-                OnPropertyChanged(nameof(OrderVolume));
-                OnPropertyChanged(nameof(StateOrder));
-                OnPropertyChanged(nameof(TakeVolume));
-                OnPropertyChanged(nameof(StateTake));
+                Change();
             }
         }
         public decimal _volume = 0;
@@ -100,120 +120,34 @@ namespace OsEngine.MyEntity
             }
         }
         public decimal _accum = 0;
-        /// <summary>
-        /// расчетная цена для тейк профита 
-        /// </summary>
-        public decimal TakePrice
-        {
-            get
-            {
-                if (LimitTake != null
-                   &&
-                 (LimitTake.State == OrderStateType.Activ
-                   || LimitTake.State == OrderStateType.Patrial
-                   || LimitTake.State == OrderStateType.Pending))
-                {
-                    return LimitTake.Price;
-                }
-                return 0;
-            }
-        }
-
 
         /// <summary>
-        ///  лимитка на позицию
-        /// </summary>
-        public Order Order
+        /// объем ордера открытия поз
+        /// <summary>
+        public decimal LimitVolume
         {
-            get => _order;
-
+            get => _limitVolume;
             set
             {
-                _order = value;
-                OnPropertyChanged(nameof(OrderVolume));
-                OnPropertyChanged(nameof(StateOrder));
+                _limitVolume = value;
+                Change();
             }
         }
-        public Order _order = null;
+        private decimal _limitVolume;
+
         /// <summary>
-        /// объем ордера 
-        /// <summary>
-        public decimal OrderVolume
-        {
-            get
-            {
-                if (Order != null
-                    &&
-                    (Order.State == OrderStateType.Activ
-                    || Order.State == OrderStateType.Patrial
-                    || Order.State == OrderStateType.Pending))
-                {
-                    return Order.Volume - Order.VolumeExecute;
-                }
-                return 0;
-            }
-        }
-        /// <summary>
-        /// статус ордера открытия поз
+        /// Обем ордера закрытия поз
         /// </summary>
-        public OrderStateType StateOrder
-        {
-            get
-            {
-                if (Order != null)
-                {
-                    return Order.State;
-                }
-                return 0;
-            }
-        }
-
-        /// <summary>
-        /// лимитка на тейк
-        /// </summary>
-        public Order LimitTake
-        {
-            get => _limitTake;
-
-            set
-            {
-                _limitTake = value;
-                OnPropertyChanged(nameof(StateTake));
-                OnPropertyChanged(nameof(TakeVolume));
-                OnPropertyChanged(nameof(TakePrice));
-            }
-        }
-        public Order _limitTake = null;
-
         public decimal TakeVolume
         {
-            get
+            get => _takeVolume;
+            set
             {
-                if (LimitTake != null
-                    &&
-                    (LimitTake.State == OrderStateType.Activ
-                    || LimitTake.State == OrderStateType.Patrial
-                    || LimitTake.State == OrderStateType.Pending))
-                {
-                    return LimitTake.Volume - LimitTake.VolumeExecute;
-                }
-                return 0;
+                _takeVolume = value;
+                Change();
             }
         }
-        /// <summary>
-        /// статус тейк ордера закрытия поз
-        /// </summary>
-        public OrderStateType StateTake
-        {
-            get
-            {
-                if (LimitTake != null)
-                {
-                    return LimitTake.State;
-                }
-                return 0;
-            }
-        }
+        private decimal _takeVolume;
 
         /// <summary>
         /// разрешение открыть позицию        
@@ -225,9 +159,7 @@ namespace OsEngine.MyEntity
             set
             {
                 _passVolume = value;
-                OnPropertyChanged(nameof(PassVolume));
-                OnPropertyChanged(nameof(OrderVolume));
-                OnPropertyChanged(nameof(StateOrder));
+                Change();
             }
         }
         public bool _passVolume = true;
@@ -242,15 +174,24 @@ namespace OsEngine.MyEntity
             set
             {
                 _passTake = value;
-                OnPropertyChanged(nameof(PassTake));
-                OnPropertyChanged(nameof(StateTake));
-                OnPropertyChanged(nameof(TakeVolume));
-                OnPropertyChanged(nameof(TakePrice));
+                Change();
             }
         }
         public bool _passTake = true;
         #endregion
         #region ======================================Методы===============================================
+
+        private void Change()
+        {
+            OnPropertyChanged(nameof(Volume));
+            OnPropertyChanged(nameof(OpenPrice));
+            OnPropertyChanged(nameof(LimitVolume));
+            OnPropertyChanged(nameof(PassTake));
+            OnPropertyChanged(nameof(TakeVolume));
+            OnPropertyChanged(nameof(PassVolume));
+            OnPropertyChanged(nameof(TakePrice));
+        }
+
         /// <summary>
         ///  формируем строку для сохранения
         /// </summary>
@@ -264,13 +205,49 @@ namespace OsEngine.MyEntity
             str += Side + " | ";
             str += "PassVolume = " + PassVolume.ToString(CultureInfo) + " | ";
             str += "PassTake = " + PassTake.ToString(CultureInfo) + " | ";
-            str += "OrderVolume = " + OrderVolume.ToString(CultureInfo) + " | ";
-            str += "StateOrder = " + StateOrder + " | ";
+            str += "LimitVolume = " + LimitVolume.ToString(CultureInfo) + " | ";
             str += "TakeVolume = " + TakeVolume.ToString(CultureInfo) + " | ";
             str += "TacePrice = " + TakePrice.ToString(CultureInfo) + " | ";
-            str += "StateTake = " + StateTake + " | ";
-
+       
             return str;
+        }
+        /// <summary>
+        /// отозвать все ордера с биржи
+        /// </summary>
+        public void CancelAllOrders(IServer server, DelegateGetStringForSave getStringForSave)
+        {
+            CanselCloseOrders(server, getStringForSave);
+            CanselOpenOrders(server, getStringForSave);
+        }
+
+        private void CanselOpenOrders(IServer server, DelegateGetStringForSave getStringForSave)
+        {
+            foreach (Order order in OrdersForOpen)
+            {
+                if (order != null
+                       && order.State == OrderStateType.Activ
+                        || order.State == OrderStateType.Patrial
+                        || order.State == OrderStateType.Pending)
+                {
+                    server.CancelOrder(order);
+                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитки на сервере " + getStringForSave(order));
+                }
+            }
+        }
+
+        private void CanselCloseOrders(IServer server, DelegateGetStringForSave getStringForSave)
+        {
+            foreach (Order order in OrdersForClose)
+            {
+                if (order != null
+                       && order.State == OrderStateType.Activ
+                        || order.State == OrderStateType.Patrial
+                        || order.State == OrderStateType.Pending)
+                {
+                    server.CancelOrder(order);
+                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем тейк на сервере " + getStringForSave(order));
+                }
+            }
         }
 
         public void AddMyTrade(MyTrade myTrade)
@@ -330,6 +307,13 @@ namespace OsEngine.MyEntity
                 OpenPrice=0;
             }
         }
+
+        #endregion
+
+        #region Делегаты ================================================================================================
+
+        public delegate string DelegateGetStringForSave(Order order);
+
 
         #endregion
 

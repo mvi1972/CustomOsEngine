@@ -2,6 +2,7 @@
 using OsEngine.Commands;
 using OsEngine.Entity;
 using OsEngine.Market;
+using OsEngine.MyEntity;
 using OsEngine.Views;
 using System;
 using System.Collections.Concurrent;
@@ -45,7 +46,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// коллекция  для логов из разных потоков 
         /// </summary>
-        private static ConcurrentQueue<string> _logMessges = new ConcurrentQueue<string>();
+        private static ConcurrentQueue<MessageForLog> _logMessges = new ConcurrentQueue<MessageForLog>();
 
         /// <summary>
         /// окно выбора инструмента
@@ -157,7 +158,6 @@ namespace OsEngine.ViewModels
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
         }
 
-
         private void RobotWindowVM_OnSelectedSecurity(string name)
         {
             Save();
@@ -193,9 +193,14 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// отправка строки в лог
         /// </summary>
-        public static void Log(string str)
+        public static void Log(string name, string str)
         {
-            _logMessges.Enqueue(str);
+            MessageForLog mess = new MessageForLog()
+            {
+                Name = name,
+                Message = str
+            };
+            _logMessges.Enqueue(mess);
         }
         /// <summary>
         /// Запись логa 
@@ -208,15 +213,15 @@ namespace OsEngine.ViewModels
             }
             while (MainWindow.ProccesIsWorked)
             {
-                string str;
+                MessageForLog mess;
 
-                if (_logMessges.TryDequeue(out str))
+                if (_logMessges.TryDequeue(out mess))
                 {
-                    string name = "Log" + DateTime.Now.ToShortDateString() + ".txt";
+                    string name = "Log" + mess.Name + "_"+ DateTime.Now.ToShortDateString() + ".txt";
 
                     using (StreamWriter writer = new StreamWriter(@"Log\" + name, true))
                     {
-                        writer.WriteLine(str);
+                        writer.WriteLine(mess.Message);
                         writer.Close();
                     }
                 }
@@ -248,7 +253,7 @@ namespace OsEngine.ViewModels
             }
             catch (Exception ex)
             {
-                Log(" Ошибка сохранения параметров = " + ex.Message);
+                Log("App", " Ошибка сохранения параметров = " + ex.Message);
 
             }
         }
@@ -272,7 +277,7 @@ namespace OsEngine.ViewModels
             }
             catch (Exception ex)
             {
-                Log(" Ошибка выгрузки параметров = " + ex.Message);
+                Log("App", " Ошибка выгрузки параметров = " + ex.Message);
             }
             string[] tabs = strTabs.Split(';');
             foreach (string tab in tabs)

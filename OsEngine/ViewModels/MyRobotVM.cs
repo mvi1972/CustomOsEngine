@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -410,6 +411,17 @@ namespace OsEngine.ViewModels
 
         private void TradeLogic()
         {
+            foreach (Level level in Levels)
+            {
+                LevelTradeLogicOpen(level);
+
+                LevelTradeLogicClose(level);
+            }
+        }
+
+
+        private void LevelTradeLogicOpen(Level level)
+        {
             if (IsRun == false
                 || SelectedSecurity == null)
             {
@@ -430,74 +442,86 @@ namespace OsEngine.ViewModels
             decimal borderUp = Price + stepLevel * MaxActiveLevel;
             decimal borderDown = Price - stepLevel * MaxActiveLevel;
 
-            foreach (Level level in Levels)
+            if (level.PassVolume
+                  && level.PriceLevel != 0
+                  && Math.Abs(level.Volume) + level.LimitVolume < Lot)
             {
-                if (level.PassVolume
-                    && level.PriceLevel !=0
-                    && Math.Abs(level.Volume) + level.OrderVolume  < Lot)
+                if (level.Side == Side.Sell
+                    && level.PriceLevel <= borderUp)
                 {
-                    if (level.Side == Side.Sell
-                        && level.PriceLevel <= borderUp)
-                    {
 
-                    }
-                    else if (level.Side == Side.Buy
-                           && level.PriceLevel >= borderDown)
-                    {
-                        decimal worklot = Lot - Math.Abs(level.Volume) + level.OrderVolume;
-                        RobotWindowVM.Log(" Уровень = " + level.GetStringForSave());
-
-                        level.PassVolume = false;
-                        level.Order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, Side.Buy);
-
-                        RobotWindowVM.Log(" Отправляем лимитку  " + GetStringForSave(level.Order));
-                    }
                 }
-                if (level.PassTake && level.PriceLevel !=0)
+                else if (level.Side == Side.Buy
+                       && level.PriceLevel >= borderDown)
                 {
-                    if (level.Volume !=0 && level.TakeVolume != Math.Abs(level.Volume) )
+                    decimal worklot = Lot - Math.Abs(level.Volume) - level.LimitVolume;
+                    RobotWindowVM.Log(Header, " Уровень = " + level.GetStringForSave());
+
+                    level.PassVolume = false;
+                    Order order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, Side.Buy);
+                    level.OrdersForOpen.Add(order); 
+
+                    RobotWindowVM.Log(Header, " Отправляем лимитку  " + GetStringForSave(order));
+                }
+            }
+        }
+
+        private void LevelTradeLogicClose( Level level)
+        {
+            if (IsRun == false
+                 || SelectedSecurity == null)
+            {
+                return;
+            }
+
+            decimal stepLevel = 0;
+            if (StepType == StepType.PUNKT)
+            {
+                stepLevel = StepLevel * SelectedSecurity.PriceStep;
+            }
+            else if (StepType == StepType.PERCENT)
+            {
+                stepLevel = StepLevel * Price / 100;
+                stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
+            }
+
+            if (level.PassTake && level.PriceLevel != 0)
+            {
+                if (level.Volume != 0 && level.TakeVolume != Math.Abs(level.Volume))
+                {
+
+                    stepLevel = 0;
+                    decimal price = 0;
+                    Side side = Side.None;
+
+                    if (StepType == StepType.PUNKT)
                     {
-                        if (level.TakeVolume !=0) 
-                        {
-                            RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
-                            level.PassTake = false;
+                        stepLevel = TakeLevel * SelectedSecurity.PriceStep;
+                    }
+                    else if (StepType == StepType.PERCENT)
+                    {
+                        stepLevel = TakeLevel * Price / 100;
+                        stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
+                    }
+                    if (level.Volume > 0)
+                    {
+                        price = level.PriceLevel + stepLevel;
+                        side = Side.Sell;
+                    }
+                    else if (level.Volume < 0)
+                    {
+                        price = level.PriceLevel - stepLevel;
+                        side = Side.Buy;
+                    }
+                    level.PassTake = false;
 
-                            RobotWindowVM.Log("Отзываем Тэйк ордер =  " + GetStringForSave(level.LimitTake));
-                            Server.CancelOrder(level.LimitTake);
+                    RobotWindowVM.Log(Header, "Уровень = " + level.GetStringForSave());
 
-                            return;
-                        }
-
-                        stepLevel = 0;
-                        decimal price = 0;
-                        Side side = Side.None;
-
-                        if (StepType == StepType.PUNKT)
-                        {
-                            stepLevel = TakeLevel * SelectedSecurity.PriceStep;
-                        }
-                        else if (StepType == StepType.PERCENT)
-                        {
-                            stepLevel = TakeLevel * Price / 100;
-                            stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
-                        }
-                        if (level.Volume > 0)
-                        {
-                            price = level.PriceLevel + stepLevel;
-                            side = Side.Sell;
-                        }
-                        else if (level.Volume < 0)
-                        {
-                            price = level.PriceLevel - stepLevel;
-                            side = Side.Buy;
-                        }
-                        level.PassTake = false;
-
-                        RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
-
-                        level.LimitTake = SendOrder(SelectedSecurity, price, Math.Abs(level.Volume), side);
-
-                        RobotWindowVM.Log("Отправляем Тэйк ордер =  " + GetStringForSave(level.LimitTake));
+                    Order order = SendOrder(SelectedSecurity, price, Math.Abs(level.Volume), side);
+                    if (order != null)
+                    {
+                        level.OrdersForClose.Add(order);
+                        RobotWindowVM.Log(Header, "Отправляем Тэйк ордер =  " + GetStringForSave(order));
                     }
                 }
             }
@@ -531,7 +555,7 @@ namespace OsEngine.ViewModels
  
         private void StartStop( object o)
         {
-            RobotWindowVM.Log(" \n\n StartStop = " + !IsRun);
+            RobotWindowVM.Log( Header, " \n\n StartStop = " + !IsRun);
             Thread.Sleep(300);
 
             IsRun = !IsRun;
@@ -549,25 +573,7 @@ namespace OsEngine.ViewModels
             {
                 foreach (Level level in Levels)
                 {
-                    if (level.Order != null
-                        && level.Order.State == OrderStateType.Activ
-                        || level.Order.State == OrderStateType.Patrial
-                        || level.Order.State == OrderStateType.Pending)
-                    {
-                        Server.CancelOrder(level.Order);
-                        RobotWindowVM.Log(" Снимаем лимитки на сервере " + GetStringForSave(level.Order));
-                    }
-                }
-                foreach (Level level in Levels)
-                {
-                    if (level.LimitTake != null
-                        && level.Order.State == OrderStateType.Activ
-                        || level.Order.State == OrderStateType.Patrial
-                        || level.Order.State == OrderStateType.Pending)
-                    {
-                        Server.CancelOrder(level.LimitTake);
-                        RobotWindowVM.Log(" Снимаем тэйк на сервере " + GetStringForSave(level.LimitTake));
-                    }
+                    level.CancelAllOrders(Server, GetStringForSave);
                 }
             }
         }
@@ -584,7 +590,7 @@ namespace OsEngine.ViewModels
             _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
 
-            RobotWindowVM.Log(" Подключаемся к серверу = " + _server.ServerType);
+            RobotWindowVM.Log( Header, " Подключаемся к серверу = " + _server.ServerType);
         }
 
         /// <summary>
@@ -599,7 +605,7 @@ namespace OsEngine.ViewModels
             _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
 
-            RobotWindowVM.Log(" Отключаемся от сервера = " + _server.ServerType);
+            RobotWindowVM.Log( Header, " Отключаемся от сервера = " + _server.ServerType);
         }
 
         private void Server_NewTradeEvent(List<Trade> trades)
@@ -619,51 +625,11 @@ namespace OsEngine.ViewModels
         private void Server_NewOrderIncomeEvent(Order order)
         {
             if (order.SecurityNameCode == SelectedSecurity.Name
-                && order.ServerType == Server.ServerType) // && order.PortfolioNumber == _portfolio.Number
+                && order.ServerType == Server.ServerType
+                && order.PortfolioNumber == _portfolio.Number) // 
             {
-                RobotWindowVM.Log("NewOrderIncomeEvent = " + GetStringForSave(order));
-
-                foreach (Level level in Levels)
-                {
-                    if (level.Order != null)
-                    {
-                        if (level.Order.NumberUser == order.NumberUser
-                           || level.Order.NumberMarket == order.NumberMarket)
-                        {
-                            RobotWindowVM.Log("лимитный ордер " );
-
-                            level.Order.NumberMarket = order.NumberMarket;
-                            level.Order.State = order.State;
-                            level.Order.Volume = order.Volume;
-
-                            level.PassVolume = true;
-
-                            RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
-
-                            // TradeLogic();
-                            break;
-                        }
-                    }
-                    if (level.LimitTake != null)
-                    {
-                        if (level.LimitTake.NumberUser == order.NumberUser
-                           || level.LimitTake.NumberMarket == order.NumberMarket)
-                        {
-                            RobotWindowVM.Log("лимитный ордер ");
-
-                            level.LimitTake.NumberMarket = order.NumberMarket;
-                            level.LimitTake.State = order.State;
-                            level.LimitTake.Volume = order.Volume;
-
-                            level.PassTake = true;
-
-                            RobotWindowVM.Log("Уровень = " + level.GetStringForSave());
-
-                            // TradeLogic();
-                            break;
-                        }
-                    }
-                }
+                RobotWindowVM.Log( Header, "NewOrderIncomeEvent = " + GetStringForSave(order));
+                Save();
             }
         }
 
@@ -674,25 +640,13 @@ namespace OsEngine.ViewModels
                 return; // нашей бумаги нет
             }
 
-            RobotWindowVM.Log("MyTrade =  " + GetStringForSave(myTrade));
+            RobotWindowVM.Log( Header, "MyTrade =  " + GetStringForSave(myTrade));
 
             foreach (Level level in Levels)
             {
-                if (level.Order != null && level.Order.NumberMarket == myTrade.NumberOrderParent)
-                {
-                    level.AddMyTrade(myTrade);
-                    RobotWindowVM.Log("MyTrade = Limit");
-                    TradeLogic();
-                    break;
-                }
-                if (level.LimitTake != null && level.LimitTake.NumberMarket == myTrade.NumberOrderParent)
-                {
-                    level.AddMyTrade(myTrade);
-                    RobotWindowVM.Log("MyTrade = Take");
-                    TradeLogic();
-                    break;
-                }
+   
             }
+            Save();
         }
 
         /// <summary>
@@ -709,7 +663,7 @@ namespace OsEngine.ViewModels
             {
                 return;
             }
-            RobotWindowVM.Log(" \n\n Calculate " );
+            RobotWindowVM.Log( Header, " \n\n Calculate " );
             for (int i = 0; i < CountLevels; i++)
             {
                 Level levelBuy = new Level() {Side = Side.Buy};
@@ -739,7 +693,7 @@ namespace OsEngine.ViewModels
                 {
                     levels.Insert(0, levelSell);
                 }
-                RobotWindowVM.Log("Уровень =  " + levels.Last().GetStringForSave());
+                RobotWindowVM.Log( Header, "Уровень =  " + levels.Last().GetStringForSave());
             }
             Levels = levels;
             OnPropertyChanged(nameof(Levels));
@@ -775,7 +729,7 @@ namespace OsEngine.ViewModels
             ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
             if (server == null)
             {
-                RobotWindowVM.Log("GetStringPortfolios server == null ");
+                RobotWindowVM.Log( Header, "GetStringPortfolios server == null ");
                 return stringPortfolios;
             }
             if (server.Portfolios == null)
@@ -785,7 +739,7 @@ namespace OsEngine.ViewModels
            
             foreach (Portfolio portf in server.Portfolios)
             {
-                RobotWindowVM.Log("GetStringPortfolios  портфель =  " + portf.Number);
+                RobotWindowVM.Log( Header, "GetStringPortfolios  портфель =  " + portf.Number);
                 stringPortfolios.Add(portf.Number);
             }
             return stringPortfolios;  
@@ -799,13 +753,13 @@ namespace OsEngine.ViewModels
                 {
                     if (portf.Number == number)
                     {
-                        RobotWindowVM.Log(" Выбран портфель =  " + portf.Number);
+                        RobotWindowVM.Log( Header, " Выбран портфель =  " + portf.Number);
                         return portf;
                     }
                 }
             }
 
-            RobotWindowVM.Log("GetStringPortfolios  портфель = null ");
+            RobotWindowVM.Log( Header, "GetStringPortfolios  портфель = null ");
             return null;
         }
 
@@ -830,7 +784,7 @@ namespace OsEngine.ViewModels
         {
             if (security == null)
             {
-                RobotWindowVM.Log("StartSecuritiy  security = null ");
+                RobotWindowVM.Log( Header, "StartSecuritiy  security = null ");
                 return;
             }
             Task.Run(() =>
@@ -840,7 +794,7 @@ namespace OsEngine.ViewModels
                     var series = Server.StartThisSecurity(security.Name, new TimeFrameBuilder(), security.NameClass);
                     if (series != null)
                     {
-                        RobotWindowVM.Log("StartSecuritiy  security = " + series.Security.Name);
+                        RobotWindowVM.Log( Header, "StartSecuritiy  security = " + series.Security.Name);
                         Save();
                         break;
                     }
@@ -919,7 +873,7 @@ namespace OsEngine.ViewModels
             }
             catch (Exception ex)
             {
-                RobotWindowVM.Log(" Ошибка сохранения параметров = " + ex.Message);
+                RobotWindowVM.Log( Header, " Ошибка сохранения параметров = " + ex.Message);
 
             }
         }
@@ -970,7 +924,7 @@ namespace OsEngine.ViewModels
             }
             catch (Exception ex)
             {
-                RobotWindowVM.Log(" Ошибка выгрузки параметров = " + ex.Message);
+                RobotWindowVM.Log( Header, " Ошибка выгрузки параметров = " + ex.Message);
             }
             StartServer(servType);
 
