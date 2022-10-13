@@ -136,12 +136,9 @@
                                             Binding="{Binding Accum,
                                             StringFormat={}{0:0.###########},
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                         <DataGridTextColumn Header="Order Volume"
-                                            Binding="{Binding OrderVolume,
+                        <DataGridTextColumn Header="Limit Volume"
+                                            Binding="{Binding LimitVolume,
                                             StringFormat={}{0:0.###########},
-                                            UpdateSourceTrigger=PropertyChanged}"/>
-                        <DataGridTextColumn Header="State Order"
-                                            Binding="{Binding StateOrder,
                                             UpdateSourceTrigger=PropertyChanged}"/>
                         <DataGridTextColumn Header="PassVolume"
                                             Binding="{Binding PassVolume,
@@ -154,11 +151,7 @@
                                             Binding="{Binding TakeVolume,
                                             StringFormat={}{0:0.###########},
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                        <DataGridTextColumn Header="Status Take"
-                                            Binding="{Binding StateTake,
-                                            UpdateSourceTrigger=PropertyChanged}"/>
-
-                        <DataGridTextColumn Header="PassTake"
+                         <DataGridTextColumn Header="PassTake"
                                             Binding="{Binding PassTake,
                                             UpdateSourceTrigger=PropertyChanged}"/>
 

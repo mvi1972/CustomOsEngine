@@ -681,10 +681,22 @@ namespace OsEngine.ViewModels
 
             foreach (Level level in Levels)
             {
-                 level.AddMyTrade(myTrade);
+                bool newTrade = level.AddMyTrade(myTrade);
+                if (newTrade)
+                {
+                    if (myTrade.Side == level.Side)
+                    {
+                        LevelTradeLogicClose(level);
+                    }
+                    else
+                    {
+                        LevelTradeLogicOpen(level);
+                    }
+                    RobotWindowVM.Log(Header, "Уровень  =  " + level.GetStringForSave());
+                    Save();
+                }
             }
-            Save();
-        }
+         }
 
         /// <summary>
         /// расчитывает уровни 

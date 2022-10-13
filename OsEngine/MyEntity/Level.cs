@@ -320,13 +320,33 @@ namespace OsEngine.MyEntity
             }
         }
 
-        public void AddMyTrade(MyTrade myTrade)
+        public bool AddMyTrade(MyTrade myTrade)
         {
-
-
-            CalculateOrders();
+            if (IsMyTrade(myTrade))
+            {
+                CalculateOrders();
+                return true;
+            }
+            return false;
         }
-
+        private bool IsMyTrade(MyTrade myTrade)
+        {
+            foreach (Order order in OrdersForOpen)
+            {
+                if (order.NumberMarket == myTrade.NumberOrderParent)
+                {
+                    return true;
+                }
+            }
+            foreach (Order order in OrdersForClose)
+            {
+                if (order.NumberMarket == myTrade.NumberOrderParent)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         void kod_add_trade()
         {
