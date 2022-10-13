@@ -632,6 +632,7 @@ namespace OsEngine.ViewModels
 
         private void Server_NewOrderIncomeEvent(Order order)
         {
+            if (order == null) return;
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType
                 && order.PortfolioNumber == _portfolio.Number) // 
