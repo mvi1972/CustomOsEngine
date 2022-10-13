@@ -181,6 +181,76 @@ namespace OsEngine.MyEntity
         #endregion
         #region ======================================Методы===============================================
 
+        public bool NewOrder(Order newOrder)
+        {
+            foreach (Order order in OrdersForOpen)
+            {
+                if (order.NumberMarket == newOrder.NumberMarket)
+                {
+                    CalculateOrders();
+
+                    return true;
+                }
+            }
+            foreach (Order order in OrdersForClose)
+            {
+                if (order.NumberMarket == newOrder.NumberMarket)
+                {
+                    CalculateOrders();
+
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void CalculateOrders()
+        {
+            decimal activeVolume = 0;
+            decimal volumeExecute = 0;
+
+            decimal activeTake = 0;
+
+            bool passLimit = true;
+            bool passTake = true;
+
+            foreach (Order order in OrdersForOpen)
+            {
+                volumeExecute += order.VolumeExecute;
+                if (order.State == OrderStateType.Activ
+                    || order.State == OrderStateType.Patrial)
+                {
+                    activeVolume += order.Volume - order.VolumeExecute; 
+                }
+                else if (order.State == OrderStateType.Pending
+                        || order.State == OrderStateType.None)
+                {
+                    passLimit = false;  
+                }
+            }
+
+            foreach (Order order in OrdersForClose)
+            {
+                volumeExecute -= order.VolumeExecute;
+                if (order.State == OrderStateType.Activ
+                    || order.State == OrderStateType.Patrial)
+                {
+                    activeTake += order.Volume - order.VolumeExecute;
+                }
+                else if (order.State == OrderStateType.Pending
+                        || order.State == OrderStateType.None)
+                {
+                    passTake = false;
+                }
+            }
+
+            Volume = volumeExecute;
+            LimitVolume = activeVolume;
+            TakeVolume = activeTake;
+            PassVolume = passLimit;
+            PassTake= passTake;
+        }
+
         private void Change()
         {
             OnPropertyChanged(nameof(Volume));

@@ -34,6 +34,10 @@ namespace OsEngine.ViewModels
         }
 
         #region Поля =====================================================================================
+        /// <summary>
+        /// количество  портфелей
+        /// </summary>
+        int _portfoliosCount = 0;    
 
         Portfolio _portfolio;
 
@@ -628,7 +632,23 @@ namespace OsEngine.ViewModels
                 && order.ServerType == Server.ServerType
                 && order.PortfolioNumber == _portfolio.Number) // 
             {
-                RobotWindowVM.Log( Header, "NewOrderIncomeEvent = " + GetStringForSave(order));
+                bool rec =true;
+                if (order.State == OrderStateType.Activ
+                    && order.TimeCallBack.AddSeconds(15) < Server.ServerTime) 
+                {
+                    rec = false;
+                }
+                if (rec)
+                {
+                    RobotWindowVM.Log(Header, "NewOrderIncomeEvent = " + GetStringForSave(order));
+                }
+                if (order.NumberMarket !="")
+                {
+                    foreach (Level level in Levels)
+                    {
+                        bool newOrderBool= level.NewOrder(order);
+                    }
+                }
                 Save();
             }
         }
@@ -703,6 +723,13 @@ namespace OsEngine.ViewModels
 
         private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
         {
+            if (portfolios == null 
+                || _portfoliosCount >= portfolios.Count) // нет новых портфелей 
+            {
+                return; 
+            }
+            _portfoliosCount = portfolios.Count;
+
             StringPortfolios = GetStringPortfolios(_server); // грузим портфели
 
             OnPropertyChanged(nameof(StringPortfolios));
