@@ -3,6 +3,7 @@ using OsEngine.Commands;
 using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
+using OsEngine.Market.Servers.GateIo.Futures.Response;
 using OsEngine.MyEntity;
 using OsEngine.Views;
 using System;
@@ -40,6 +41,9 @@ namespace OsEngine.ViewModels
         int _portfoliosCount = 0;    
 
         Portfolio _portfolio;
+
+        private List<MyTrade> _myTrades = new List<MyTrade>();
+
 
         #endregion
 
@@ -647,6 +651,11 @@ namespace OsEngine.ViewModels
                     foreach (Level level in Levels)
                     {
                         bool newOrderBool= level.NewOrder(order);
+
+                        if (newOrderBool && rec)
+                        {
+                            RobotWindowVM.Log(Header, "Уровень = " + level.GetStringForSave());
+                        }
                     }
                 }
                 Save();
@@ -659,12 +668,20 @@ namespace OsEngine.ViewModels
             {
                 return; // нашей бумаги нет
             }
+            foreach (MyTrade trade in _myTrades)
+            {
+                if (trade.NumberTrade == myTrade.NumberTrade)
+                {
+                    return ;
+                }
+            }
+            _myTrades.Add(myTrade);
 
             RobotWindowVM.Log( Header, "MyTrade =  " + GetStringForSave(myTrade));
 
             foreach (Level level in Levels)
             {
-   
+                 level.AddMyTrade(myTrade);
             }
             Save();
         }

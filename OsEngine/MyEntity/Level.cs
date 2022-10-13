@@ -322,7 +322,16 @@ namespace OsEngine.MyEntity
 
         public void AddMyTrade(MyTrade myTrade)
         {
-            if (Volume ==0)
+
+
+            CalculateOrders();
+        }
+
+
+        void kod_add_trade()
+        {
+            /*
+                        if (Volume ==0)
             {
                 OpenPrice = myTrade.Price;
             }
@@ -376,6 +385,8 @@ namespace OsEngine.MyEntity
             {
                 OpenPrice=0;
             }
+             */
+
         }
 
         #endregion
