@@ -483,7 +483,9 @@ namespace OsEngine.ViewModels
                 else if (level.Side == Side.Buy
                        && level.PriceLevel >= borderDown)
                 {
-                    decimal worklot = Lot - Math.Abs(level.Volume) - level.LimitVolume;
+                    decimal lot = CalcWorkLot(Lot, Price);
+
+                    decimal worklot = lot- Math.Abs(level.Volume) - level.LimitVolume;
                     RobotWindowVM.Log(Header, " Уровень = " + level.GetStringForSave());
 
                     level.PassVolume = false;
@@ -554,6 +556,18 @@ namespace OsEngine.ViewModels
                     }
                 }
             }
+        }
+
+        private decimal CalcWorkLot(decimal lot, decimal price)
+        {
+            decimal workLot = lot;
+            if (IsChekCurrency)
+            {
+                workLot = lot / price;
+            }
+            workLot = decimal.Round(workLot, SelectedSecurity.Decimals);
+
+            return workLot;
         }
 
         /// <summary>
