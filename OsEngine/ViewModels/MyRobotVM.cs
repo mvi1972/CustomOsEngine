@@ -367,10 +367,31 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(ServerType));
 
                 SubscribeToServer(); // подключаемя к бир
-
+                if (_server !=null)
+                {
+                    if (_server.ServerType == ServerType.Binance
+                        || _server.ServerType == ServerType.BinanceFutures)
+                    {
+                        IsChekCurrency = true;
+                    }
+                    else IsChekCurrency = false;
+                }
             } 
         }
         private IServer _server = null;
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsChekCurrency
+        {
+            get => _isChekCurrency;
+            set
+            {
+                _isChekCurrency = value;
+                OnPropertyChanged(nameof(IsChekCurrency));
+            }
+        }
+        private bool _isChekCurrency;   
 
         #endregion
 
