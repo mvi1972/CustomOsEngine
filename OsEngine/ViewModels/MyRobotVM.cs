@@ -15,6 +15,7 @@ using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Action = OsEngine.MyEntity.Action;
 using Direction = OsEngine.MyEntity.Direction;
 
 namespace OsEngine.ViewModels
@@ -434,9 +435,39 @@ namespace OsEngine.ViewModels
             }
         }
 
+        private DelegateCommand commandClosePositions;
+        public DelegateCommand CommandClosePositions
+        {
+            get
+            {
+                if (commandClosePositions ==null)
+                {
+                    commandClosePositions = new DelegateCommand(ClosePosition);
+                }
+                return commandClosePositions;
+            }
+        }
+
         #endregion
 
         #region Методы =====================================================================================
+        /// <summary>
+        /// закрываем все позиции 
+        /// </summary>
+        private void ClosePosition(object o)
+        {
+            MessageBoxResult resut = MessageBox.Show(" Закрыть все позиции по " + Header, " Уверен? ", MessageBoxButton.YesNo);
+            if (resut == MessageBoxResult.Yes)
+            {
+                IsRun = false;
+                foreach (Level level in Levels)
+                {
+                    level.CancelAllOrders(Server, GetStringForSave);
+
+                    LevelTradeLogicClose(level, Action.CLOSE);
+                }
+            }
+        }
 
         private void TradeLogic()
         {
@@ -444,7 +475,7 @@ namespace OsEngine.ViewModels
             {
                 LevelTradeLogicOpen(level);
 
-                LevelTradeLogicClose(level);
+                LevelTradeLogicClose(level, Action.TAKE);
             }
         }
 
@@ -510,7 +541,7 @@ namespace OsEngine.ViewModels
             }
         }
 
-        private void LevelTradeLogicClose( Level level)
+        private void LevelTradeLogicClose( Level level, Action action)
         {
             if (IsRun == false
                  || SelectedSecurity == null)
@@ -549,12 +580,26 @@ namespace OsEngine.ViewModels
                     }
                     if (level.Volume > 0)
                     {
-                        price = level.PriceLevel + stepLevel;
+                        if (action == Action.TAKE)
+                        {
+                            price = level.PriceLevel + stepLevel;
+                        }
+                        else if (action == Action.CLOSE)
+                        {
+                            price = Price - stepLevel * 3;
+                        }
                         side = Side.Sell;
                     }
                     else if (level.Volume < 0)
                     {
-                        price = level.PriceLevel - stepLevel;
+                        if (action == Action.TAKE)
+                        {
+                            price = level.PriceLevel - stepLevel;
+                        }
+                        else if (action == Action.CLOSE)
+                        {
+                            price = Price + stepLevel * 3;
+                        }
                         side = Side.Buy;
                     }
                     level.PassTake = false;
@@ -746,7 +791,7 @@ namespace OsEngine.ViewModels
                 {
                     if (myTrade.Side == level.Side)
                     {
-                        LevelTradeLogicClose(level);
+                        LevelTradeLogicClose(level, Action.TAKE);
                     }
                     else
                     {
