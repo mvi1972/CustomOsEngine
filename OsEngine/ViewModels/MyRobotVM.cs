@@ -483,16 +483,29 @@ namespace OsEngine.ViewModels
                 else if (level.Side == Side.Buy
                        && level.PriceLevel >= borderDown)
                 {
-                    decimal lot = CalcWorkLot(Lot, Price);
+                    decimal lot = CalcWorkLot(Lot, level.PriceLevel);
 
                     decimal worklot = lot- Math.Abs(level.Volume) - level.LimitVolume;
                     RobotWindowVM.Log(Header, " Уровень = " + level.GetStringForSave());
+                    RobotWindowVM.Log(Header, "Рабочий лот =  " + worklot);
+                    RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
 
                     level.PassVolume = false;
-                    Order order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, Side.Buy);
-                    level.OrdersForOpen.Add(order); 
 
-                    RobotWindowVM.Log(Header, " Отправляем лимитку  " + GetStringForSave(order));
+                    if (IsChekCurrency && Lot > 6 || ! IsChekCurrency)
+                    {
+                        Order order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, Side.Buy);
+                        if (order != null)
+                        {
+                            level.OrdersForOpen.Add(order);
+
+                            RobotWindowVM.Log(Header, " Отправляем лимитку  " + GetStringForSave(order));
+                        }
+                        else
+                        {
+                            level.PassVolume = true;
+                        }
+                    }
                 }
             }
         }
@@ -548,11 +561,22 @@ namespace OsEngine.ViewModels
 
                     RobotWindowVM.Log(Header, "Уровень = " + level.GetStringForSave());
 
-                    Order order = SendOrder(SelectedSecurity, price, Math.Abs(level.Volume), side);
-                    if (order != null)
+                    decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
+                    RobotWindowVM.Log(Header, "Рабочий лот =  " + worklot);
+                    RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
+
+                    if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
                     {
-                        level.OrdersForClose.Add(order);
-                        RobotWindowVM.Log(Header, "Отправляем Тэйк ордер =  " + GetStringForSave(order));
+                        Order order = SendOrder(SelectedSecurity, price, worklot, side);
+                        if (order != null)
+                        {
+                            level.OrdersForClose.Add(order);
+                            RobotWindowVM.Log(Header, "Отправляем Тэйк ордер =  " + GetStringForSave(order));
+                        }
+                        else
+                        {
+                            level.PassTake = true;
+                        }
                     }
                 }
             }
