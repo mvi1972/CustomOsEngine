@@ -61,7 +61,14 @@
                         <ComboBox ItemsSource="{Binding Directions}"
                           SelectedItem="{Binding Direction}"/>
                         <TextBlock Text="Лот на уровень"/>
-                        <local:DecimalTextBox Text="{Binding Lot}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <local:DecimalTextBox Text="{Binding Lot}"
+                                                  MinWidth="80"/>
+                            <CheckBox Content="$"
+                                      IsChecked="{Binding IsChekCurrency}"
+                                      Margin="5,0"/>
+                        </StackPanel>
+  
                         <TextBlock Text="Тип шага"/>
                         <ComboBox ItemsSource="{Binding StepTypes}"
                           SelectedItem="{Binding StepType}"/>
@@ -71,9 +78,12 @@
                         <local:DecimalTextBox Text="{Binding TakeLevel}"/>
                         <TextBlock Text="Максимально уровней"/>
                         <local:IntTextBox Text="{Binding MaxActiveLevel}"/>
-                        <TextBlock Text=""/>
+                        <Button Content="Закрыть позиции"
+                                Command="{Binding CommandClosePositions}"
+                                Margin="3,1"/>
                         <Button Content="Рассчитать"
-                            Command="{Binding CommandCalculate}"/>
+                            Command="{Binding CommandCalculate}"
+                                Margin="3,1"/>
 
                     </UniformGrid>
 

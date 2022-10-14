@@ -6,7 +6,7 @@
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:OsEngine.Views"
         mc:Ignorable="d"
-        Height="800" Width="1600">
+        Height="800" Width="1400">
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
             <StackPanel Orientation="Horizontal">
