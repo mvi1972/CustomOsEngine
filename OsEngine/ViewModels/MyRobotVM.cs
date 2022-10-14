@@ -29,7 +29,6 @@ namespace OsEngine.ViewModels
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
         }
 
-
         public MyRobotVM()
         {
             
@@ -44,7 +43,6 @@ namespace OsEngine.ViewModels
         Portfolio _portfolio;
 
         private List<MyTrade> _myTrades = new List<MyTrade>();
-
 
         #endregion
 
@@ -479,7 +477,6 @@ namespace OsEngine.ViewModels
             }
         }
 
-
         private void LevelTradeLogicOpen(Level level)
         {
             if (IsRun == false
@@ -504,47 +501,40 @@ namespace OsEngine.ViewModels
 
             if (level.PassVolume
                   && level.PriceLevel != 0
-                  && Math.Abs(level.Volume) + level.LimitVolume < Lot)
+                  && Math.Abs(level.Volume) + level.LimitVolume < Lot
+                  && level.PriceLevel <= borderUp
+                  && level.PriceLevel >= borderDown)
             {
-                if (level.Side == Side.Sell
-                    && level.PriceLevel <= borderUp)
+                decimal lot = CalcWorkLot(Lot, level.PriceLevel);
+
+                decimal worklot = lot - Math.Abs(level.Volume) - level.LimitVolume;
+                RobotWindowVM.Log(Header, " Уровень = " + level.GetStringForSave());
+                RobotWindowVM.Log(Header, "Рабочий лот =  " + worklot);
+                RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
+
+                level.PassVolume = false;
+
+                if (IsChekCurrency && Lot > 6 || !IsChekCurrency)
                 {
-
-                }
-                else if (level.Side == Side.Buy
-                       && level.PriceLevel >= borderDown)
-                {
-                    decimal lot = CalcWorkLot(Lot, level.PriceLevel);
-
-                    decimal worklot = lot- Math.Abs(level.Volume) - level.LimitVolume;
-                    RobotWindowVM.Log(Header, " Уровень = " + level.GetStringForSave());
-                    RobotWindowVM.Log(Header, "Рабочий лот =  " + worklot);
-                    RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
-
-                    level.PassVolume = false;
-
-                    if (IsChekCurrency && Lot > 6 || ! IsChekCurrency)
+                    Order order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
+                    if (order != null)
                     {
-                        Order order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, Side.Buy);
-                        if (order != null)
-                        {
-                            level.OrdersForOpen.Add(order);
+                        level.OrdersForOpen.Add(order);
 
-                            RobotWindowVM.Log(Header, " Отправляем лимитку  " + GetStringForSave(order));
-                        }
-                        else
-                        {
-                            level.PassVolume = true;
-                        }
+                        RobotWindowVM.Log(Header, " Отправляем лимитку  " + GetStringForSave(order));
+                    }
+                    else
+                    {
+                        level.PassVolume = true;
                     }
                 }
+
             }
         }
 
         private void LevelTradeLogicClose( Level level, Action action)
         {
-            if (IsRun == false
-                 || SelectedSecurity == null)
+            if (IsRun == false || SelectedSecurity == null && action== Action.TAKE)
             {
                 return;
             }
@@ -634,7 +624,7 @@ namespace OsEngine.ViewModels
             {
                 workLot = lot / price;
             }
-            workLot = decimal.Round(workLot, SelectedSecurity.Decimals);
+            workLot = decimal.Round(workLot, SelectedSecurity.DecimalsVolume);
 
             return workLot;
         }
@@ -1029,6 +1019,8 @@ namespace OsEngine.ViewModels
 
                     writer.WriteLine(JsonConvert.SerializeObject(Levels));
 
+                    writer.WriteLine(IsChekCurrency);
+
                     writer.Close();
                 }
             }
@@ -1080,6 +1072,12 @@ namespace OsEngine.ViewModels
 
                     Levels = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Level>());
 
+                    bool check = false; 
+                    if (bool.TryParse(reader.ReadLine(), out check))
+                    {
+                        IsChekCurrency = check;
+                    }  
+
                     reader.Close();
                 }
             }
@@ -1114,7 +1112,6 @@ namespace OsEngine.ViewModels
             }
         }
 
-
         private void ServerMaster_ServerCreateEvent(IServer server)
         {
             if (server.ServerType == ServerType)
@@ -1135,7 +1132,6 @@ namespace OsEngine.ViewModels
                 }
             }
         }
-
 
         #endregion
 
