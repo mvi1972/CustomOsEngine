@@ -20,11 +20,12 @@ namespace OsEngine.MyEntity
         /// </summary>
         public List<Order> OrdersForClose = new List<Order>();
 
-
         /// <summary>
         /// лимитки на открытие позиций 
         /// </summary>
         public List<Order> OrdersForOpen = new List<Order>();
+
+        private List<MyTrade> _myTrades = new List<MyTrade>();
 
         #endregion
         #region ======================================Свойства===============================================
@@ -245,6 +246,12 @@ namespace OsEngine.MyEntity
             }
 
             Volume = volumeExecute;
+
+            if (Side == Side.Sell)
+            {
+                Volume *= -1;
+            }
+
             LimitVolume = activeVolume;
             TakeVolume = activeTake;
             PassVolume = passLimit;
@@ -320,14 +327,92 @@ namespace OsEngine.MyEntity
             }
         }
 
-        public bool AddMyTrade(MyTrade myTrade)
+        public bool AddMyTrade(MyTrade myTrade, decimal contLot)
         {
+            foreach (MyTrade trade in _myTrades)
+            {
+                if (trade.NumberTrade == myTrade.NumberTrade)
+                {
+                    return false;
+                }
+            }
+
             if (IsMyTrade(myTrade))
             {
+                _myTrades.Add(myTrade);
+
                 CalculateOrders();
+                CalculatePosition(contLot);
                 return true;
             }
             return false;
+        }
+
+        private void CalculatePosition(decimal contLot)
+        {
+            decimal volume =0;
+            decimal openPrice = 0;
+            decimal accum = 0;
+
+            foreach (MyTrade myTrade in _myTrades)
+            {
+                if (Volume == 0)
+                {
+                    openPrice = myTrade.Price;
+                }
+                else if (Volume > 0)
+                {
+                    if (myTrade.Side == Side.Buy)
+                    {
+                        openPrice = (Volume * OpenPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
+                    }
+                    else
+                    {
+                        if (myTrade.Volume <= Math.Abs(Volume))
+                        {
+                            accum += (myTrade.Price - OpenPrice) * myTrade.Volume;
+                        }
+                        else
+                        {
+                            accum += (myTrade.Price - OpenPrice) * Volume;
+                            openPrice = myTrade.Price;
+                        }
+                    }
+                }
+                else if (Volume < 0)
+                {
+                    if (myTrade.Side == Side.Buy)
+                    {
+                        if (myTrade.Volume <= Math.Abs(Volume))
+                        {
+                            accum += (myTrade.Price - OpenPrice) * myTrade.Volume;
+                        }
+                        else
+                        {
+                            accum += (myTrade.Price - OpenPrice) * Volume;
+                            openPrice = myTrade.Price;
+                        }
+                    }
+                    else
+                    {
+                        openPrice = (Volume * OpenPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
+                    }
+                }
+                if (myTrade.Side == Side.Buy)
+                {
+                    volume += myTrade.Volume;
+                }
+                else
+                {
+                    volume -= myTrade.Volume;
+                }
+                if (Volume == 0)
+                {
+                    openPrice = 0;
+                }
+            }
+            OpenPrice = openPrice;
+            Accum = accum * contLot;
         }
         private bool IsMyTrade(MyTrade myTrade)
         {
@@ -346,67 +431,6 @@ namespace OsEngine.MyEntity
                 }
             }
             return false;
-        }
-
-        void kod_add_trade()
-        {
-            /*
-                        if (Volume ==0)
-            {
-                OpenPrice = myTrade.Price;
-            }
-            else if (Volume > 0)
-            {
-                if (myTrade.Side == Side.Buy)
-                {
-                    OpenPrice = (Volume * OpenPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
-                }
-                else
-                {
-                    if (myTrade.Volume <= Math.Abs(Volume))
-                    {
-                        Accum += (myTrade.Price - OpenPrice) * myTrade.Volume;
-                    }
-                    else
-                    {
-                        Accum += (myTrade.Price - OpenPrice) * Volume;
-                        OpenPrice=myTrade.Price;    
-                    }
-                }
-            }
-            else if ( Volume < 0)
-            {
-                if (myTrade.Side == Side.Buy)
-                {
-                    if (myTrade.Volume <= Math.Abs(Volume))
-                    {
-                        Accum += (myTrade.Price - OpenPrice) * myTrade.Volume;
-                    }
-                    else
-                    {
-                        Accum += (myTrade.Price - OpenPrice) * Volume;
-                        OpenPrice = myTrade.Price;
-                    }
-                }
-                else
-                {
-                    OpenPrice = (Volume * OpenPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
-                }
-            }
-            if (myTrade.Side == Side.Buy)
-            {
-                Volume += myTrade.Volume;
-            }
-            else
-            {
-                Volume -= myTrade.Volume;
-            }
-            if (Volume ==0)
-            {
-                OpenPrice=0;
-            }
-             */
-
         }
 
         #endregion

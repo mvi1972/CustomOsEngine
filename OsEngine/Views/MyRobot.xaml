@@ -95,15 +95,20 @@
 
                     <UniformGrid Columns="2">
                         <TextBlock Text="Всего позиций"/>
-                        <TextBlock Text="{Binding AllPositionsCount}"/>
+                        <TextBlock Text="{Binding AllPositionsCount,
+                                   StringFormat={}{0:0.###########}}"/>
                         <TextBlock Text="Средняя цена"/>
-                        <TextBlock Text="{Binding PriceAverege}"/>
+                        <TextBlock Text="{Binding PriceAverege,
+                                   StringFormat={}{0:0.###########}}"/>
                         <TextBlock Text="Комиссия"/>
-                        <TextBlock Text="{Binding VarMargine}"/>
+                        <TextBlock Text="{Binding VarMargine,
+                                   StringFormat={}{0:0.###########}}"/>
                         <TextBlock Text="Прибыль"/>
-                        <TextBlock Text="{Binding Accum}"/>
+                        <TextBlock Text="{Binding Accum,
+                                   StringFormat={}{0:0.###########}}"/>
                         <TextBlock Text="Итого"/>
-                        <TextBlock Text="{Binding Total}"/>
+                        <TextBlock Text="{Binding Total,
+                                   StringFormat={}{0:0.###########}}"/>
                     </UniformGrid>
                 </GroupBox>
                 <Button Content="{Binding IsRun,

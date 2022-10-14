@@ -42,7 +42,7 @@ namespace OsEngine.ViewModels
 
         Portfolio _portfolio;
 
-        private List<MyTrade> _myTrades = new List<MyTrade>();
+        
 
         #endregion
 
@@ -257,7 +257,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// всего позиций 
         /// </summary>
-        public int AllPositionsCount
+        public decimal AllPositionsCount
         {
             get => _allPositionsCount;
             set
@@ -266,7 +266,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(AllPositionsCount));
             }
         }
-        private int _allPositionsCount;
+        private decimal _allPositionsCount;
 
         /// <summary>
         /// Средняя цена 
@@ -616,6 +616,36 @@ namespace OsEngine.ViewModels
                 }
             }
         }
+        /// <summary>
+        /// раcчет позиций 
+        /// </summary>
+        private void CalculateMargin()
+        {
+            if (Levels.Count == 0 || SelectedSecurity == null) return;
+
+            decimal volume = 0;
+            decimal accum = 0;
+            decimal margine = 0;
+            decimal averagePrice = 0;   
+
+            foreach (Level level in Levels)
+            {
+                if (level.Volume !=0)
+                {
+                    averagePrice = (level.OpenPrice * level.Volume + averagePrice * volume) / (level.Volume + volume);
+                }
+                volume += level.Volume;
+                accum += level.Accum;
+                margine += level.Margine;
+            }
+
+            AllPositionsCount = volume;
+            PriceAverege = averagePrice;
+            Accum = accum;  
+            VarMargine = margine;
+            Total = Accum + VarMargine;
+            PriceAverege = averagePrice;
+        }
 
         private decimal CalcWorkLot(decimal lot, decimal price)
         {
@@ -716,6 +746,7 @@ namespace OsEngine.ViewModels
                 && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
                 Price = trades.Last().Price;
+                CalculateMargin();
             }
         }
 
@@ -763,22 +794,13 @@ namespace OsEngine.ViewModels
             {
                 return; // нашей бумаги нет
             }
-            foreach (MyTrade trade in _myTrades)
-            {
-                if (trade.NumberTrade == myTrade.NumberTrade)
-                {
-                    return ;
-                }
-            }
-            _myTrades.Add(myTrade);
-
-            RobotWindowVM.Log( Header, "MyTrade =  " + GetStringForSave(myTrade));
 
             foreach (Level level in Levels)
             {
-                bool newTrade = level.AddMyTrade(myTrade);
+                bool newTrade = level.AddMyTrade(myTrade, SelectedSecurity.Lot);
                 if (newTrade)
                 {
+                    RobotWindowVM.Log(Header, "MyTrade =  " + GetStringForSave(myTrade));
                     if (myTrade.Side == level.Side)
                     {
                         LevelTradeLogicClose(level, Action.TAKE);
