@@ -770,7 +770,7 @@ namespace OsEngine.ViewModels
             {
                 foreach (Level level in Levels)
                 {
-                    level.CancelAllOrders(Server, GetStringForSave);
+                       level.CancelAllOrders(Server, GetStringForSave);
                 }
             }
         }

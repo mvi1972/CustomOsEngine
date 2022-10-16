@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OsEngine.MyEntity
@@ -293,8 +294,20 @@ namespace OsEngine.MyEntity
         /// </summary>
         public void CancelAllOrders(IServer server, DelegateGetStringForSave getStringForSave)
         {
-            CanselCloseOrders(server, getStringForSave);
-            CanselOpenOrders(server, getStringForSave);
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    CanselCloseOrders(server, getStringForSave);
+                    CanselOpenOrders(server, getStringForSave);
+                    Thread.Sleep(2000);
+                    if (LimitVolume==0 && TakeVolume==0)
+                    {
+                        break;
+                    }
+                }
+            });
+ 
         }
 
         private void CanselOpenOrders(IServer server, DelegateGetStringForSave getStringForSave)
