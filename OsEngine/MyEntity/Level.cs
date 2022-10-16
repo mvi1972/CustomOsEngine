@@ -13,22 +13,7 @@ namespace OsEngine.MyEntity
 {
     public class Level : BaseVM
     {
-        #region ======================================Поля===========================================
-        CultureInfo CultureInfo = new CultureInfo("ru-RU");
-
-        /// <summary>
-        ///  список лимиток на тейк
-        /// </summary>
-        public List<Order> OrdersForClose = new List<Order>();
-
-        /// <summary>
-        /// лимитки на открытие позиций 
-        /// </summary>
-        public List<Order> OrdersForOpen = new List<Order>();
-
-        private List<MyTrade> _myTrades = new List<MyTrade>();
-
-        #endregion
+ 
         #region ======================================Свойства===============================================
         /// <summary>
         /// расчеткая цена уровня
@@ -78,7 +63,7 @@ namespace OsEngine.MyEntity
             set
             {
                 _takePrice = value;
-                OnPropertyChanged(nameof(TakePrice));
+                Change();
             }
         }
         public decimal _takePrice = 0;
@@ -106,7 +91,8 @@ namespace OsEngine.MyEntity
             set
             {
                 _margine = value;
-                OnPropertyChanged(nameof(Margin));
+                Change();
+               
             }
         }
         public decimal _margine = 0;
@@ -118,7 +104,8 @@ namespace OsEngine.MyEntity
             set
             {
                 _accum = value;
-                OnPropertyChanged(nameof(Accum));
+                Change();
+                
             }
         }
         public decimal _accum = 0;
@@ -181,7 +168,42 @@ namespace OsEngine.MyEntity
         }
         public bool _passTake = true;
         #endregion
+        #region ======================================Поля===========================================
+        CultureInfo CultureInfo = new CultureInfo("ru-RU");
+
+        /// <summary>
+        ///  список лимиток на тейк
+        /// </summary>
+        public List<Order> OrdersForClose = new List<Order>();
+
+        /// <summary>
+        /// лимитки на открытие позиций 
+        /// </summary>
+        public List<Order> OrdersForOpen = new List<Order>();
+
+        private List<MyTrade> _myTrades = new List<MyTrade>();
+
+        private decimal _calcVolume = 0;
+
+        #endregion
         #region ======================================Методы===============================================
+
+        public void SetVolumeStart()
+        {
+            _calcVolume = Volume;
+
+            if (Volume == 0)
+            {
+                if (LimitVolume == 0)
+                {
+                    ClearOrders(ref OrdersForOpen);
+                }
+                if (TakeVolume == 0)
+                {
+                    ClearOrders(ref OrdersForClose);
+                }
+            }
+        }
 
         public bool NewOrder(Order newOrder)
         {
@@ -257,6 +279,21 @@ namespace OsEngine.MyEntity
             TakeVolume = activeTake;
             PassVolume = passLimit;
             PassTake= passTake;
+
+        }
+        private void ClearOrders(ref List<Order> orders)
+        {
+            List<Order> newOrders = new List<Order>();
+            foreach (Order order in orders)
+            {
+                if (order!= null
+                    && order.State != OrderStateType.Cancel
+                    && order.State != OrderStateType.Done)
+                {
+                    newOrders.Add(order);
+                }
+            }
+            orders = newOrders;  
         }
 
         private void Change()
@@ -268,6 +305,11 @@ namespace OsEngine.MyEntity
             OnPropertyChanged(nameof(TakeVolume));
             OnPropertyChanged(nameof(PassVolume));
             OnPropertyChanged(nameof(TakePrice));
+            OnPropertyChanged(nameof(Side));
+            OnPropertyChanged(nameof(PriceLevel));
+            OnPropertyChanged(nameof(Margin));
+            OnPropertyChanged(nameof(Accum));
+
         }
 
         /// <summary>
@@ -367,61 +409,61 @@ namespace OsEngine.MyEntity
             decimal openPrice = 0;
             decimal accum = 0;
 
-            foreach (MyTrade myTrade in _myTrades)
+            foreach (MyTrade myTrade in _myTrades) 
             {
-                if (Volume == 0)
+                if (_calcVolume == 0)
                 {
                     openPrice = myTrade.Price;
                 }
-                else if (Volume > 0)
+                else if (_calcVolume > 0)
                 {
                     if (myTrade.Side == Side.Buy)
                     {
-                        openPrice = (Volume * openPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
+                        openPrice = (_calcVolume * openPrice + myTrade.Volume * myTrade.Price) / (_calcVolume + myTrade.Volume);
                     }
                     else
                     {
-                        if (myTrade.Volume <= Math.Abs(Volume))
+                        if (myTrade.Volume <= Math.Abs(_calcVolume))
                         {
                             accum += (myTrade.Price - openPrice) * myTrade.Volume;
                         }
                         else
                         {
-                            accum += (myTrade.Price - openPrice) * Volume;
+                            accum += (myTrade.Price - openPrice) * _calcVolume;
                             openPrice = myTrade.Price;
                         }
                     }
                 }
-                else if (Volume < 0)
+                else if (_calcVolume < 0)
                 {
                     if (myTrade.Side == Side.Buy)
                     {
-                        if (myTrade.Volume <= Math.Abs(Volume))
+                        if (myTrade.Volume <= Math.Abs(_calcVolume))
                         {
                             accum += (myTrade.Price - openPrice) * myTrade.Volume;
                         }
                         else
                         {
-                            accum += (myTrade.Price - openPrice) * Volume;
+                            accum += (myTrade.Price - openPrice) * _calcVolume;
                             openPrice = myTrade.Price;
                         }
                     }
                     else
                     {
-                        openPrice = (Volume * openPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
+                        openPrice = (_calcVolume * openPrice + myTrade.Volume * myTrade.Price) / (_calcVolume + myTrade.Volume);
                     }
                 }
-                /*
+             
                 if (myTrade.Side == Side.Buy)
                 {
-                    volume += myTrade.Volume;
+                    _calcVolume += myTrade.Volume;
                 }
-                else
+                else if (myTrade.Side == Side.Sell)
                 {
-                    volume -= myTrade.Volume;
+                    _calcVolume -= myTrade.Volume;
                 }
-                */
-                if (Volume == 0)
+             
+                if (_calcVolume == 0)
                 {
                     openPrice = 0;
                 }

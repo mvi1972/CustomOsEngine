@@ -22,16 +22,18 @@ namespace OsEngine.ViewModels
 {
     public class MyRobotVM : BaseVM
     {
-        public MyRobotVM(string header)
+        public MyRobotVM(string header, int numberTab)
         {
-            Header = header;    
-            Load();
+            string[]str = header.Split('=');
+            NumberTab = numberTab;
+            Header = str[0];    
+            Load(header);
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
         }
 
-        public MyRobotVM()
+        public MyRobotVM(int numberTab)
         {
-            
+            NumberTab = numberTab;
         }
 
         #region Свойства ================================================================================== 
@@ -365,15 +367,6 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(ServerType));
 
                 SubscribeToServer(); // подключаемя к бир
-                if (_server !=null)
-                {
-                    if (_server.ServerType == ServerType.Binance
-                        || _server.ServerType == ServerType.BinanceFutures)
-                    {
-                        IsChekCurrency = true;
-                    }
-                    else IsChekCurrency = false;
-                }
             } 
         }
         private IServer _server = null;
@@ -431,6 +424,7 @@ namespace OsEngine.ViewModels
             Side.Sell,
         };
 
+        public int NumberTab=0;     
         #endregion
 
         #region Команды =====================================================================================
@@ -638,7 +632,8 @@ namespace OsEngine.ViewModels
                         }
                         else if (action == Action.CLOSE)
                         {
-                            price = Price - stepLevel * 3;
+                            price = Price;
+                            //price = Price - stepLevel;
                         }
                         side = Side.Sell;
                     }
@@ -650,14 +645,18 @@ namespace OsEngine.ViewModels
                         }
                         else if (action == Action.CLOSE)
                         {
-                            price = Price + stepLevel * 3;
+                            price = Price;
+                            //price = Price + stepLevel * 3;
                         }
                         side = Side.Buy;
                     }
                     level.PassTake = false;
 
                     RobotWindowVM.Log(Header, "Уровень = " + level.GetStringForSave());
+                    if (action == Action.CLOSE)
+                    {
 
+                    }
                     decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
                     RobotWindowVM.Log(Header, "Рабочий лот =  " + worklot);
                     RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
@@ -761,6 +760,7 @@ namespace OsEngine.ViewModels
             {
                 foreach (Level level in Levels)
                 {
+                    level.SetVolumeStart();
                     level.PassVolume = true;
                     level.PassTake = true;
                 }
@@ -810,8 +810,16 @@ namespace OsEngine.ViewModels
             if (trades != null
                 && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
-                Price = trades.Last().Price;
+                Trade trade = trades.Last();
+
+                Price = trade.Price;
+
                 CalculateMargin();
+
+                if(trade.Time.Second % 5 == 0)
+                {
+                    TradeLogic();
+                }
             }
         }
 
@@ -894,7 +902,7 @@ namespace OsEngine.ViewModels
             }
             if (volume > 0)
             {
-                MessageBoxResult result = MessageBox.Show(" Есть ткрытые позиции! \n Всеравно пресчитать? ", " ВНИМАНИЕ !!! ",
+                MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно пресчитать? ", " ВНИМАНИЕ !!! ",
                     MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.No)
                 {
@@ -1036,8 +1044,16 @@ namespace OsEngine.ViewModels
             }
             RobotWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow(this);
             RobotWindowVM.ChengeEmitendWidow.ShowDialog();
-            RobotWindowVM.ChengeEmitendWidow = null; 
-
+            RobotWindowVM.ChengeEmitendWidow = null;
+            if (_server != null)
+            {
+                if (_server.ServerType == ServerType.Binance
+                    || _server.ServerType == ServerType.BinanceFutures)
+                {
+                    IsChekCurrency = true;
+                }
+                else IsChekCurrency = false;
+            }
         } 
         /// <summary>
         /// Начать получать данные по бумге
@@ -1112,7 +1128,7 @@ namespace OsEngine.ViewModels
 
             try
             {
-                using (StreamWriter writer = new StreamWriter(@"Parametrs\Tabs\param_" + Header + ".txt", false))
+                using (StreamWriter writer = new StreamWriter(@"Parametrs\Tabs\param_" + Header + "=" + NumberTab + ".txt", false))
                 {
                     writer.WriteLine(Header);
                     writer.WriteLine(ServerType);
@@ -1144,7 +1160,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// загрузка во вкладку параметров 
         /// </summary>
-        private void Load()
+        private void Load(string name)
         {
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {
@@ -1153,7 +1169,7 @@ namespace OsEngine.ViewModels
             string servType ="" ;
             try
             {
-                using (StreamReader reader = new StreamReader(@"Parametrs\Tabs\param_" + Header + ".txt"))
+                using (StreamReader reader = new StreamReader(@"Parametrs\Tabs\param_" + name + ".txt"))
                 {
                     Header = reader.ReadLine(); // загружаем заголовок
                     servType = reader.ReadLine(); // загружаем название сервера

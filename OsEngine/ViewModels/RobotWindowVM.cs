@@ -147,12 +147,12 @@ namespace OsEngine.ViewModels
   
             if (name !="")
             {
-                Robots.Add(new MyRobotVM(name));
+                Robots.Add(new MyRobotVM(name, Robots.Count));
                 //Robots.Last().Header = name;
             }
             else
             {
-                Robots.Add(new MyRobotVM(name));
+                Robots.Add(new MyRobotVM(Robots.Count));
                 Robots.Last().Header = "Tab " + (Robots.Count + 1);
             }
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
@@ -239,9 +239,10 @@ namespace OsEngine.ViewModels
             }
 
             string str = "";
-            foreach (MyRobotVM robot in Robots)
+
+            for (int i=0; i< Robots.Count; i++)
             {
-                str += robot.Header + ";";
+                str += Robots[i].Header  + "=" + i + ";";
             }
             try
             {
