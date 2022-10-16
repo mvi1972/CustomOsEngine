@@ -6,8 +6,7 @@
         xmlns:local="clr-namespace:OsEngine.Views"
         xmlns:conver="clr-namespace:OsEngine.Converters"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        mc:Ignorable="d"
-             >
+        mc:Ignorable="d" >
 
     <UserControl.Resources>
         <Style TargetType="TextBlock">
@@ -25,9 +24,16 @@
             <RowDefinition Height ="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Сервер " Margin="3"/>
-            <TextBlock Text="{Binding ServerType}" Height="20" Margin="3"/>
-            <TextBlock Text="Счет / кошелек " Height="20" Margin="3"/>
+            <TextBlock Text="Сервер "  Margin="5,3,0,0"
+                       FontSize="16"/>
+            <TextBlock Text="{Binding ServerType}"
+                       Height="20"  
+                       Margin="5,3,0,3"
+                       FontSize="16"/>
+            <TextBlock Text="Счет" 
+                       Height="20"  
+                       Margin="5,3,0,0"
+                       FontSize="16"/>
             <TextBlock Text="{Binding StatusServer}"/>
             <ComboBox ItemsSource="{Binding StringPortfolios}"
                       SelectedItem="{Binding StringPortfolio}"/>
@@ -35,8 +41,12 @@
              <Button Content="Выбрать бумагу"
                   Command="{Binding CommandSelectSecurity}">
             </Button>
-            <TextBlock Text="Цена" Margin="3"/>
-            <TextBlock Text="{Binding Price}" Margin="3"/>
+            <TextBlock Text="Цена" 
+                       Margin="10,3" 
+                       FontSize="16"/>
+            <TextBlock Text="{Binding Price}" 
+                       Margin="5,3,0,0"
+                       FontSize="16"/>
         </StackPanel>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -117,63 +127,76 @@
                         Height="60" Margin="5"/>
             </StackPanel>
             <GroupBox  Grid.Column="1"
-                       Header=" Уровни ">
-                <DataGrid ItemsSource="{Binding Levels}"
-                          AutoGenerateColumns="False">
-                    <DataGrid.Columns >
-                        <DataGridTextColumn Header=" Цена уровня"
+                       Header=" Уровни">
+                <StackPanel Orientation="Vertical">
+                    <DataGrid ItemsSource="{Binding Levels}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="{Binding IsReadOnly}">
+                        <DataGrid.Columns >
+                            <DataGridTextColumn Header=" Цена уровня"
                                             Binding="{Binding PriceLevel,
                                             StringFormat={}{0:0.###########},
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                        <DataGridTemplateColumn Header=" Направление">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Side,
+                            <DataGridTemplateColumn Header=" Направление">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding DataContext.Sides,
+                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            SelectedItem="{Binding Side,
                                             UpdateSourceTrigger=PropertyChanged}"
                                             Foreground="{Binding Side,
-                                            Converter={StaticResource ConvertersColorToSide} }"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTextColumn Header=" объем"
+                                            Converter={StaticResource ConvertersColorToSide} }"
+                                            Background="Black"
+                                            IsEnabled="{Binding DataContext.IsEnabled,
+                                            RelativeSource={RelativeSource AncestorType=UserControl}}" >
+                                            <ComboBox.Effect>
+                                                <BlurEffect/>
+                                            </ComboBox.Effect>
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header=" объем"
                                             Binding="{Binding Volume,
                                                        StringFormat={}{0:0.###########},
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                        <DataGridTextColumn Header=" Цена открытия"
+                            <DataGridTextColumn Header=" Цена открытия"
                                             Binding="{Binding OpenPrice,
                                                        StringFormat={}{0:0.###########},
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                        <DataGridTextColumn Header="комиссия"
+                            <DataGridTextColumn Header="комиссия"
                                             Binding="{Binding Margin,
                                             StringFormat={}{0:0.###########},
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                        <DataGridTextColumn Header=" прибыль"
+                            <DataGridTextColumn Header=" прибыль"
                                             Binding="{Binding Accum,
                                             StringFormat={}{0:0.###########},
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                        <DataGridTextColumn Header="Limit Volume"
+                            <DataGridTextColumn Header="Limit Volume"
                                             Binding="{Binding LimitVolume,
                                             StringFormat={}{0:0.###########},
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                        <DataGridTextColumn Header="PassVolume"
+                            <DataGridTextColumn Header="PassVolume"
                                             Binding="{Binding PassVolume,
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                        <DataGridTextColumn Header=" Цена профита"
+                            <DataGridTextColumn Header=" Цена профита"
                                             Binding="{Binding TakePrice,
                                             StringFormat={}{0:0.###########},
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                        <DataGridTextColumn Header="Take Volume"
+                            <DataGridTextColumn Header="Take Volume"
                                             Binding="{Binding TakeVolume,
                                             StringFormat={}{0:0.###########},
                                             UpdateSourceTrigger=PropertyChanged}"/>
-                         <DataGridTextColumn Header="PassTake"
+                            <DataGridTextColumn Header="PassTake"
                                             Binding="{Binding PassTake,
                                             UpdateSourceTrigger=PropertyChanged}"/>
 
-                    </DataGrid.Columns>
-                </DataGrid>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Button Content=" Добавить уровень "
+                            Command="{Binding CommandAddRow}"/>
+                </StackPanel>
             </GroupBox>
-
         </Grid>
 
 

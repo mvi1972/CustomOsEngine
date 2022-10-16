@@ -34,18 +34,6 @@ namespace OsEngine.ViewModels
             
         }
 
-        #region Поля =====================================================================================
-        /// <summary>
-        /// количество  портфелей
-        /// </summary>
-        int _portfoliosCount = 0;    
-
-        Portfolio _portfolio;
-
-        
-
-        #endregion
-
         #region Свойства ================================================================================== 
 
 
@@ -238,6 +226,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(TakeLevel));
             }
         }
+
         private decimal _takeLevel;
 
         /// <summary>
@@ -347,8 +336,18 @@ namespace OsEngine.ViewModels
             set
             {
                 _isRun = value;
+                if (IsRun)
+                {
+                    IsReadOnly = true;
+                    IsEnabled = false;
+                }
+                else
+                {
+                    IsReadOnly = false;
+                    IsEnabled = true;   
+                }
                 OnPropertyChanged(nameof(IsRun));
-             }
+            }
         }
         private bool _isRun;
 
@@ -390,7 +389,47 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(IsChekCurrency));
             }
         }
-        private bool _isChekCurrency;   
+        private bool _isChekCurrency;
+
+        public bool IsReadOnly
+        {
+            get => _isReadOnly;
+            set
+            {
+                _isReadOnly = value;
+                OnPropertyChanged(nameof(IsReadOnly));
+            }
+        }
+        private bool _isReadOnly;
+        /// <summary>
+        /// отключение возможности редактирования комбобокса направления сделки
+        /// </summary>
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set
+            {
+                _isEnabled = value;
+                OnPropertyChanged(nameof(IsEnabled));
+            }
+        }
+        private bool _isEnabled;
+
+        #endregion
+        #region Поля =======================================================================================
+
+        /// <summary>
+        /// количество  портфелей
+        /// </summary>
+        int _portfoliosCount = 0;
+
+        Portfolio _portfolio;
+
+        public List<Side> Sides { get; set; }= new List<Side>()
+        {
+            Side.Buy,
+            Side.Sell,
+        };
 
         #endregion
 
@@ -446,9 +485,32 @@ namespace OsEngine.ViewModels
             }
         }
 
+        private DelegateCommand commandAddRow;
+        public DelegateCommand CommandAddRow
+        {
+            get
+            {
+                if (commandAddRow == null)
+                {
+                    commandAddRow = new DelegateCommand(AddRow);
+                }
+                return commandAddRow;
+            }
+        }
+
         #endregion
 
         #region Методы =====================================================================================
+
+        private void AddRow(object o)
+        {
+            if (IsRun)
+            {
+                MessageBox.Show("Перейдите в режим редактирования!  ");
+            }
+            Levels.Add(new Level());
+        }
+
         /// <summary>
         /// закрываем все позиции 
         /// </summary>
@@ -572,7 +634,7 @@ namespace OsEngine.ViewModels
                     {
                         if (action == Action.TAKE)
                         {
-                            price = level.PriceLevel + stepLevel;
+                            price = level.TakePrice;
                         }
                         else if (action == Action.CLOSE)
                         {
@@ -584,7 +646,7 @@ namespace OsEngine.ViewModels
                     {
                         if (action == Action.TAKE)
                         {
-                            price = level.PriceLevel - stepLevel;
+                            price = level.TakePrice;
                         }
                         else if (action == Action.CLOSE)
                         {
@@ -632,11 +694,14 @@ namespace OsEngine.ViewModels
             {
                 if (level.Volume !=0)
                 {
-                    averagePrice = (level.OpenPrice * level.Volume + averagePrice * volume) / (level.Volume + volume);
+                    averagePrice = (level.OpenPrice * level.Volume + averagePrice * volume)
+                        / (level.Volume + volume);
+
+                    level.Margin = (Price - level.OpenPrice) * level.Volume* SelectedSecurity.Lot;
                 }
                 volume += level.Volume;
                 accum += level.Accum;
-                margine += level.Margine;
+                margine += level.Margin;
             }
 
             AllPositionsCount = volume;
@@ -820,6 +885,22 @@ namespace OsEngine.ViewModels
         /// </summary>
         void Calculate( object o)
         {
+            decimal volume = 0;
+            decimal stepTake =0;
+            
+            foreach (Level level in Levels)
+            {
+                volume+= Math.Abs(level.Volume);
+            }
+            if (volume > 0)
+            {
+                MessageBoxResult result = MessageBox.Show(" Есть ткрытые позиции! \n Всеравно пресчитать? ", " ВНИМАНИЕ !!! ",
+                    MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.No)
+                {
+                    return;
+                }
+            }
             ObservableCollection<Level> levels = new ObservableCollection<Level>();
 
             decimal currBuyPrice = StartPoint;
@@ -829,7 +910,7 @@ namespace OsEngine.ViewModels
             {
                 return;
             }
-            RobotWindowVM.Log( Header, " \n\n Calculate " );
+            RobotWindowVM.Log( Header, " \n\n Пересчитываем уровни  ");
             for (int i = 0; i < CountLevels; i++)
             {
                 Level levelBuy = new Level() {Side = Side.Buy};
@@ -839,6 +920,8 @@ namespace OsEngine.ViewModels
                 {
                     currBuyPrice -= StepLevel * SelectedSecurity.PriceStep;
                     currSellPrice += StepLevel * SelectedSecurity.PriceStep;
+
+                    stepTake = TakeLevel * SelectedSecurity.PriceStep;
                 } 
                 else if (StepType == StepType.PERCENT)
                 {
@@ -847,16 +930,22 @@ namespace OsEngine.ViewModels
 
                     currSellPrice += StepLevel * currSellPrice / 100;
                     currSellPrice = Decimal.Round(currSellPrice, SelectedSecurity.Decimals);
+
+                    stepTake = TakeLevel * currBuyPrice / 100;
+                    stepTake = Decimal.Round(stepTake, SelectedSecurity.Decimals);
+
                 }
                 levelSell.PriceLevel = currSellPrice;
                 levelBuy.PriceLevel = currBuyPrice;
 
                 if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
                 {
+                    levelBuy.TakePrice = levelBuy.PriceLevel + stepTake;
                     levels.Add(levelBuy);
                 }
                 if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
                 {
+                    levelSell.TakePrice = levelSell.PriceLevel - stepTake;
                     levels.Insert(0, levelSell);
                 }
                 RobotWindowVM.Log( Header, "Уровень =  " + levels.Last().GetStringForSave());

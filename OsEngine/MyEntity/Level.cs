@@ -98,14 +98,14 @@ namespace OsEngine.MyEntity
         }
         public decimal _volume = 0;
 
-        public decimal Margine
+        public decimal Margin
         {
             get => _margine;
 
             set
             {
                 _margine = value;
-                OnPropertyChanged(nameof(Margine));
+                OnPropertyChanged(nameof(Margin));
             }
         }
         public decimal _margine = 0;
@@ -350,7 +350,7 @@ namespace OsEngine.MyEntity
 
         private void CalculatePosition(decimal contLot)
         {
-            decimal volume =0;
+            //decimal volume =0;
             decimal openPrice = 0;
             decimal accum = 0;
 
@@ -364,17 +364,17 @@ namespace OsEngine.MyEntity
                 {
                     if (myTrade.Side == Side.Buy)
                     {
-                        openPrice = (Volume * OpenPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
+                        openPrice = (Volume * openPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
                     }
                     else
                     {
                         if (myTrade.Volume <= Math.Abs(Volume))
                         {
-                            accum += (myTrade.Price - OpenPrice) * myTrade.Volume;
+                            accum += (myTrade.Price - openPrice) * myTrade.Volume;
                         }
                         else
                         {
-                            accum += (myTrade.Price - OpenPrice) * Volume;
+                            accum += (myTrade.Price - openPrice) * Volume;
                             openPrice = myTrade.Price;
                         }
                     }
@@ -385,19 +385,20 @@ namespace OsEngine.MyEntity
                     {
                         if (myTrade.Volume <= Math.Abs(Volume))
                         {
-                            accum += (myTrade.Price - OpenPrice) * myTrade.Volume;
+                            accum += (myTrade.Price - openPrice) * myTrade.Volume;
                         }
                         else
                         {
-                            accum += (myTrade.Price - OpenPrice) * Volume;
+                            accum += (myTrade.Price - openPrice) * Volume;
                             openPrice = myTrade.Price;
                         }
                     }
                     else
                     {
-                        openPrice = (Volume * OpenPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
+                        openPrice = (Volume * openPrice + myTrade.Volume * myTrade.Price) / (Volume + myTrade.Volume);
                     }
                 }
+                /*
                 if (myTrade.Side == Side.Buy)
                 {
                     volume += myTrade.Volume;
@@ -406,6 +407,7 @@ namespace OsEngine.MyEntity
                 {
                     volume -= myTrade.Volume;
                 }
+                */
                 if (Volume == 0)
                 {
                     openPrice = 0;
