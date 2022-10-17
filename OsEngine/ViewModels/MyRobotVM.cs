@@ -166,7 +166,7 @@ namespace OsEngine.ViewModels
         private Direction _direction;
         public List<Direction> Directions { get; set; } = new List<Direction>()
         {
-            Direction.BUY, Direction.BUY, Direction.BUYSELL
+            Direction.BUY, Direction.SELL, Direction.BUYSELL
         };    
 
         /// <summary>
@@ -557,34 +557,35 @@ namespace OsEngine.ViewModels
 
             if (level.PassVolume
                   && level.PriceLevel != 0
-                  && Math.Abs(level.Volume) + level.LimitVolume < Lot
-                  && level.PriceLevel <= borderUp
-                  && level.PriceLevel >= borderDown)
+                  && Math.Abs(level.Volume) + level.LimitVolume < Lot)
             {
-                decimal lot = CalcWorkLot(Lot, level.PriceLevel);
-
-                decimal worklot = lot - Math.Abs(level.Volume) - level.LimitVolume;
-                RobotWindowVM.Log(Header, " Уровень = " + level.GetStringForSave());
-                RobotWindowVM.Log(Header, "Рабочий лот =  " + worklot);
-                RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
-
-                level.PassVolume = false;
-
-                if (IsChekCurrency && Lot > 6 || !IsChekCurrency)
+                if ((level.Side == Side.Buy && level.PriceLevel >= borderDown)
+                   || (level.Side == Side.Sell && level.PriceLevel <= borderUp))
                 {
-                    Order order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
-                    if (order != null)
-                    {
-                        level.OrdersForOpen.Add(order);
+                    decimal lot = CalcWorkLot(Lot, level.PriceLevel);
 
-                        RobotWindowVM.Log(Header, " Отправляем лимитку  " + GetStringForSave(order));
-                    }
-                    else
+                    decimal worklot = lot - Math.Abs(level.Volume) - level.LimitVolume;
+                    RobotWindowVM.Log(Header, " Уровень = " + level.GetStringForSave());
+                    RobotWindowVM.Log(Header, "Рабочий лот =  " + worklot);
+                    RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
+
+                    level.PassVolume = false;
+
+                    if (IsChekCurrency && Lot > 6 || !IsChekCurrency)
                     {
-                        level.PassVolume = true;
+                        Order order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
+                        if (order != null)
+                        {
+                            level.OrdersForOpen.Add(order);
+
+                            RobotWindowVM.Log(Header, " Отправляем лимитку  " + GetStringForSave(order));
+                        }
+                        else
+                        {
+                            level.PassVolume = true;
+                        }
                     }
                 }
-
             }
         }
 
@@ -768,31 +769,32 @@ namespace OsEngine.ViewModels
             }
             else
             {
-                Task.Run(() =>
+                foreach (Level level in Levels)
+                {
+                    level.CancelAllOrders(Server, GetStringForSave);
+                }
+                //Thread.Sleep(3000);
+                bool flag = true;
+                foreach (Level level in Levels)
+                {
+                    if ( flag && level.LimitVolume != 0
+                        || level.TakeVolume != 0)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                /*if (flag)
+                {
+                    break;
+                }
+                /*Task.Run(() =>
                 {
                     while (true)
                     {
-                        foreach (Level level in Levels)
-                        {
-                            level.CancelAllOrders(Server, GetStringForSave);
-                        }
-                        Thread.Sleep(3000);
-                        bool flag = true;
-                        foreach (Level level in Levels)
-                        {
-                            if (level.LimitVolume!=0
-                                || level.TakeVolume!=0)
-                            {
-                                flag = false;
-                                break;
-                            }
-                        }
-                        if (flag)
-                        {
-                            break;
-                        }
+
                     }
-                });
+                });*/
             }
         }
 
@@ -851,7 +853,7 @@ namespace OsEngine.ViewModels
 
         private void Server_NewOrderIncomeEvent(Order order)
         {
-            if (order == null) return;
+            if (order == null || _portfolio.Number ==null) return;
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType
                 && order.PortfolioNumber == _portfolio.Number) // 

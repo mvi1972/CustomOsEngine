@@ -16,7 +16,7 @@ namespace OsEngine.MyEntity
  
         #region ======================================Свойства===============================================
         /// <summary>
-        /// расчеткая цена уровня
+        /// расчетная цена уровня
         /// </summary>
         public decimal PriceLevel
         {
@@ -367,7 +367,7 @@ namespace OsEngine.MyEntity
                 {
                     server.CancelOrder(order);
                     RobotWindowVM.Log(order.SecurityNameCode, " Снимаем тейк на сервере " + getStringForSave(order));
-                    Thread.Sleep(30);
+                    //Thread.Sleep(30);
                 }
             }
         }

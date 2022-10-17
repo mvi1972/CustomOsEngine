@@ -27,7 +27,7 @@
     </mah:MetroWindow.LeftWindowCommands>
     <Grid>
         <TabControl ItemsSource="{Binding Robots}"
-                    SelectedItem="{Binding SelectedRobor}">
+                    SelectedItem="{Binding SelectedRobot}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">

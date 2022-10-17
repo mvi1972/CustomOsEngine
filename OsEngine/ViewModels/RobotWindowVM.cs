@@ -155,7 +155,6 @@ namespace OsEngine.ViewModels
 
         void AddTab (string name)
         {
-  
             if (name !="")
             {
                 Robots.Add(new MyRobotVM(name, Robots.Count));

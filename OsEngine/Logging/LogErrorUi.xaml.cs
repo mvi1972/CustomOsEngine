@@ -16,8 +16,8 @@ namespace OsEngine.Logging
     {
         public LogErrorUi(DataGridView gridErrorLog)
         {
-            //InitializeComponent();
-            // HostLog.Child = gridErrorLog;
+            InitializeComponent();
+            HostLog.Child = gridErrorLog;
             Title = OsLocalization.Logging.TitleExtraLog;
         }
     }

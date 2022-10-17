@@ -20,11 +20,11 @@ namespace OsEngine.Converters
             {
                 if ((Side)value == Side.Buy)
                 {
-                    color = Brushes.LightGreen;
+                    color = Brushes.DarkGreen;
                 }
                 else 
                 {
-                    color = Brushes.LightPink;  
+                    color = Brushes.Red;  
                 }
             }
             return color;

@@ -132,8 +132,7 @@
                     <DataGrid ItemsSource="{Binding Levels}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
-                          IsReadOnly="{Binding IsReadOnly}"
-                              RowBackground="Gray" AlternatingRowBackground="DimGray">
+                          IsReadOnly="{Binding IsReadOnly}">
                         <DataGrid.Columns >
                             <DataGridTextColumn Header=" Цена уровня"
                                             Binding="{Binding PriceLevel,
@@ -148,12 +147,8 @@
                                             UpdateSourceTrigger=PropertyChanged}"
                                             Foreground="{Binding Side,
                                             Converter={StaticResource ConvertersColorToSide} }"
-                                            Background="Black"
                                             IsEnabled="{Binding DataContext.IsEnabled,
-                                            RelativeSource={RelativeSource AncestorType=UserControl}}" >
-                                            <ComboBox.Effect>
-                                                <BlurEffect/>
-                                            </ComboBox.Effect>
+                                            RelativeSource={RelativeSource AncestorType=UserControl}}">
                                         </ComboBox>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
