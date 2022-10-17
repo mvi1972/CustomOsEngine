@@ -768,10 +768,31 @@ namespace OsEngine.ViewModels
             }
             else
             {
-                foreach (Level level in Levels)
+                Task.Run(() =>
                 {
-                       level.CancelAllOrders(Server, GetStringForSave);
-                }
+                    while (true)
+                    {
+                        foreach (Level level in Levels)
+                        {
+                            level.CancelAllOrders(Server, GetStringForSave);
+                        }
+                        Thread.Sleep(3000);
+                        bool flag = true;
+                        foreach (Level level in Levels)
+                        {
+                            if (level.LimitVolume!=0
+                                || level.TakeVolume!=0)
+                            {
+                                flag = false;
+                                break;
+                            }
+                        }
+                        if (flag)
+                        {
+                            break;
+                        }
+                    }
+                });
             }
         }
 

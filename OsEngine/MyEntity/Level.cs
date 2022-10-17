@@ -336,20 +336,8 @@ namespace OsEngine.MyEntity
         /// </summary>
         public void CancelAllOrders(IServer server, DelegateGetStringForSave getStringForSave)
         {
-            Task.Run(() =>
-            {
-                while (true)
-                {
-                    CanselCloseOrders(server, getStringForSave);
-                    CanselOpenOrders(server, getStringForSave);
-                    Thread.Sleep(2000);
-                    if (LimitVolume==0 && TakeVolume==0)
-                    {
-                        break;
-                    }
-                }
-            });
- 
+            CanselCloseOrders(server, getStringForSave);
+            CanselOpenOrders(server, getStringForSave);
         }
 
         private void CanselOpenOrders(IServer server, DelegateGetStringForSave getStringForSave)

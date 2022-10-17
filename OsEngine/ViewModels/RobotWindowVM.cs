@@ -40,13 +40,13 @@ namespace OsEngine.ViewModels
         /// </summary>
         public ObservableCollection<MyRobotVM> Robots { get; set; } = new ObservableCollection<MyRobotVM>();
 
-        public MyRobotVM SelectedRobor
+        public MyRobotVM SelectedRobot
         {
             get => _selectedRobor;
             set
             {
                 _selectedRobor = value;
-                OnPropertyChanged(nameof(SelectedRobor));
+                OnPropertyChanged(nameof(SelectedRobot));
             }
         }
         private MyRobotVM _selectedRobor; 
@@ -179,24 +179,12 @@ namespace OsEngine.ViewModels
         /// </summary>
         void DeleteTabRobot(object obj)
         {
-            string header = (string)obj;
-
-            MyRobotVM delRobot = null;
-
-            foreach (var robot in Robots)
+            if (SelectedRobot != null)
             {
-                if (robot.Header == header)
-                {
-                    delRobot = robot;
-                    break;
-                }
-            }
-            if (delRobot != null)
-            {
-                MessageBoxResult res = MessageBox.Show("Удалить вкладку " + header + "?", header, MessageBoxButton.YesNo);
+                MessageBoxResult res = MessageBox.Show("Удалить вкладку " + SelectedRobot.Header + "?", SelectedRobot.Header, MessageBoxButton.YesNo);
                 if (res == MessageBoxResult.Yes)
                 {
-                    Robots.Remove(delRobot);
+                    Robots.Remove(SelectedRobot);
                 }
             }
         }
@@ -260,7 +248,7 @@ namespace OsEngine.ViewModels
                 using ( StreamWriter writer = new StreamWriter(@"Parametrs\param.txt"))
                 {
                     writer.WriteLine(str);
-                    writer.WriteLine(SelectedRobor.Header);
+                    writer.WriteLine(SelectedRobot.Header);
 
                     writer.Close();
                 }
@@ -302,7 +290,7 @@ namespace OsEngine.ViewModels
                     AddTab(tab);
                     if (Robots.Last().Header == header) 
                     {
-                        SelectedRobor = Robots.Last();
+                        SelectedRobot = Robots.Last();
                     }
                 }
             }    
