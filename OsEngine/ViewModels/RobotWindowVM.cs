@@ -40,6 +40,17 @@ namespace OsEngine.ViewModels
         /// </summary>
         public ObservableCollection<MyRobotVM> Robots { get; set; } = new ObservableCollection<MyRobotVM>();
 
+        public MyRobotVM SelectedRobor
+        {
+            get => _selectedRobor;
+            set
+            {
+                _selectedRobor = value;
+                OnPropertyChanged(nameof(SelectedRobor));
+            }
+        }
+        private MyRobotVM _selectedRobor; 
+
         #endregion
         #region  ================================ Поля =====================================
 
@@ -248,7 +259,9 @@ namespace OsEngine.ViewModels
             {
                 using ( StreamWriter writer = new StreamWriter(@"Parametrs\param.txt"))
                 {
-                    writer.WriteLine(str); 
+                    writer.WriteLine(str);
+                    writer.WriteLine(SelectedRobor.Header);
+
                     writer.Close();
                 }
             }
@@ -268,12 +281,13 @@ namespace OsEngine.ViewModels
                 return;
             }
             string strTabs = "";
+            string header = "";
             try
             {
                 using (StreamReader reader = new StreamReader(@"Parametrs\param.txt"))
                 {
                     strTabs = reader.ReadLine();
-                   
+                    header = reader.ReadLine(); 
                 }
             }
             catch (Exception ex)
@@ -286,6 +300,10 @@ namespace OsEngine.ViewModels
                 if (tab != "")
                 {
                     AddTab(tab);
+                    if (Robots.Last().Header == header) 
+                    {
+                        SelectedRobor = Robots.Last();
+                    }
                 }
             }    
 

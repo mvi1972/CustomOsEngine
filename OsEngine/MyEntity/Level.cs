@@ -363,6 +363,7 @@ namespace OsEngine.MyEntity
                 {
                     server.CancelOrder(order);
                     RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитки на сервере " + getStringForSave(order));
+                    Thread.Sleep(30);
                 }
             }
         }
@@ -378,6 +379,7 @@ namespace OsEngine.MyEntity
                 {
                     server.CancelOrder(order);
                     RobotWindowVM.Log(order.SecurityNameCode, " Снимаем тейк на сервере " + getStringForSave(order));
+                    Thread.Sleep(30);
                 }
             }
         }

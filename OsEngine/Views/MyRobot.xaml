@@ -131,12 +131,14 @@
                 <StackPanel Orientation="Vertical">
                     <DataGrid ItemsSource="{Binding Levels}"
                           AutoGenerateColumns="False"
-                          IsReadOnly="{Binding IsReadOnly}">
+                          CanUserAddRows="False"
+                          IsReadOnly="{Binding IsReadOnly}"
+                              RowBackground="Gray" AlternatingRowBackground="DimGray">
                         <DataGrid.Columns >
                             <DataGridTextColumn Header=" Цена уровня"
                                             Binding="{Binding PriceLevel,
                                             StringFormat={}{0:0.###########},
-                                            UpdateSourceTrigger=PropertyChanged}"/>
+                                            UpdateSourceTrigger =LostFocus}"/>
                             <DataGridTemplateColumn Header=" Направление">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -182,7 +184,7 @@
                             <DataGridTextColumn Header=" Цена профита"
                                             Binding="{Binding TakePrice,
                                             StringFormat={}{0:0.###########},
-                                            UpdateSourceTrigger=PropertyChanged}"/>
+                                            UpdateSourceTrigger=LostFocus}"/>
                             <DataGridTextColumn Header="Take Volume"
                                             Binding="{Binding TakeVolume,
                                             StringFormat={}{0:0.###########},
