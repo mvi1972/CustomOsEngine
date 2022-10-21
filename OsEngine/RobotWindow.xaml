@@ -10,7 +10,7 @@
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text=" КНОПКА БАБЛО " FontSize="16" 
+                <TextBlock Text="БАБЛО ПЛЮС ХХХ" FontSize="16" 
                            MouseLeftButtonDown="TextBlock_MouseLeftButtonDown" />
                 <Button 
                 Content="Сервера"

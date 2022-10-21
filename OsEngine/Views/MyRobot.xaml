@@ -23,46 +23,37 @@
             <RowDefinition Height ="30"/>
             <RowDefinition Height ="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Сервер "  Margin="5,3,0,0"
-                       FontSize="16"/>
-            <TextBlock Text="{Binding ServerType}"
-                       Height="20"  
-                       Margin="5,3,0,3"
-                       FontSize="16"/>
-            <TextBlock Text="Счет" 
-                       Height="20"  
-                       Margin="5,3,0,0"
-                       FontSize="16"/>
-            <TextBlock Text="{Binding StatusServer}"/>
-            <ComboBox ItemsSource="{Binding StringPortfolios}"
-                      SelectedItem="{Binding StringPortfolio}"/>
-
-             <Button Content="Выбрать бумагу"
-                  Command="{Binding CommandSelectSecurity}">
-            </Button>
-            <TextBlock Text="Цена" 
-                       Margin="10,3" 
-                       FontSize="16"/>
-            <TextBlock Text="{Binding Price}" 
-                       Margin="5,3,0,0"
-                       FontSize="16"/>
-        </StackPanel>
-        <Grid Grid.Row="1">
+         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Vertical">
 
-                <GroupBox Header="Параметры"
-                      Grid.Row="0"
-                      Width="300" Height="280 "
-                      HorizontalAlignment="Left" VerticalAlignment="Top"
-                      Margin="3">
-                    <UniformGrid Columns="2"
-                                 Margin="3">
+                <UniformGrid Columns="2"  Margin="3">
+                    <Button Content="Выбрать бумагу"
+                            Command="{Binding CommandSelectSecurity}">
+                    </Button>
+                    <TextBlock Text="{Binding Header}"  Margin="5" FontSize="16"/>
+                    <TextBlock Text="Сервер "  Margin="5,3,0,0" FontSize="16"/>
+                    <TextBlock Text="{Binding ServerType}" FontSize="16" Height="20"  Margin="5,3,0,3" />
+                        <TextBlock Text="Счет"  Height="20"  Margin="5"   FontSize="16"/>
+                        <ComboBox ItemsSource="{Binding StringPortfolios}"
+                                  SelectedItem="{Binding StringPortfolio}"/>
+                    <TextBlock Text="Цена" 
+                       Margin="10,3" 
+                       FontSize="16"/>
+                    <TextBlock Text="{Binding Price}" 
+                       Margin="5,3,0,0"
+                       FontSize="16"/>
 
+                </UniformGrid>
+                
+
+                <GroupBox Header="Параметры"    Grid.Row="0"   Width="300" Height="280 "
+                      HorizontalAlignment="Left" VerticalAlignment="Top"   Margin="3">
+                    <UniformGrid Columns="2"  Margin="3">
+ 
                         <TextBlock Text="Точка Старта"/>
                         <local:DecimalTextBox Text="{Binding StartPoint}"/>
                         <TextBlock Text="Количество уровней"/>
