@@ -6,10 +6,10 @@
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:OsEngine.Views"
         mc:Ignorable="d"
-        Height="800" Width="1400">
+        Height="930" Width="1400">
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
                 <TextBlock Text="БАБЛО ПЛЮС ХХХ" FontSize="16" 
                            MouseLeftButtonDown="TextBlock_MouseLeftButtonDown" />
                 <Button 
@@ -40,8 +40,8 @@
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
-            <TabControl.ContentTemplate>
-                <DataTemplate>
+            <TabControl.ContentTemplate >
+                <DataTemplate >
                     <local:MyRobot></local:MyRobot>
                 </DataTemplate>
             </TabControl.ContentTemplate>
