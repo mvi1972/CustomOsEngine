@@ -25,26 +25,38 @@
  
         </mah:WindowCommands>
     </mah:MetroWindow.LeftWindowCommands>
-    <Grid>
-        <TabControl ItemsSource="{Binding Robots}"
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+              <MenuItem Header="меню сервера">
+                <MenuItem Header="выбрать сервер" />
+              </MenuItem>
+            <MenuItem Header="второе меню">
+                <MenuItem Header="меню чего-то"/>
+            </MenuItem>
+        </Menu>
+        <StatusBar DockPanel.Dock="Top"></StatusBar>
+        <Grid>
+            <TabControl ItemsSource="{Binding Robots}"
                     SelectedItem="{Binding SelectedRobot}">
-            <TabControl.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Header}"/>
-                        <Button Width="20  "
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Header}"/>
+                            <Button Width="20  "
                             Command="{Binding DataContext.ComandDeleteRobot,
                             RelativeSource= {RelativeSource AncestorType={x:Type Window}}}"
                             Style="{StaticResource WindowButtonStyleIconClose}">
-                        </Button>
-                    </StackPanel>
-                </DataTemplate>
-            </TabControl.ItemTemplate>
-            <TabControl.ContentTemplate >
-                <DataTemplate >
-                    <local:MyRobot></local:MyRobot>
-                </DataTemplate>
-            </TabControl.ContentTemplate>
-        </TabControl>
-    </Grid>
+                            </Button>
+                        </StackPanel>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate >
+                    <DataTemplate >
+                        <local:MyRobot></local:MyRobot>
+                    </DataTemplate>
+                </TabControl.ContentTemplate>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+ 
 </mah:MetroWindow>

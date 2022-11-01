@@ -1,4 +1,4 @@
-﻿using OsEngine.Charts.CandleChart.Indicators;
+﻿ using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Commands;
 using OsEngine.Entity;
 using OsEngine.Market;
