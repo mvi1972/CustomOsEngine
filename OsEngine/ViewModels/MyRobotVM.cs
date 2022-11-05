@@ -45,6 +45,11 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
+        /// словарь  ордеров на бирже
+        /// </summary>
+        public ConcurrentDictionary<string, Order> OrdersActivDictionary = new ConcurrentDictionary<string, Order>();
+
+        /// <summary>
         /// список портфелей 
         /// </summary>
         public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
@@ -501,6 +506,17 @@ namespace OsEngine.ViewModels
 
         #region Методы =====================================================================================
         /// <summary>
+        /// сериализация сохранение листов ордеров
+        /// </summary>
+        public void SerializerDictionaryOrders()
+        {
+            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
+            using (var file = new FileStream("OrdersForClose.json", FileMode.Create))
+            {
+                DictionaryOrdersSerialazer.WriteObject(file, OrdersAcyivIncome);
+            }
+        }
+        /// <summary>
         /// добавить строку уровня
         /// </summary>
         private void AddRow(object o)
@@ -862,9 +878,22 @@ namespace OsEngine.ViewModels
         {
             if (order == null || _portfolio == null) return;
             if (order.SecurityNameCode == SelectedSecurity.Name
-                && order.ServerType == Server.ServerType
-                && order.PortfolioNumber == _portfolio.Number) // 
+                && order.ServerType == Server.ServerType ) // 
             {
+                RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
+                             + " NewOrder Status " + order.State + "\n"
+                             + " OrdersAcyivIncome count " + OrdersAcyivIncome.Count);
+                if (order.State == OrderStateType.Activ)
+                {
+                    OrdersAcyivIncome.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
+
+                    RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
+                                                + " Add Activ order \n" );
+                    SerializerDictionaryOrders();
+                    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
+                }
+                
+                //  дальше запись в лог ответа с биржи по ордеру
                 bool rec =true;
                 if (order.State == OrderStateType.Activ
                     && order.TimeCallBack.AddSeconds(15) < Server.ServerTime) 
