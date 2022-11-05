@@ -22,6 +22,9 @@ namespace OsEngine.ViewModels
 {
     public class MyRobotVM : BaseVM
     {
+        /// <summary>
+        /// конструктор для созданого и сохранеенного робота
+        /// </summary>
         public MyRobotVM(string header, int numberTab)
         {
             string[]str = header.Split('=');
@@ -30,7 +33,9 @@ namespace OsEngine.ViewModels
             Load(header);
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
         }
-
+        /// <summary>
+        /// конструктор для нового робота 
+        /// </summary>
         public MyRobotVM(int numberTab)
         {
             NumberTab = numberTab;
@@ -495,7 +500,9 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region Методы =====================================================================================
-
+        /// <summary>
+        /// добавить строку уровня
+        /// </summary>
         private void AddRow(object o)
         {
             if (IsRun)
@@ -825,7 +832,7 @@ namespace OsEngine.ViewModels
             _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
 
-            RobotWindowVM.Log( Header, " Отключаемся от сервера = " + _server.ServerType);
+            RobotWindowVM.Log( Header, " Отключаем от сервера = " + _server.ServerType);
         }
 
         private void Server_NewTradeEvent(List<Trade> trades)

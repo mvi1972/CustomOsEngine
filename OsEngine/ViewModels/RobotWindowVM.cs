@@ -42,14 +42,14 @@ namespace OsEngine.ViewModels
 
         public MyRobotVM SelectedRobot
         {
-            get => _selectedRobor;
+            get => _selectedRobot;
             set
             {
-                _selectedRobor = value;
+                _selectedRobot = value;
                 OnPropertyChanged(nameof(SelectedRobot));
             }
         }
-        private MyRobotVM _selectedRobor; 
+        private MyRobotVM _selectedRobot; 
 
         #endregion
         #region  ================================ Поля =====================================
@@ -66,8 +66,8 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// многопоточный словарь для ордеров
         /// </summary>
-        public static ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> Orders =
-            new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();   
+        public static ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> 
+            Orders = new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();   
 
         #endregion
         #region  ================================ Команды =====================================
@@ -184,6 +184,7 @@ namespace OsEngine.ViewModels
                 if (res == MessageBoxResult.Yes)
                 {
                     Robots.Remove(SelectedRobot);
+                    Save();
                 }
             }
         }
@@ -227,7 +228,7 @@ namespace OsEngine.ViewModels
             }
         }
         /// <summary>
-        /// сохранение параметров робота
+        /// сохранение заголовка и бумаги последнего выбраного робота
         /// </summary>
         private void Save()
         {
@@ -255,7 +256,6 @@ namespace OsEngine.ViewModels
             catch (Exception ex)
             {
                 Log("App", " Ошибка сохранения параметров = " + ex.Message);
-
             }
         }
         /// <summary>
@@ -295,7 +295,6 @@ namespace OsEngine.ViewModels
             }    
 
             #endregion
-
         }
     }
 }

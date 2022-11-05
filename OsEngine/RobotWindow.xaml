@@ -26,14 +26,7 @@
         </mah:WindowCommands>
     </mah:MetroWindow.LeftWindowCommands>
     <DockPanel>
-        <Menu DockPanel.Dock="Top">
-              <MenuItem Header="меню сервера">
-                <MenuItem Header="выбрать сервер" />
-              </MenuItem>
-            <MenuItem Header="второе меню">
-                <MenuItem Header="меню чего-то"/>
-            </MenuItem>
-        </Menu>
+
         <StatusBar DockPanel.Dock="Top"></StatusBar>
         <Grid>
             <TabControl ItemsSource="{Binding Robots}"
