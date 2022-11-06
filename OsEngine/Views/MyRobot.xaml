@@ -73,6 +73,7 @@
                                                   MinWidth="80"/>
                                 <CheckBox Content="$"
                                       IsChecked="{Binding IsChekCurrency}"
+                                      ToolTip="Считать лот в $"
                                       Margin="5,0"/>
                             </StackPanel>
 
@@ -121,6 +122,7 @@
                     <Button Content="{Binding IsRun,
                         Converter={StaticResource ConverterIsRunToBool}}" FontSize="30"
                         Command="{Binding CommandStartStop}"
+                        ToolTip="ПУСК / СТОП робота"
                         Height="60" Margin="5"/>
                 </StackPanel>
                 <GroupBox  Grid.Column="1" Margin="3"

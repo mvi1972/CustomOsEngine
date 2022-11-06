@@ -1040,7 +1040,7 @@
     <Compile Include="RobotWindow.xaml.cs">
       <DependentUpon>RobotWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\AllRoborWindowVM.cs" />
+    <Compile Include="ViewModels\AllRobotWindowVM.cs" />
     <Compile Include="ViewModels\ChangeEmitentVM.cs" />
     <Compile Include="ViewModels\MyRobotVM.cs" />
     <Compile Include="ViewModels\RobotBreakVM.cs" />
@@ -1053,9 +1053,6 @@
     <Compile Include="Views\IntTextBox.cs" />
     <Compile Include="Views\MyRobot.xaml.cs">
       <DependentUpon>MyRobot.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\RobotBreak.xaml.cs">
-      <DependentUpon>RobotBreak.xaml</DependentUpon>
     </Compile>
     <Page Include="Alerts\AlertMessageFullUi.xaml">
       <SubType>Designer</SubType>
@@ -1578,10 +1575,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MyRobot.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\RobotBreak.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

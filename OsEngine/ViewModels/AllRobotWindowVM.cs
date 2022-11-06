@@ -17,7 +17,7 @@ using System.Windows;
 
 namespace OsEngine.ViewModels
 {
-    public class AllRoborWindowVM : BaseVM
+    public class AllRobotWindowVM : BaseVM
     {
 
     }
