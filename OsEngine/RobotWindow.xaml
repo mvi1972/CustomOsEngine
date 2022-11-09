@@ -35,7 +35,7 @@
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Header}"/>
-                            <Button Width="20  "
+                            <Button Width="20"
                             Command="{Binding DataContext.ComandDeleteRobot,
                             RelativeSource= {RelativeSource AncestorType={x:Type Window}}}"
                             Style="{StaticResource WindowButtonStyleIconClose}">
@@ -45,7 +45,7 @@
                 </TabControl.ItemTemplate>
                 <TabControl.ContentTemplate >
                     <DataTemplate >
-                        <local:MyRobot></local:MyRobot>
+                        <local:RobotBreak></local:RobotBreak>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
