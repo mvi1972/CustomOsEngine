@@ -20,7 +20,7 @@ using Direction = OsEngine.MyEntity.Direction;
 
 namespace OsEngine.ViewModels
 {
-    public class MyRobotVM : BaseVM
+    public class MyRobotVM : BaseVM 
     {
         /// <summary>
         /// конструктор для созданого и сохранеенного робота

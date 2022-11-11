@@ -45,7 +45,7 @@
                 </TabControl.ItemTemplate>
                 <TabControl.ContentTemplate >
                     <DataTemplate >
-                        <local:RobotBreak></local:RobotBreak>
+                        <local:MyRobot></local:MyRobot>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
