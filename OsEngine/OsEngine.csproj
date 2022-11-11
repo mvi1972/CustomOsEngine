@@ -1041,6 +1041,7 @@
       <DependentUpon>RobotWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\ChangeEmitentVM.cs" />
+    <Compile Include="ViewModels\IRobotVM.cs" />
     <Compile Include="ViewModels\MyRobotVM.cs" />
     <Compile Include="ViewModels\RobotBreakVM.cs" />
     <Compile Include="ViewModels\RobotWindowVM.cs" />

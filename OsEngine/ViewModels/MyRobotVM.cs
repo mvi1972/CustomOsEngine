@@ -9,8 +9,10 @@ using OsEngine.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +22,7 @@ using Direction = OsEngine.MyEntity.Direction;
 
 namespace OsEngine.ViewModels
 {
-    public class MyRobotVM : BaseVM 
+    public class MyRobotVM : IRobotVM, INotifyPropertyChanged
     {
         /// <summary>
         /// конструктор для созданого и сохранеенного робота
@@ -1296,7 +1298,25 @@ namespace OsEngine.ViewModels
 
         public delegate void selectedSecurity(string name);
         public event selectedSecurity OnSelectedSecurity;
+
         #endregion
 
+        #region ============================= Реализация интерфейса INotifyPropertyChanged =======================
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public virtual void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+        }
+
+        public virtual bool Set<T>(ref T field, T value, [CallerMemberName] string PropertyName = null)
+        {
+            if (Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(PropertyName);
+            return true;
+        }
+        #endregion
     }
 }
