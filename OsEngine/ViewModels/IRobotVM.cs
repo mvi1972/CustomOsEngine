@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static OsEngine.ViewModels.MyRobotVM;
+using static OsEngine.ViewModels.RobotVM;
 
 namespace OsEngine.ViewModels
 {

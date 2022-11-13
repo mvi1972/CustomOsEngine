@@ -40,7 +40,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
 
-        public MyRobotVM SelectedRobot
+        public RobotVM SelectedRobot
         {
             get => _selectedRobot;
             set
@@ -49,7 +49,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(SelectedRobot));
             }
         }
-        private MyRobotVM _selectedRobot; 
+        private RobotVM _selectedRobot; 
 
         #endregion
         #region  ================================ Поля =====================================
@@ -157,12 +157,12 @@ namespace OsEngine.ViewModels
         {
             if (name !="")
             {
-                Robots.Add(new MyRobotVM(name, Robots.Count));
+                Robots.Add(new RobotVM(name, Robots.Count));
                 //Robots.Last().Header = name;
             }
             else
             {
-                Robots.Add(new MyRobotVM(Robots.Count));
+                Robots.Add(new RobotVM(Robots.Count));
                 Robots.Last().Header = "Tab " + (Robots.Count + 1);
             }
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
@@ -289,7 +289,7 @@ namespace OsEngine.ViewModels
                     AddTab(tab);
                     if (Robots.Last().Header == header) 
                     {
-                        SelectedRobot = (MyRobotVM)Robots.Last();
+                        SelectedRobot = (RobotVM)Robots.Last();
                     }
                 }
             }    

@@ -26,10 +26,10 @@ namespace OsEngine.Views
         public MyRobot()
         {
             InitializeComponent();
-            //vm = new MyRobotVM();
+            //vm = new RobotVM();
             //DataContext = vm;   
         }
 
-         //MyRobotVM vm;
+         //RobotVM vm;
     }
 }

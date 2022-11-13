@@ -22,12 +22,12 @@ using Direction = OsEngine.MyEntity.Direction;
 
 namespace OsEngine.ViewModels
 {
-    public class MyRobotVM : BaseVM, IRobotVM
+    public class RobotVM : BaseVM, IRobotVM
     {
         /// <summary>
         /// конструктор для созданого и сохранеенного робота
         /// </summary>
-        public MyRobotVM(string header, int numberTab)
+        public RobotVM(string header, int numberTab)
         {
             string[]str = header.Split('=');
             NumberTab = numberTab;
@@ -38,7 +38,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// конструктор для нового робота 
         /// </summary>
-        public MyRobotVM(int numberTab)
+        public RobotVM(int numberTab)
         {
             NumberTab = numberTab;
         }
