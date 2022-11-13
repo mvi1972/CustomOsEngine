@@ -22,7 +22,7 @@ using Direction = OsEngine.MyEntity.Direction;
 
 namespace OsEngine.ViewModels
 {
-    public class MyRobotVM : IRobotVM, INotifyPropertyChanged
+    public class MyRobotVM : BaseVM, IRobotVM
     {
         /// <summary>
         /// конструктор для созданого и сохранеенного робота
@@ -1301,22 +1301,22 @@ namespace OsEngine.ViewModels
 
         #endregion
 
-        #region ============================= Реализация интерфейса INotifyPropertyChanged =======================
+        ////#region ============================= Реализация интерфейса INotifyPropertyChanged =======================
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        //public event PropertyChangedEventHandler PropertyChanged;
 
-        public virtual void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-        }
+        //public virtual void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        //{
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+        //}
 
-        public virtual bool Set<T>(ref T field, T value, [CallerMemberName] string PropertyName = null)
-        {
-            if (Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(PropertyName);
-            return true;
-        }
-        #endregion
+        //public virtual bool Set<T>(ref T field, T value, [CallerMemberName] string PropertyName = null)
+        //{
+        //    if (Equals(field, value)) return false;
+        //    field = value;
+        //    OnPropertyChanged(PropertyName);
+        //    return true;
+        //}
+        //#endregion
     }
 }

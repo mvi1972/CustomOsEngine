@@ -3,6 +3,9 @@ using System.Runtime.CompilerServices;
 
 namespace OsEngine.ViewModels
 {
+    /// <summary>
+    /// реализация интефейса INotifyPropertyChanged
+    /// </summary>
     public abstract class BaseVM : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;

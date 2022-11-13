@@ -16,6 +16,14 @@ namespace OsEngine.ViewModels
     /// </summary>
     public interface IRobotVM 
     {
+        /// <summary>
+        /// заголовок робота
+        /// </summary>
+        public string Header { get; set; }  
+        /// <summary>
+        /// событие подписки на бумагу
+        /// </summary>
+        public event selectedSecurity OnSelectedSecurity;
 
         /// <summary>
         /// список портфелей 

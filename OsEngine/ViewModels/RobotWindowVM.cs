@@ -38,7 +38,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// колекция созданых роботов
         /// </summary>
-        public ObservableCollection<MyRobotVM> Robots { get; set; } = new ObservableCollection<MyRobotVM>();
+        public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
 
         public MyRobotVM SelectedRobot
         {
@@ -289,7 +289,7 @@ namespace OsEngine.ViewModels
                     AddTab(tab);
                     if (Robots.Last().Header == header) 
                     {
-                        SelectedRobot = Robots.Last();
+                        SelectedRobot = (MyRobotVM)Robots.Last();
                     }
                 }
             }    
