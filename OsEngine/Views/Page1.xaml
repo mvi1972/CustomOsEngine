@@ -1,0 +1,69 @@
+﻿<Page x:Class="OsEngine.Views.Page1"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:OsEngine.Views"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Page1">
+
+    <Grid>
+        <ListBox ItemsSource="{Binding Robots}"
+                 SelectedItem="{Binding SelectedRobot}">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>
+        <TabControl SelectedIndex="1" Name="animeTabControl" ItemsSource="{Binding AnimeLists}" Height="250" Visibility="{Binding Mode.AnimeVisibility}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding URStatusRus}" />
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <ListView ItemsSource="{Binding List}" MaxHeight="250">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.Columns>
+                                    <GridViewColumn Header="Name"        DisplayMemberBinding="{Binding Name}" />
+                                    <GridViewColumn Header="Episodes"    DisplayMemberBinding="{Binding Progress}" />
+                                    <GridViewColumn Header="Score"       DisplayMemberBinding="{Binding Score}" />
+                                    <GridViewColumn Header="Kind"        DisplayMemberBinding="{Binding Kind}" />
+                                </GridView.Columns>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+        <TabControl SelectedIndex="1" Name="mangaTabControl" ItemsSource="{Binding MangaLists}" Height="250" Visibility="{Binding Mode.MangaVisibility}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding URStatusRus}" />
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <ListView ItemsSource="{Binding List}" MaxHeight="250">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.Columns>
+                                    <GridViewColumn Header="Name"        DisplayMemberBinding="{Binding Name}" />
+                                    <GridViewColumn Header="Chapters"    DisplayMemberBinding="{Binding ProgressCh}" />
+                                    <GridViewColumn Header="Volumes"     DisplayMemberBinding="{Binding ProgressVol}" />
+                                    <GridViewColumn Header="Score"       DisplayMemberBinding="{Binding Score}" />
+                                    <GridViewColumn Header="Kind"        DisplayMemberBinding="{Binding Kind}" />
+                                </GridView.Columns>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+
+    </Grid>
+</Page>

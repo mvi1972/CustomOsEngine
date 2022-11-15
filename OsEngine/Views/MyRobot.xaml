@@ -6,8 +6,16 @@
         xmlns:local="clr-namespace:OsEngine.Views"
         xmlns:conver="clr-namespace:OsEngine.Converters"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:int ="http://schemas.microsoft.com/xaml/behaviors"     
         mc:Ignorable="d" >
+ 
+    <!--<int:Interaction.Triggers>
+            <int:EventTrigger EventName="MouseEnter">
+                <int:InvokeCommandAction Command="{Binding CommandAddRow }"/>
 
+            </int:EventTrigger>
+    </int:Interaction.Triggers>-->
+    
     <UserControl.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="MinWidth" Value="30"/>
@@ -19,6 +27,7 @@
         <conver:ConverterIsRunToBool x:Key="ConverterIsRunToBool"/>
     </UserControl.Resources>
     <DockPanel>
+
         <!--<Menu DockPanel.Dock="Bottom">
             <MenuItem Header="меню сервера">
                 <MenuItem Header="выбрать сервер" />

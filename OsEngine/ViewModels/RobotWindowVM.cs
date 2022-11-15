@@ -29,7 +29,7 @@ namespace OsEngine.ViewModels
             });
 
             Load();
-
+               
             ServerMaster.ActivateAutoConnection();
         }
 
@@ -37,9 +37,11 @@ namespace OsEngine.ViewModels
         #region  ================================ Свойства =====================================
         /// <summary>
         /// колекция созданых роботов
-        /// </summary>
+        /// </summary> 
         public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
-
+        /// <summary>
+        /// выбранный робот
+        /// </summary>
         public RobotVM SelectedRobot
         {
             get => _selectedRobot;
@@ -60,7 +62,7 @@ namespace OsEngine.ViewModels
         private static ConcurrentQueue<MessageForLog> _logMessges = new ConcurrentQueue<MessageForLog>();
 
         /// <summary>
-        /// окно выбора инструмента
+        /// поле окна выбора инструмента
         /// </summary>
         public static ChengeEmitendWidow ChengeEmitendWidow = null;
         /// <summary>

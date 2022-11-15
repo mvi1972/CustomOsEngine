@@ -5,8 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:OsEngine.Views"
+        xmlns:vm="clr-namespace:OsEngine.ViewModels"
+        xmlns:int ="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Height="930" Width="1400">
+ 
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
@@ -26,13 +29,21 @@
         </mah:WindowCommands>
     </mah:MetroWindow.LeftWindowCommands>
     <DockPanel>
+        
+        <!--<int:Interaction.Triggers>
+            <int:EventTrigger EventName="MouseEnter">
+                <int:InvokeCommandAction Command="{Binding ComandAddRobot }"/>
 
-        <StatusBar DockPanel.Dock="Top"></StatusBar>
+            </int:EventTrigger>
+        </int:Interaction.Triggers>-->
+
+        <!--<StatusBar DockPanel.Dock="Top"></StatusBar>-->
         <Grid>
             <TabControl ItemsSource="{Binding Robots}"
                     SelectedItem="{Binding SelectedRobot}">
-                <TabControl.ItemTemplate>
-                    <DataTemplate>
+                <TabControl.ItemTemplate >
+
+                    <DataTemplate >
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Header}"/>
                             <Button Width="20"
@@ -42,12 +53,28 @@
                             </Button>
                         </StackPanel>
                     </DataTemplate>
+
                 </TabControl.ItemTemplate>
                 <TabControl.ContentTemplate >
-                    <DataTemplate >
-                        <local:MyRobot></local:MyRobot>
+                    <DataTemplate>
+                        <local:MyRobot>
+                            
+                        </local:MyRobot>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
+                <!--<TabItem Header="первый">
+                    <local:MyRobot>
+
+                    </local:MyRobot>
+
+                </TabItem >
+
+                <TabItem Header="другой">
+                    <local:RobotBreak>
+
+                    </local:RobotBreak>
+                </TabItem>-->
+
             </TabControl>
         </Grid>
     </DockPanel>
