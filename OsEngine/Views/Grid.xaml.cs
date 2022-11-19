@@ -19,11 +19,11 @@ using System.Windows.Shapes;
 namespace OsEngine.Views
 {
     /// <summary>
-    /// Логика взаимодействия для MyRobot.xaml
+    /// Логика взаимодействия для Grig.xaml
     /// </summary>
-    public partial class MyRobot : UserControl
+    public partial class Grig : UserControl
     {
-        public MyRobot()
+        public Grig()
         {
             InitializeComponent();
             //vm = new RobotVM();

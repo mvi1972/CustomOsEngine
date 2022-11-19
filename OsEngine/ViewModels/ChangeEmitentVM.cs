@@ -19,7 +19,7 @@ namespace OsEngine.ViewModels
     /// </summary>
     public class ChangeEmitentVM :BaseVM
     {
-        public ChangeEmitentVM(RobotVM robot)
+        public ChangeEmitentVM(GridRobotVM robot)
         {
             _robot=robot;
 
@@ -56,7 +56,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         Dictionary<string, List<Security>> _classes = new Dictionary<string, List<Security>>();
 
-        private RobotVM _robot;
+        private GridRobotVM _robot;
         /// <summary>
         ///  выбранный сервер
         /// </summary>

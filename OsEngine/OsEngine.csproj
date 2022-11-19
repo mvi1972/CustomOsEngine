@@ -805,6 +805,7 @@
     <Compile Include="MyEntity\ExChenge.cs" />
     <Compile Include="MyEntity\Level.cs" />
     <Compile Include="MyEntity\MessageForLog.cs" />
+    <Compile Include="MyEntity\NameStrategies.cs" />
     <Compile Include="MyEntity\StepType.cs" />
     <Compile Include="OsConverter\OsCandleConverterUi.xaml.cs">
       <DependentUpon>OsCandleConverterUi.xaml</DependentUpon>
@@ -1042,7 +1043,7 @@
     </Compile>
     <Compile Include="ViewModels\ChangeEmitentVM.cs" />
     <Compile Include="ViewModels\IRobotVM.cs" />
-    <Compile Include="ViewModels\RobotVM.cs" />
+    <Compile Include="ViewModels\GridRobotVM.cs" />
     <Compile Include="ViewModels\RobotBreakVM.cs" />
     <Compile Include="ViewModels\RobotWindowVM.cs" />
     <Compile Include="ViewModels\BaseVM.cs" />
@@ -1051,8 +1052,8 @@
     </Compile>
     <Compile Include="Views\DecimalTextBox.cs" />
     <Compile Include="Views\IntTextBox.cs" />
-    <Compile Include="Views\MyRobot.xaml.cs">
-      <DependentUpon>MyRobot.xaml</DependentUpon>
+    <Compile Include="Views\Grid.xaml.cs">
+      <DependentUpon>Grid.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Page1.xaml.cs">
       <DependentUpon>Page1.xaml</DependentUpon>
@@ -1580,7 +1581,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\MyRobot.xaml">
+    <Page Include="Views\Grid.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

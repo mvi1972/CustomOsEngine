@@ -39,11 +39,27 @@
 
         <!--<StatusBar DockPanel.Dock="Top"></StatusBar>-->
         <Grid>
+ 
             <TabControl ItemsSource="{Binding Robots}"
-                    SelectedItem="{Binding SelectedRobot}">
-                <TabControl.ItemTemplate >
+                        SelectedItem="{Binding SelectedRobot}" >
+               
+                <!--SelectedItem="{Binding SelectedRobot}"-->
+                <TabControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:GridRobotVM}">
+                        <local:Grig>
 
-                    <DataTemplate >
+                        </local:Grig>
+                    </DataTemplate>
+
+                    <DataTemplate DataType="{x:Type vm:RobotBreakVM}">
+                        <local:RobotBreak>
+
+                        </local:RobotBreak>
+                    </DataTemplate>
+ 
+                </TabControl.Resources>
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Header}"/>
                             <Button Width="20"
@@ -53,16 +69,13 @@
                             </Button>
                         </StackPanel>
                     </DataTemplate>
-
+ 
                 </TabControl.ItemTemplate>
-                <TabControl.ContentTemplate >
-                    <DataTemplate>
-                        <local:MyRobot>
-                            
-                        </local:MyRobot>
-                    </DataTemplate>
-                </TabControl.ContentTemplate>
+                
+                <!--<ContentControl Content="{Binding SelectedRobot}"/>-->
+  
                 <!--<TabItem Header="первый">
+    
                     <local:MyRobot>
 
                     </local:MyRobot>
