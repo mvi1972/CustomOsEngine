@@ -203,7 +203,9 @@ namespace OsEngine.ViewModels
             }
         }
         private StepType _stepType;
-
+        /// <summary>
+        /// список типов расчета шага 
+        /// </summary>
         public List<StepType> StepTypes { get; set; } = new List<StepType>()
         {
             StepType.PUNKT, StepType.PERCENT

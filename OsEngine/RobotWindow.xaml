@@ -20,6 +20,9 @@
                 ToolTip="Соедениться с биржей"
                 Command="{Binding ComandServerConect}">
                 </Button>
+                <!--<TextBlock Text="стратегия"/>-->
+                <ComboBox ItemsSource="{Binding NameStrategies}"
+                          SelectedItem="{Binding NameStrat}"/>
                 <Button 
                 Content="Добавить робота"
                 Command="{Binding ComandAddRobot}">

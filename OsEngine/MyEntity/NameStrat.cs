@@ -9,7 +9,7 @@ namespace OsEngine.MyEntity
     /// <summary>
     /// перечисление названий стратегий (роботов)
     /// </summary>
-    public enum NameStrategies
+    public enum NameStrat
     {
         grid,
         breakdown

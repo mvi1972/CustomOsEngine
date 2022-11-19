@@ -1,4 +1,5 @@
 ﻿using OsEngine.Entity;
+using OsEngine.MyEntity;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -30,7 +31,16 @@ namespace OsEngine.ViewModels
         /// </summary>
         public ObservableCollection<string> StringPortfolios { get; set; }
 
-        public Security SelectedSecurity { get; set; }  
- 
+        public Security SelectedSecurity { get; set; }
+        /// <summary>
+        /// список направления сделок 
+        /// </summary>
+        public List<Direction> Directions { get; set; }
+
+        /// <summary>
+        /// список типов расчета шага 
+        /// </summary>
+        public List<StepType> StepTypes { get; set; }
+
     }
 }

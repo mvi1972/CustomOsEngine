@@ -35,6 +35,29 @@ namespace OsEngine.ViewModels
 
 
         #region  ================================ Свойства =====================================
+
+        /// <summary>
+        /// название статегии 
+        /// </summary>
+        public NameStrat NameStrat
+        {
+            get => _nameStrat;
+            set
+            {
+                _nameStrat = value;
+                OnPropertyChanged(nameof(NameStrat));
+            }
+        }
+        private NameStrat _nameStrat;
+
+        /// <summary>
+        /// список типов стратегий
+        /// </summary>
+        public List<NameStrat> NameStrategies { get; set; }  = new List<NameStrat>()
+        {
+            NameStrat.grid, NameStrat.breakdown
+
+        }; 
         /// <summary>
         /// колекция созданых роботов
         /// </summary> 
@@ -42,7 +65,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// выбранный робот
         /// </summary>
-        public GridRobotVM SelectedRobot
+        public IRobotVM SelectedRobot
         {
             get => _selectedRobot;
             set
@@ -51,7 +74,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(SelectedRobot));
             }
         }
-        private GridRobotVM _selectedRobot; 
+        private IRobotVM _selectedRobot; 
 
         #endregion
         #region  ================================ Поля =====================================
