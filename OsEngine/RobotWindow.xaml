@@ -22,7 +22,8 @@
                 </Button>
                 <!--<TextBlock Text="стратегия"/>-->
                 <ComboBox ItemsSource="{Binding NameStrategies}"
-                          SelectedItem="{Binding NameStrat}"/>
+                          SelectedItem="{Binding NameStrat}" />
+                          <!--SelectionChanged="ComboBox_SelectionChanged"/>-->
                 <Button 
                 Content="Добавить робота"
                 Command="{Binding ComandAddRobot}">

@@ -56,7 +56,6 @@ namespace OsEngine.ViewModels
         public List<NameStrat> NameStrategies { get; set; }  = new List<NameStrat>()
         {
             NameStrat.grid, NameStrat.breakdown
-
         }; 
         /// <summary>
         /// колекция созданых роботов
@@ -175,20 +174,37 @@ namespace OsEngine.ViewModels
         /// </summary>
         void AddTabRobot(object o)
         {
-            AddTab("");
+            AddTab("", NameStrat);
         }
 
-        void AddTab (string name)
+        void AddTab (string name, NameStrat strat)
         {
             if (name !="")
             {
-                Robots.Add(new GridRobotVM(name, Robots.Count));
+                if (strat == NameStrat.grid)
+                {
+                    Robots.Add(new GridRobotVM(name, Robots.Count));
+                }
+                if (strat == NameStrat.breakdown)
+                {
+                    Robots.Add(new RobotBreakVM(name, Robots.Count));
+                }
+                
                 //Robots.Last().Header = name;
             }
             else
             {
-                Robots.Add(new GridRobotVM(Robots.Count));
-                Robots.Last().Header = "Tab " + (Robots.Count + 1);
+                if (strat == NameStrat.grid)
+                {
+                    Robots.Add(new GridRobotVM(Robots.Count));
+                    Robots.Last().Header = "Tab " + (Robots.Count + 1);
+                }
+                if (strat == NameStrat.breakdown)
+                {
+                    Robots.Add(new RobotBreakVM(Robots.Count));
+                    Robots.Last().Header = "Tab " + (Robots.Count + 1);
+                }
+ 
             }
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
         }
@@ -274,6 +290,7 @@ namespace OsEngine.ViewModels
                 {
                     writer.WriteLine(str);
                     writer.WriteLine(SelectedRobot.Header);
+                    writer.WriteLine(SelectedRobot.NameStrat);
 
                     writer.Close();
                 }
@@ -294,12 +311,14 @@ namespace OsEngine.ViewModels
             }
             string strTabs = "";
             string header = "";
+            //string strStrat = "";
             try
             {
                 using (StreamReader reader = new StreamReader(@"Parametrs\param.txt"))
                 {
                     strTabs = reader.ReadLine();
-                    header = reader.ReadLine(); 
+                    header = reader.ReadLine();
+                    //strStrat = reader.ReadLine();
                 }
             }
             catch (Exception ex)
@@ -307,14 +326,22 @@ namespace OsEngine.ViewModels
                 Log("App", " Ошибка выгрузки параметров = " + ex.Message);
             }
             string[] tabs = strTabs.Split(';');
+            //string[] strat = strStrat.Split(';');
             foreach (string tab in tabs)
             {
                 if (tab != "")
                 {
-                    AddTab(tab);
+                    AddTab(tab, NameStrat);
                     if (Robots.Last().Header == header) 
                     {
-                        SelectedRobot = (GridRobotVM)Robots.Last();
+                        if (NameStrat == NameStrat.grid)
+                        {
+                            SelectedRobot = (GridRobotVM)Robots.Last();
+                        }
+                        if (NameStrat == NameStrat.breakdown)
+                        {
+                            SelectedRobot = (RobotBreakVM)Robots.Last();
+                        }
                     }
                 }
             }    

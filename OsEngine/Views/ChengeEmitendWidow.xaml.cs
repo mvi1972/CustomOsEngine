@@ -20,10 +20,17 @@ namespace OsEngine.Views
     /// </summary>
     public partial class ChengeEmitendWidow : Window
     {
+        private RobotBreakVM robotBreakVM;
+
         public ChengeEmitendWidow(GridRobotVM robot)
         {
             InitializeComponent();
             DataContext = new ChangeEmitentVM(robot);
+        }
+
+        public ChengeEmitendWidow(RobotBreakVM robotBreakVM)
+        {
+            this.robotBreakVM = robotBreakVM;
         }
     }
 } 

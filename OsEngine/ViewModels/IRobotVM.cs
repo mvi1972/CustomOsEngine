@@ -20,7 +20,13 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// заголовок робота
         /// </summary>
-        public string Header { get; set; }  
+        public string Header { get; set; }
+
+        /// <summary>
+        /// название статегии 
+        /// </summary>
+        public NameStrat NameStrat { get; set; }
+
         /// <summary>
         /// событие подписки на бумагу
         /// </summary>

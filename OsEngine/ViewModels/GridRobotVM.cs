@@ -77,6 +77,9 @@ namespace OsEngine.ViewModels
         }
         private string _header;
 
+
+        public NameStrat NameStrat { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         /// <summary>
         /// Выбранная бумага
         /// </summary>
@@ -500,6 +503,7 @@ namespace OsEngine.ViewModels
                 return commandAddRow;
             }
         }
+
 
         #endregion
 
