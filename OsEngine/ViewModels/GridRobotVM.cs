@@ -32,7 +32,7 @@ namespace OsEngine.ViewModels
             string[]str = header.Split('=');
             NumberTab = numberTab;
             Header = str[0];    
-            Load(header);
+            LoadParamBot(header);
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
         }
         /// <summary>
@@ -78,7 +78,9 @@ namespace OsEngine.ViewModels
         private string _header;
 
 
-        public NameStrat NameStrat { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public NameStrat NameStrat
+        { get => throw new NotImplementedException(); set => throw new NotImplementedException(); 
+        }
 
         /// <summary>
         /// Выбранная бумага
@@ -421,6 +423,7 @@ namespace OsEngine.ViewModels
         private bool _isEnabled;
 
         #endregion
+
         #region Поля =======================================================================================
 
         /// <summary>
@@ -895,7 +898,7 @@ namespace OsEngine.ViewModels
                         }
                     }
                 }
-                Save();
+                SaveParamBot();
             }
         }
 
@@ -921,7 +924,7 @@ namespace OsEngine.ViewModels
                         LevelTradeLogicOpen(level);
                     }
                     RobotWindowVM.Log(Header, "Уровень  =  " + level.GetStringForSave());
-                    Save();
+                    SaveParamBot();
                 }
             }
          }
@@ -999,7 +1002,7 @@ namespace OsEngine.ViewModels
             Levels = levels;
             OnPropertyChanged(nameof(Levels));
 
-            Save();
+            SaveParamBot();
         }
 
         private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
@@ -1111,7 +1114,7 @@ namespace OsEngine.ViewModels
                     if (series != null)
                     {
                         RobotWindowVM.Log( Header, "StartSecuritiy  security = " + series.Security.Name);
-                        Save();
+                        SaveParamBot();
                         break;
                     }
                     Thread.Sleep(1000);
@@ -1120,7 +1123,7 @@ namespace OsEngine.ViewModels
         }
 
         /// <summary>
-        ///  формируем строку для ордера
+        ///  формируем строку для сохранения ордера
         /// </summary>
         private string GetStringForSave(Order order)
         {
@@ -1155,9 +1158,9 @@ namespace OsEngine.ViewModels
         }
 
         /// <summary>
-        /// сохранение параметров для вкладок
+        /// сохранение параметров робота
         /// </summary>
-        private void Save()
+        private void SaveParamBot()
         {
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {
@@ -1196,9 +1199,9 @@ namespace OsEngine.ViewModels
             }
         }
         /// <summary>
-        /// загрузка во вкладку параметров 
+        /// загрузка во вкладку параметров из файла сохрана
         /// </summary>
-        private void Load(string name)
+        private void LoadParamBot(string name)
         {
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {
@@ -1254,7 +1257,7 @@ namespace OsEngine.ViewModels
 
         }
         /// <summary>
-        ///  преобразует строку из файла сохранения в дефимал 
+        ///  преобразует строку из файла сохранения в децимал 
         /// </summary>
         private decimal GetDecimalForString(string str)
         {
@@ -1276,7 +1279,9 @@ namespace OsEngine.ViewModels
                 ServerMaster.SetNeedServer(type);
             }
         }
-
+        /// <summary>
+        /// Сервер мастер создан сервер
+        /// </summary>
         private void ServerMaster_ServerCreateEvent(IServer server)
         {
             if (server.ServerType == ServerType)

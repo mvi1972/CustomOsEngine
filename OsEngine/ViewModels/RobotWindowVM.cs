@@ -31,6 +31,7 @@ namespace OsEngine.ViewModels
             Load();
                
             ServerMaster.ActivateAutoConnection();
+            
         }
 
 
@@ -55,7 +56,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         public List<NameStrat> NameStrategies { get; set; }  = new List<NameStrat>()
         {
-            NameStrat.grid, NameStrat.breakdown
+            NameStrat.GRID, NameStrat.BREAKDOWN
         }; 
         /// <summary>
         /// колекция созданых роботов
@@ -76,6 +77,7 @@ namespace OsEngine.ViewModels
         private IRobotVM _selectedRobot; 
 
         #endregion
+
         #region  ================================ Поля =====================================
 
         /// <summary>
@@ -94,6 +96,7 @@ namespace OsEngine.ViewModels
             Orders = new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();   
 
         #endregion
+
         #region  ================================ Команды =====================================
 
         private DelegateCommand comandServerConect;
@@ -137,10 +140,11 @@ namespace OsEngine.ViewModels
 
         #region  ================================ Методы =====================================
         /// <summary>
-        /// событие создания нового сервера 
+        /// в событии создания нового сервера // подписались на новый ордер
         /// </summary>
         private void ServerMaster_ServerCreateEvent(Market.Servers.IServer server)
         {
+            // подписались на новый ордер
             server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
         }
         /// <summary>
@@ -181,11 +185,11 @@ namespace OsEngine.ViewModels
         {
             if (name !="")
             {
-                if (strat == NameStrat.grid)
+                if (strat == NameStrat.GRID)
                 {
                     Robots.Add(new GridRobotVM(name, Robots.Count));
                 }
-                if (strat == NameStrat.breakdown)
+                if (strat == NameStrat.BREAKDOWN)
                 {
                     Robots.Add(new RobotBreakVM(name, Robots.Count));
                 }
@@ -194,12 +198,12 @@ namespace OsEngine.ViewModels
             }
             else
             {
-                if (strat == NameStrat.grid)
+                if (strat == NameStrat.GRID)
                 {
                     Robots.Add(new GridRobotVM(Robots.Count));
                     Robots.Last().Header = "Tab " + (Robots.Count + 1);
                 }
-                if (strat == NameStrat.breakdown)
+                if (strat == NameStrat.BREAKDOWN)
                 {
                     Robots.Add(new RobotBreakVM(Robots.Count));
                     Robots.Last().Header = "Tab " + (Robots.Count + 1);
@@ -334,11 +338,11 @@ namespace OsEngine.ViewModels
                     AddTab(tab, NameStrat);
                     if (Robots.Last().Header == header) 
                     {
-                        if (NameStrat == NameStrat.grid)
+                        if (NameStrat == NameStrat.GRID)
                         {
                             SelectedRobot = (GridRobotVM)Robots.Last();
                         }
-                        if (NameStrat == NameStrat.breakdown)
+                        if (NameStrat == NameStrat.BREAKDOWN)
                         {
                             SelectedRobot = (RobotBreakVM)Robots.Last();
                         }

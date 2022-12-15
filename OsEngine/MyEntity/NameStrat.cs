@@ -11,7 +11,8 @@ namespace OsEngine.MyEntity
     /// </summary>
     public enum NameStrat
     {
-        grid,
-        breakdown
+        GRID,
+        BREAKDOWN
+        
     }
 }

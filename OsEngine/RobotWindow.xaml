@@ -41,7 +41,12 @@
             </int:EventTrigger>
         </int:Interaction.Triggers>-->
 
-        <!--<StatusBar DockPanel.Dock="Top"></StatusBar>-->
+        <StatusBar DockPanel.Dock="Bottom">
+            <DockPanel>
+                <TextBlock Text =" Строка статуса робота "/>
+                <TextBlock Text ="{Binding NameStrat}"/>
+            </DockPanel>
+         </StatusBar>
         <Grid>
  
             <TabControl ItemsSource="{Binding Robots}"

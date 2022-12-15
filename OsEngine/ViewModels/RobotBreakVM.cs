@@ -142,6 +142,7 @@ namespace OsEngine.ViewModels
                 //else IsChekCurrency = false;
             }
         }
+        
         public Security SelectedSecurity
         {
             get => _selectedSecurity;
