@@ -44,6 +44,7 @@ namespace OsEngine.ViewModels
             NumberTab = numberTab;
         }
         #endregion
+
         #region ======================================поля================================
         public int NumberTab = 0;
         Portfolio _portfolio;
@@ -54,6 +55,7 @@ namespace OsEngine.ViewModels
             Side.Sell,
         };
         #endregion
+
         #region ==============================Свойтсва===========================================
         public string Header
         {
@@ -168,6 +170,7 @@ namespace OsEngine.ViewModels
             StepType.PUNKT, StepType.PERCENT
         };
         #endregion
+
         #region ======================Методы ============================================
 
         private Portfolio GetPortfolio(string number)

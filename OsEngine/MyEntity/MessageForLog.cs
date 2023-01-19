@@ -10,6 +10,8 @@ namespace OsEngine.MyEntity
     {
         public string Name;
 
+        public string Strategy;
+
         public string Message;
     }
 }

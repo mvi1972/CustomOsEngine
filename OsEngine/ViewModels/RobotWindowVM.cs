@@ -3,6 +3,7 @@ using OsEngine.Commands;
 using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.MyEntity;
+using OsEngine.OsTrader.Panels.Tab;
 using OsEngine.Views;
 using System;
 using System.Collections.Concurrent;
@@ -56,7 +57,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         public List<NameStrat> NameStrategies { get; set; }  = new List<NameStrat>()
         {
-            NameStrat.GRID, NameStrat.BREAKDOWN
+            NameStrat.GRID, NameStrat.BREAKDOWN, NameStrat.NONE
         }; 
         /// <summary>
         /// колекция созданых роботов
@@ -139,6 +140,11 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region  ================================ Методы =====================================
+
+        private void Balans()
+        {
+            
+        }
         /// <summary>
         /// в событии создания нового сервера // подписались на новый ордер
         /// </summary>
@@ -146,7 +152,17 @@ namespace OsEngine.ViewModels
         {
             // подписались на новый ордер
             server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
+            // изменились портфели
+            server.PortfoliosChangeEvent += Server_PortfoliosChangeEvent;
+           
         }
+
+        private void Server_PortfoliosChangeEvent(List<Portfolio> portfolios)
+        {
+            //GetNameSecuretiClass();
+        }
+
+
         /// <summary>
         /// добвляет или обновляет пришедшие ордера с биржы в словарь ордеров на компе
         /// </summary>
@@ -235,13 +251,26 @@ namespace OsEngine.ViewModels
         }
 
         /// <summary>
-        /// отправка строки в лог
+        /// конструктор отправки строки в лог
         /// </summary>
         public static void Log(string name, string str)
         {
             MessageForLog mess = new MessageForLog()
             {
                 Name = name,
+                Message = str
+            };
+            _logMessges.Enqueue(mess);
+        }
+        /// <summary>
+        /// конструктор отправки строки в лог с стартегией
+        /// </summary>
+        public static void Log(string name, string strat, string str)
+        {
+            MessageForLog mess = new MessageForLog()
+            {
+                Name = name,
+                Strategy = strat,   
                 Message = str
             };
             _logMessges.Enqueue(mess);
@@ -315,14 +344,14 @@ namespace OsEngine.ViewModels
             }
             string strTabs = "";
             string header = "";
-            //string strStrat = "";
+            string strStrat = "";
             try
             {
                 using (StreamReader reader = new StreamReader(@"Parametrs\param.txt"))
                 {
                     strTabs = reader.ReadLine();
                     header = reader.ReadLine();
-                    //strStrat = reader.ReadLine();
+                    strStrat = reader.ReadLine();
                 }
             }
             catch (Exception ex)

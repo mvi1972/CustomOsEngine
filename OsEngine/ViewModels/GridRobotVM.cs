@@ -5,6 +5,7 @@ using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.Market.Servers.GateIo.Futures.Response;
 using OsEngine.MyEntity;
+using OsEngine.OsTrader.Panels.Tab;
 using OsEngine.Views;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace OsEngine.ViewModels
             string[]str = header.Split('=');
             NumberTab = numberTab;
             Header = str[0];    
-            LoadParamBot(header);
+            Load(header);
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
         }
         /// <summary>
@@ -60,9 +61,11 @@ namespace OsEngine.ViewModels
         {
             get
             {
+                
                 if (SelectedSecurity !=null)
                 {
-                     return SelectedSecurity.Name; 
+                     return SelectedSecurity.Name;
+  
                 }
                 else
                 {
@@ -79,8 +82,15 @@ namespace OsEngine.ViewModels
 
 
         public NameStrat NameStrat
-        { get => throw new NotImplementedException(); set => throw new NotImplementedException(); 
+        { 
+            get => _nameStrat;
+            set
+            {
+                _nameStrat=value;
+                OnPropertyChanged(nameof(NameStrat));   
+            }
         }
+        private NameStrat _nameStrat = NameStrat.GRID;
 
         /// <summary>
         /// Выбранная бумага
@@ -101,6 +111,41 @@ namespace OsEngine.ViewModels
             }
         }
         private Security _selectedSecurity =null;
+
+        /// <summary>
+        /// базовый класс пары
+        /// </summary>
+        public Security NameClass
+        {
+            get => _nameClass;
+            set
+            {
+                _nameClass = value;
+                OnPropertyChanged(nameof(NameClass));
+                OnPropertyChanged(nameof(Header));
+                if (NameClass != null)
+                {
+                    // string klass = SelectedSecurity.NameClass;
+                    OnSelectedSecurity?.Invoke(SelectedSecurity.NameClass);
+                }
+            }
+        }
+        private Security _nameClass = null;
+
+        /// <summary>
+        ///Тикет класс средств в портфеле
+        /// </summary>
+        public string SecurClass
+        {
+            get => _securClass;
+            set
+            {
+                _securClass = value;
+                OnPropertyChanged(nameof(SecurClass));
+            }
+        }
+        private string _securClass;
+
 
         public ServerType ServerType
         {
@@ -433,7 +478,7 @@ namespace OsEngine.ViewModels
 
         Portfolio _portfolio;
 
-        public List<Side> Sides { get; set; }= new List<Side>()
+        public List<Side> Sides { get; set; } = new List<Side>()
         {
             Side.Buy,
             Side.Sell,
@@ -528,7 +573,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void ClosePosition(object o)
         {
-            MessageBoxResult resut = MessageBox.Show(" Закрыть все позиции по " + Header, " Уверен? ", MessageBoxButton.YesNo);
+            MessageBoxResult resut = MessageBox.Show("Закрыть все позиции по " + Header, " Уверен? ", MessageBoxButton.YesNo);
             if (resut == MessageBoxResult.Yes)
             {
                 IsRun = false;
@@ -866,7 +911,7 @@ namespace OsEngine.ViewModels
 
         private void Server_NewCandleIncomeEvent(CandleSeries candle)
         {
-            
+           
         }
 
         private void Server_NewOrderIncomeEvent(Order order)
@@ -898,7 +943,7 @@ namespace OsEngine.ViewModels
                         }
                     }
                 }
-                SaveParamBot();
+                Save();
             }
         }
 
@@ -924,7 +969,7 @@ namespace OsEngine.ViewModels
                         LevelTradeLogicOpen(level);
                     }
                     RobotWindowVM.Log(Header, "Уровень  =  " + level.GetStringForSave());
-                    SaveParamBot();
+                    Save();
                 }
             }
          }
@@ -1002,11 +1047,13 @@ namespace OsEngine.ViewModels
             Levels = levels;
             OnPropertyChanged(nameof(Levels));
 
-            SaveParamBot();
+            Save();
         }
+
 
         private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
         {
+     
             if (portfolios == null 
                 || _portfoliosCount >= portfolios.Count) // нет новых портфелей 
             {
@@ -1056,6 +1103,9 @@ namespace OsEngine.ViewModels
             return stringPortfolios;  
         }
 
+        /// <summary>
+        /// берет номер портфеля  
+        /// </summary>
         private Portfolio GetPortfolio(string number)
         {
             if (Server != null && Server.Portfolios != null)
@@ -1114,7 +1164,7 @@ namespace OsEngine.ViewModels
                     if (series != null)
                     {
                         RobotWindowVM.Log( Header, "StartSecuritiy  security = " + series.Security.Name);
-                        SaveParamBot();
+                        Save();
                         break;
                     }
                     Thread.Sleep(1000);
@@ -1160,7 +1210,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// сохранение параметров робота
         /// </summary>
-        private void SaveParamBot()
+        private void Save()
         {
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {
@@ -1201,7 +1251,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// загрузка во вкладку параметров из файла сохрана
         /// </summary>
-        private void LoadParamBot(string name)
+        private void Load(string name)
         {
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {
@@ -1290,6 +1340,9 @@ namespace OsEngine.ViewModels
             }
         }
 
+        /// <summary>
+        /// список подключенных бумаг на сервере изменися 
+        /// </summary>
         private void _server_SecuritiesChangeEvent(List<Security> securities)
         {
             for (int i = 0; i < securities.Count; i++)
@@ -1301,6 +1354,37 @@ namespace OsEngine.ViewModels
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Взять название класса (квотируемой валюты) подключенной бумаги
+        /// </summary>
+        private void GetNameSecuretiClass(BotTabSimple TabSimple)
+        {
+            if (TabSimple.StartProgram == StartProgram.IsTester)
+            {
+                string str = TabSimple.Connector.SecurityClass;
+                _securClass = str;
+            }
+            if (TabSimple.IsConnected && TabSimple.StartProgram == StartProgram.IsOsTrader)
+            {
+                string str = TabSimple.Connector.SecurityClass;
+                _securClass = str;
+            }
+        }
+        /// <summary>
+        /// взять баланс квотируемой валюты
+        /// </summary>
+        private decimal GetBalans(BotTabSimple TabSimple)
+        {
+            // NameClass
+            if (_securClass != null && TabSimple.IsConnected && TabSimple.StartProgram == StartProgram.IsOsTrader)
+            {
+                decimal balans = TabSimple.Portfolio.GetPositionOnBoard().Find(pos =>
+                pos.SecurityNameCode == _securClass).ValueCurrent;
+                return balans;
+            }
+            return 0;
         }
 
         #endregion
