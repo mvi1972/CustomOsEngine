@@ -56,7 +56,10 @@ namespace OsEngine.ViewModels
         /// колекция уровней 
         /// </summary>
         public ObservableCollection<Level> Levels { get; set; } = new ObservableCollection<Level>() ;
-         
+
+         /// <summary>
+         /// заголовок робота 
+         /// </summary>
         public string Header
         {
             get
@@ -466,6 +469,34 @@ namespace OsEngine.ViewModels
             }
         }
         private bool _isEnabled;
+
+        /// <summary>
+        /// расчетная точка стопов для шота
+        /// </summary>
+        public decimal StopShort
+        {
+            get => _stopShort;
+            set
+            {
+                _stopShort = value;
+                OnPropertyChanged(nameof(StopShort));
+            }
+        }
+        private decimal _stopShort;
+
+        /// <summary>
+        /// расчетная точка стопов для лонга
+        /// </summary>
+        public decimal StopLong
+        {
+            get => _stopLong;
+            set
+            {
+                _stopLong = value;
+                OnPropertyChanged(nameof(StopLong));
+            }
+        }
+        private decimal _stopLong;
 
         #endregion
 

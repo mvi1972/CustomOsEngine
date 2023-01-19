@@ -65,12 +65,18 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Vertical">
-                      <GroupBox Header="Параметры"    Grid.Row="0"   Width="300" Height="280 "
+                      <GroupBox Header="Параметры"    Grid.Row="0"   Width="300" Height="350 "
                       HorizontalAlignment="Left" VerticalAlignment="Top"   Margin="3">
                         <UniformGrid Columns="2"  Margin="3">
+                            <TextBlock Text="Стоп шорта"/>
+                            <local:DecimalTextBox Text="{Binding StopShort}"/>
 
                             <TextBlock Text="Точка Старта"/>
                             <local:DecimalTextBox Text="{Binding StartPoint}"/>
+
+                            <TextBlock Text="Стоп лонга"/>
+                            <local:DecimalTextBox Text="{Binding StopLong}"/>
+
                             <TextBlock Text="Количество уровней"/>
                             <local:IntTextBox Text="{Binding CountLevels}"/>
                             <TextBlock Text="Направление сделки"/>
