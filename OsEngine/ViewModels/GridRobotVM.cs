@@ -482,7 +482,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(StopShort));
             }
         }
-        private decimal _stopShort;
+        private decimal _stopShort=0;
 
         /// <summary>
         /// расчетная точка стопов для лонга
@@ -496,7 +496,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(StopLong));
             }
         }
-        private decimal _stopLong;
+        private decimal _stopLong=0;
 
         #endregion
 
@@ -648,6 +648,9 @@ namespace OsEngine.ViewModels
 
             decimal borderUp = Price + stepLevel * MaxActiveLevel;
             decimal borderDown = Price - stepLevel * MaxActiveLevel;
+
+            StopLong = borderDown - stepLevel;
+            StopShort = borderUp + stepLevel;
 
             if (level.PassVolume
                   && level.PriceLevel != 0
@@ -848,6 +851,8 @@ namespace OsEngine.ViewModels
         {
             RobotWindowVM.Log( Header, " \n\n StartStop = " + !IsRun);
             Thread.Sleep(300);
+
+            Save();
 
             IsRun = !IsRun;
 
@@ -1255,7 +1260,11 @@ namespace OsEngine.ViewModels
                     writer.WriteLine(Header);
                     writer.WriteLine(ServerType);
                     writer.WriteLine(StringPortfolio);
+                    
+                    writer.WriteLine(StopShort);
                     writer.WriteLine(StartPoint);
+                    writer.WriteLine(StopLong);
+
                     writer.WriteLine(CountLevels);
                     writer.WriteLine(Direction);
                     writer.WriteLine(Lot);
@@ -1296,7 +1305,11 @@ namespace OsEngine.ViewModels
                     Header = reader.ReadLine(); // загружаем заголовок
                     servType = reader.ReadLine(); // загружаем название сервера
                     StringPortfolio = reader.ReadLine();  // загружаем бумагу 
+
+                    StopShort = GetDecimalForString(reader.ReadLine());
                     StartPoint = GetDecimalForString(reader.ReadLine());
+                    StopLong = GetDecimalForString(reader.ReadLine());
+
                     CountLevels = (int)GetDecimalForString(reader.ReadLine());
 
                     Direction direct = Direction.BUY;
