@@ -6,8 +6,8 @@
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:OsEngine.Views"
         xmlns:vm="clr-namespace:OsEngine.ViewModels"
-        xmlns:int ="http://schemas.microsoft.com/xaml/behaviors"
-        mc:Ignorable="d"
+        xmlns:int ="http://schemas.microsoft.com/xaml/behaviors" d:DataContext="{d:DesignInstance Type=vm:RobotWindowVM}"
+                 mc:Ignorable="d"
         Height="930" Width="1400">
  
     <mah:MetroWindow.LeftWindowCommands>
@@ -43,8 +43,8 @@
 
         <StatusBar DockPanel.Dock="Bottom">
             <DockPanel>
-                <TextBlock Text =" Строка статуса робота "/>
-                <TextBlock Text ="{Binding NameStrat}"/>
+                <TextBlock Text =" Позиция робота = "/>
+                <TextBlock d:DataContext="{d:DesignInstance Type=vm:GridRobotVM}" Text ="{Binding SelectSecurBalans}"/>
             </DockPanel>
          </StatusBar>
         <Grid>

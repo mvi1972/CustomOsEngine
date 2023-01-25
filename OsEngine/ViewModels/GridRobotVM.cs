@@ -136,18 +136,18 @@ namespace OsEngine.ViewModels
         private Security _nameClass = null;
 
         /// <summary>
-        ///Тикет класс средств в портфеле
+        /// бумага название 
         /// </summary>
-        public string SecurClass
+        public string SecurName
         {
-            get => _securClass;
+            get => _securName;
             set
             {
-                _securClass = value;
-                OnPropertyChanged(nameof(SecurClass));
+                _securName = _selectedSecurity.Name;
+                OnPropertyChanged(nameof(SecurName));
             }
         }
-        private string _securClass;
+        private string _securName;
 
 
         public ServerType ServerType
@@ -170,6 +170,9 @@ namespace OsEngine.ViewModels
             }
         }
         ServerType _serverType = ServerType.None;
+        /// <summary>
+        /// название портфеля (счета)
+        /// </summary>
         public string StringPortfolio
         {
             get => _stringportfolio;
@@ -197,6 +200,21 @@ namespace OsEngine.ViewModels
         }
         private decimal _startPoint;
 
+        /// <summary>
+        /// Обем выбраной бумаги на бирже
+        /// </summary>
+        public decimal SelectSecurBalans
+        {
+            get => _selectSecurBalans;
+            set
+            {
+                _selectSecurBalans = value;
+                OnPropertyChanged(nameof(SelectSecurBalans));
+            }
+        }
+        private decimal _selectSecurBalans;
+
+   
         /// <summary>
         /// количество уровней 
         /// </summary>
@@ -1086,10 +1104,10 @@ namespace OsEngine.ViewModels
             Save();
         }
 
-
         private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
         {
-     
+            GetBalansSecur(portfolios);
+
             if (portfolios == null 
                 || _portfoliosCount >= portfolios.Count) // нет новых портфелей 
             {
@@ -1112,10 +1130,12 @@ namespace OsEngine.ViewModels
                     if (portfolios[i].Number == StringPortfolio)
                     {
                         _portfolio = portfolios[i];
+
                     }
                 }
             }
             OnPropertyChanged(nameof(StringPortfolios));
+
         }
 
         public ObservableCollection<string> GetStringPortfolios(IServer server)
@@ -1389,6 +1409,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void _server_SecuritiesChangeEvent(List<Security> securities)
         {
+
             for (int i = 0; i < securities.Count; i++)
             {
                 if (securities[i].Name == Header)
@@ -1408,27 +1429,40 @@ namespace OsEngine.ViewModels
             if (TabSimple.StartProgram == StartProgram.IsTester)
             {
                 string str = TabSimple.Connector.SecurityClass;
-                _securClass = str;
+                _securName = str;
             }
             if (TabSimple.IsConnected && TabSimple.StartProgram == StartProgram.IsOsTrader)
             {
                 string str = TabSimple.Connector.SecurityClass;
-                _securClass = str;
+                _securName = str;
             }
         }
         /// <summary>
-        /// взять баланс квотируемой валюты
+        /// взять текущий обем на бирже выбаной  бумаги
         /// </summary>
-        private decimal GetBalans(BotTabSimple TabSimple)
-        {
-            // NameClass
-            if (_securClass != null && TabSimple.IsConnected && TabSimple.StartProgram == StartProgram.IsOsTrader)
+        private void GetBalansSecur(List<Portfolio> portfolios)
+        {  
+            if (portfolios.Count >0 && portfolios != null && _selectedSecurity != null)
             {
-                decimal balans = TabSimple.Portfolio.GetPositionOnBoard().Find(pos =>
-                pos.SecurityNameCode == _securClass).ValueCurrent;
-                return balans;
+                int count = portfolios[0].GetPositionOnBoard().Count;
+                string nam =SelectedSecurity.Name ;
+                string suf = "_BOTH";
+                string SecurName  = nam + suf;
+                for (int i = 0; i < count; i++)
+                {
+                    string seur = portfolios[0].GetPositionOnBoard()[i].SecurityNameCode;
+                    if (seur == SecurName)
+                    {
+                        decimal d = portfolios[0].GetPositionOnBoard()[i].ValueCurrent;
+                        SelectSecurBalans =d; // отправка значения в свойство
+                    }              
+                }
             }
-            return 0;
+       
+            //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
+            //    pos.SecurityNameCode == _securName).ValueCurrent;
+            //    return balans;
+
         }
 
         #endregion
