@@ -14,7 +14,7 @@ namespace OsEngine.MyEntity
     public class Level : BaseVM
     {
  
-        #region ======================================Свойства===============================================
+        #region ======================================Свойства======================================
         /// <summary>
         /// расчетная цена уровня
         /// </summary>
@@ -168,6 +168,7 @@ namespace OsEngine.MyEntity
         }
         public bool _passTake = true;
         #endregion
+
         #region ======================================Поля===========================================
         CultureInfo CultureInfo = new CultureInfo("ru-RU");
 
@@ -186,7 +187,8 @@ namespace OsEngine.MyEntity
         private decimal _calcVolume = 0;
 
         #endregion
-        #region ======================================Методы===============================================
+
+        #region ======================================Методы====================================
 
         public void SetVolumeStart()
         {
@@ -488,7 +490,7 @@ namespace OsEngine.MyEntity
 
         #endregion
 
-        #region Делегаты ================================================================================================
+        #region =================================Делегаты ====================================
 
         public delegate string DelegateGetStringForSave(Order order);
 

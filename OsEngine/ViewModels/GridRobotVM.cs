@@ -84,7 +84,6 @@ namespace OsEngine.ViewModels
         }
         private string _header;
 
-
         public NameStrat NameStrat
         { 
             get => _nameStrat;
@@ -136,21 +135,6 @@ namespace OsEngine.ViewModels
         }
         private Security _nameClass = null;
 
-        /// <summary>
-        /// бумага название 
-        /// </summary>
-        public string SecurName
-        {
-            get => _securName;
-            set
-            {
-                _securName = _selectedSecurity.Name;
-                OnPropertyChanged(nameof(SecurName));
-            }
-        }
-        private string _securName;
-
-
         public ServerType ServerType
         {
             get
@@ -171,6 +155,7 @@ namespace OsEngine.ViewModels
             }
         }
         ServerType _serverType = ServerType.None;
+
         /// <summary>
         /// название портфеля (счета)
         /// </summary>
@@ -202,7 +187,7 @@ namespace OsEngine.ViewModels
         private decimal _startPoint;
 
         /// <summary>
-        /// Обем выбраной бумаги на бирже
+        /// Объем выбраной бумаги на бирже
         /// </summary>
         public decimal SelectSecurBalans
         {
@@ -645,7 +630,26 @@ namespace OsEngine.ViewModels
                 LevelTradeLogicClose(level, Action.TAKE);
             }
         }
+        private void CalculateStop()
+        {
+            decimal stepLevel = 0;
+            if (StepType == StepType.PUNKT)
+            {
+                stepLevel = StepLevel * SelectedSecurity.PriceStep;
+            }
+            else if (StepType == StepType.PERCENT)
+            {
+                stepLevel = StepLevel * Price / 100;
+                stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
+            }
 
+            decimal borderUp = Price + stepLevel * MaxActiveLevel;
+            decimal borderDown = Price - stepLevel * MaxActiveLevel;
+
+            StopLong = borderDown - stepLevel;
+            StopShort = borderUp + stepLevel;
+        }
+         
         private void LevelTradeLogicOpen(Level level)
         {
             if (IsRun == false
@@ -667,10 +671,7 @@ namespace OsEngine.ViewModels
 
             decimal borderUp = Price + stepLevel * MaxActiveLevel;
             decimal borderDown = Price - stepLevel * MaxActiveLevel;
-
-            StopLong = borderDown - stepLevel;
-            StopShort = borderUp + stepLevel;
-
+  
             if (level.PassVolume
                   && level.PriceLevel != 0
                   && Math.Abs(level.Volume) + level.LimitVolume < Lot)
@@ -929,17 +930,6 @@ namespace OsEngine.ViewModels
                         break;
                     }
                 }
-                /*if (flag)
-                {
-                    break;
-                }
-                /*Task.Run(() =>
-                {
-                    while (true)
-                    {
-
-                    }
-                });*/
             }
         }
 
@@ -1128,6 +1118,8 @@ namespace OsEngine.ViewModels
             }
             Levels = levels;
             OnPropertyChanged(nameof(Levels));
+
+            CalculateStop();
 
             Save();
         }
