@@ -1106,8 +1106,7 @@ namespace OsEngine.ViewModels
 
         private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
         {
-            GetBalansSecur(portfolios);
-
+            GetBalansSecur();
             if (portfolios == null 
                 || _portfoliosCount >= portfolios.Count) // нет новых портфелей 
             {
@@ -1130,12 +1129,10 @@ namespace OsEngine.ViewModels
                     if (portfolios[i].Number == StringPortfolio)
                     {
                         _portfolio = portfolios[i];
-
                     }
                 }
             }
             OnPropertyChanged(nameof(StringPortfolios));
-
         }
 
         public ObservableCollection<string> GetStringPortfolios(IServer server)
@@ -1424,25 +1421,33 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// Взять название класса (квотируемой валюты) подключенной бумаги
         /// </summary>
-        private void GetNameSecuretiClass(BotTabSimple TabSimple)
-        {
-            if (TabSimple.StartProgram == StartProgram.IsTester)
-            {
-                string str = TabSimple.Connector.SecurityClass;
-                _securName = str;
-            }
-            if (TabSimple.IsConnected && TabSimple.StartProgram == StartProgram.IsOsTrader)
-            {
-                string str = TabSimple.Connector.SecurityClass;
-                _securName = str;
-            }
-        }
-        /// <summary>
+        //private void GetNameSecuretiClass(BotTabSimple TabSimple)
+        //{
+        //    if (TabSimple.StartProgram == StartProgram.IsTester)
+        //    {
+        //        string str = TabSimple.Connector.SecurityClass;
+        //        _securName = str;
+        //    }
+        //    if (TabSimple.IsConnected && TabSimple.StartProgram == StartProgram.IsOsTrader)
+        //    {
+        //        string str = TabSimple.Connector.SecurityClass;
+        //        _securName = str;
+        //    }
+        //}
+        ///// <summary>
+
+        ///<summary>
         /// взять текущий обем на бирже выбаной  бумаги
         /// </summary>
-        private void GetBalansSecur(List<Portfolio> portfolios)
-        {  
-            if (portfolios.Count >0 && portfolios != null && _selectedSecurity != null)
+        private void GetBalansSecur()
+        {
+            List<Portfolio> portfolios = new List<Portfolio>(); 
+            if ( Server.Portfolios != null)
+            {
+                portfolios = Server.Portfolios; 
+            }
+            if (portfolios.Count > 0 && portfolios != null 
+                && _selectedSecurity != null )
             {
                 int count = portfolios[0].GetPositionOnBoard().Count;
                 string nam =SelectedSecurity.Name ;
@@ -1450,8 +1455,8 @@ namespace OsEngine.ViewModels
                 string SecurName  = nam + suf;
                 for (int i = 0; i < count; i++)
                 {
-                    string seur = portfolios[0].GetPositionOnBoard()[i].SecurityNameCode;
-                    if (seur == SecurName)
+                    string seсurCode = portfolios[0].GetPositionOnBoard()[i].SecurityNameCode;
+                    if (seсurCode == SecurName)
                     {
                         decimal d = portfolios[0].GetPositionOnBoard()[i].ValueCurrent;
                         SelectSecurBalans =d; // отправка значения в свойство
