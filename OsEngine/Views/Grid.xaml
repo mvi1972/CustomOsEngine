@@ -53,7 +53,7 @@
             <TextBlock Text="{Binding Price}" 
                        Margin="5,3,0,0"
                        FontSize="16"/>
-            <TextBlock Text="монет =" 
+            <TextBlock Text="монет на бирже =" 
                        Margin="5,3,0,0"
                        FontSize="16"/>
             <TextBlock Text="{Binding SelectSecurBalans}" 

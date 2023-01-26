@@ -172,7 +172,7 @@ namespace OsEngine.MyEntity
         CultureInfo CultureInfo = new CultureInfo("ru-RU");
 
         /// <summary>
-        ///  список лимиток на тейк
+        ///  список лимиток на закрытие
         /// </summary>
         public List<Order> OrdersForClose = new List<Order>();
 
@@ -340,6 +340,9 @@ namespace OsEngine.MyEntity
             CanselOpenOrders(server, getStringForSave);
         }
 
+        /// <summary>
+        /// отозвать ордера на открытие с биржи
+        /// </summary>
         private void CanselOpenOrders(IServer server, DelegateGetStringForSave getStringForSave)
         {
             foreach (Order order in OrdersForOpen)
@@ -356,6 +359,9 @@ namespace OsEngine.MyEntity
             }
         }
 
+        /// <summary>
+        /// отозвать ордера на закрытие с биржи
+        /// </summary>
         private void CanselCloseOrders(IServer server, DelegateGetStringForSave getStringForSave)
         {
             foreach (Order order in OrdersForClose)

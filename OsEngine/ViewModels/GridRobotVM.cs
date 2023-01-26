@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OkonkwoOandaV20.TradeLibrary.DataTypes.Pricing;
 using OsEngine.Commands;
 using OsEngine.Entity;
 using OsEngine.Market;
@@ -706,12 +707,53 @@ namespace OsEngine.ViewModels
 
         private void LevelTradeLogicClose( Level level, Action action)
         {
-            if (IsRun == false || SelectedSecurity == null && action== Action.TAKE)
+            decimal stepLevel = 0;
+            if (action == Action.CLOSE)      
             {
-                return;
+                stepLevel = 0;
+                decimal price = 0;
+                Side side = Side.None;
+
+                if (StepType == StepType.PUNKT)
+                {
+                    stepLevel = StepLevel * SelectedSecurity.PriceStep;
+                }
+                else if (StepType == StepType.PERCENT)
+                {
+                    stepLevel = StepLevel * Price / 100;
+                    stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
+                }
+                if (level.Volume > 0)
+                {
+                    price = Price;                       
+
+                    side = Side.Sell;
+                }
+                else if (level.Volume < 0)
+                {
+                    price = Price;
+ 
+                    side = Side.Buy;
+                }
+                level.PassTake = false;
+
+                decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
+                if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
+                {
+                    Order order = SendOrder(SelectedSecurity, price, worklot, side);
+                    if (order != null)
+                    {
+                        level.OrdersForClose.Add(order);
+                        RobotWindowVM.Log(Header, "Отправляем ордер на закрытие позиции по рынку  =  " + GetStringForSave(order));
+                    }   
+                }
             }
 
-            decimal stepLevel = 0;
+            if (IsRun == false || SelectedSecurity == null && action == Action.TAKE)       // && action == Action.TAKE)
+            {
+                return; 
+            }
+
             if (StepType == StepType.PUNKT)
             {
                 stepLevel = StepLevel * SelectedSecurity.PriceStep;
@@ -726,7 +768,6 @@ namespace OsEngine.ViewModels
             {
                 if (level.Volume != 0 && level.TakeVolume != Math.Abs(level.Volume))
                 {
-
                     stepLevel = 0;
                     decimal price = 0;
                     Side side = Side.None;
@@ -745,12 +786,7 @@ namespace OsEngine.ViewModels
                         if (action == Action.TAKE)
                         {
                             price = level.TakePrice;
-                        }
-                        else if (action == Action.CLOSE)
-                        {
-                            price = Price;
-                            //price = Price - stepLevel;
-                        }
+                        } 
                         side = Side.Sell;
                     }
                     else if (level.Volume < 0)
@@ -758,21 +794,13 @@ namespace OsEngine.ViewModels
                         if (action == Action.TAKE)
                         {
                             price = level.TakePrice;
-                        }
-                        else if (action == Action.CLOSE)
-                        {
-                            price = Price;
-                            //price = Price + stepLevel * 3;
-                        }
+                        } 
                         side = Side.Buy;
                     }
                     level.PassTake = false;
 
                     RobotWindowVM.Log(Header, "Уровень = " + level.GetStringForSave());
-                    if (action == Action.CLOSE)
-                    {
-
-                    }
+  
                     decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
                     RobotWindowVM.Log(Header, "Рабочий лот =  " + worklot);
                     RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
@@ -791,7 +819,7 @@ namespace OsEngine.ViewModels
                         }
                     }
                 }
-            }
+            } 
         }
         /// <summary>
         /// раcчет позиций 
@@ -1104,11 +1132,13 @@ namespace OsEngine.ViewModels
             Save();
         }
 
+        /// <summary>
+        /// изменлся портфель на сервере
+        /// </summary>
         private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
         {
-            GetBalansSecur();
-            if (portfolios == null 
-                || _portfoliosCount >= portfolios.Count) // нет новых портфелей 
+            GetBalansSecur();// запросить объем монеты на бирже 
+            if (portfolios == null || _portfoliosCount >= portfolios.Count) // нет новых портфелей 
             {
                 return; 
             }
@@ -1135,6 +1165,9 @@ namespace OsEngine.ViewModels
             OnPropertyChanged(nameof(StringPortfolios));
         }
 
+        /// <summary>
+        /// берет названия кошельков (бирж)
+        /// </summary>
         public ObservableCollection<string> GetStringPortfolios(IServer server)
         {
             ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
@@ -1246,6 +1279,9 @@ namespace OsEngine.ViewModels
             return str;
         }
 
+        /// <summary>
+        ///  формируем строку для сохранения моих трейдов 
+        /// </summary>
         private string GetStringForSave(MyTrade myTrade)
         {
             string str = "";
