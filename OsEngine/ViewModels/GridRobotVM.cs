@@ -199,7 +199,6 @@ namespace OsEngine.ViewModels
             }
         }
         private decimal _selectSecurBalans;
-
    
         /// <summary>
         /// количество уровней 
@@ -621,6 +620,52 @@ namespace OsEngine.ViewModels
             }
         }
 
+        /// <summary>
+        /// проверка стопа
+        /// </summary>
+        private void ExaminationStop()
+        {
+            if (SelectSecurBalans == 0 ) return;
+
+            if (StopLong != 0 && Price != 0 )
+            {
+                if (Price < StopLong && Direction == Direction.BUY ||
+                       Price < StopLong && Direction == Direction.BUYSELL)
+                {
+                    IsRun = false;
+                    foreach (Level level in Levels)
+                    {
+                        level.CancelAllOrders(Server, GetStringForSave);
+
+                        LevelTradeLogicClose(level, Action.CLOSE);
+
+                    }
+                    RobotWindowVM.Log(Header, " Сработал СТОП ЛОНГ закрываем позиции по рынку ");
+
+                    StopLong = 0;
+                    return;
+                }
+            }
+            if (StopLong != 0 && Price != 0)
+            {
+                if (Price > StopShort && Direction == Direction.SELL ||
+                    Price > StopShort && Direction == Direction.BUYSELL)
+                {
+                    IsRun = false;
+                    foreach (Level level in Levels)
+                    {
+                        level.CancelAllOrders(Server, GetStringForSave);
+
+                        LevelTradeLogicClose(level, Action.CLOSE);
+
+                    }
+                    RobotWindowVM.Log(Header, " Сработал СТОП ШОРТА закрываем позиции по рынку ");
+                    StopShort = 0;
+                    return ;
+                }
+            }
+        }  
+
         private void TradeLogic()
         {
             foreach (Level level in Levels)
@@ -630,6 +675,10 @@ namespace OsEngine.ViewModels
                 LevelTradeLogicClose(level, Action.TAKE);
             }
         }
+
+        /// <summary>
+        /// расчитать цену стопов
+        /// </summary>
         private void CalculateStop()
         {
             decimal stepLevel = 0;
@@ -746,8 +795,13 @@ namespace OsEngine.ViewModels
                     {
                         level.OrdersForClose.Add(order);
                         RobotWindowVM.Log(Header, "Отправляем ордер на закрытие позиции по рынку  =  " + GetStringForSave(order));
-                    }   
+                    }
+                    else
+                    {
+                        level.PassTake = true;
+                    }
                 }
+
             }
 
             if (IsRun == false || SelectedSecurity == null && action == Action.TAKE)       // && action == Action.TAKE)
@@ -822,6 +876,7 @@ namespace OsEngine.ViewModels
                 }
             } 
         }
+
         /// <summary>
         /// раcчет позиций 
         /// </summary>
@@ -979,6 +1034,7 @@ namespace OsEngine.ViewModels
                     TradeLogic();
                 }
             }
+            ExaminationStop();
         }
 
         private void Server_NewCandleIncomeEvent(CandleSeries candle)
@@ -1445,24 +1501,6 @@ namespace OsEngine.ViewModels
                 }
             }
         }
-
-        /// <summary>
-        /// Взять название класса (квотируемой валюты) подключенной бумаги
-        /// </summary>
-        //private void GetNameSecuretiClass(BotTabSimple TabSimple)
-        //{
-        //    if (TabSimple.StartProgram == StartProgram.IsTester)
-        //    {
-        //        string str = TabSimple.Connector.SecurityClass;
-        //        _securName = str;
-        //    }
-        //    if (TabSimple.IsConnected && TabSimple.StartProgram == StartProgram.IsOsTrader)
-        //    {
-        //        string str = TabSimple.Connector.SecurityClass;
-        //        _securName = str;
-        //    }
-        //}
-        ///// <summary>
 
         ///<summary>
         /// взять текущий обем на бирже выбаной  бумаги

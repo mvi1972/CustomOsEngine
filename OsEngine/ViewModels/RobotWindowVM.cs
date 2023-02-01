@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using static OsEngine.ViewModels.GridRobotVM;
 
 namespace OsEngine.ViewModels
 {
@@ -141,10 +142,6 @@ namespace OsEngine.ViewModels
 
         #region  ================================ Методы =====================================
 
-        private void Balans()
-        {
-            
-        }
         /// <summary>
         /// в событии создания нового сервера // подписались на новый ордер
         /// </summary>
@@ -158,8 +155,38 @@ namespace OsEngine.ViewModels
         }
 
         private void Server_PortfoliosChangeEvent(List<Portfolio> portfolios)
-        {
+         {
             //GetNameSecuretiClass();
+        }
+        private void GetBalansSecur()
+        {
+            List<Portfolio> portfolios = new List<Portfolio>();
+            //if (Server.Portfolios != null)
+            //{
+            //    portfolios = Server.Portfolios;
+            //}
+            //if (portfolios.Count > 0 && portfolios != null
+            //    && _selectedSecurity != null)
+            //{
+            //    int count = portfolios[0].GetPositionOnBoard().Count;
+            //    string nam = SelectedSecurity.Name;
+            //    string suf = "_BOTH";
+            //    string SecurName = nam + suf;
+            //    for (int i = 0; i < count; i++)
+            //    {
+            //        string seсurCode = portfolios[0].GetPositionOnBoard()[i].SecurityNameCode;
+            //        if (seсurCode == SecurName)
+            //        {
+            //            decimal d = portfolios[0].GetPositionOnBoard()[i].ValueCurrent;
+            //            SelectSecurBalans = d; // отправка значения в свойство
+            //        }
+            //    }
+            //}
+
+            //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
+            //    pos.SecurityNameCode == _securName).ValueCurrent;
+            //    return balans;
+
         }
 
 
