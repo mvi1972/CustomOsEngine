@@ -447,9 +447,11 @@ namespace OsEngine.MyEntity
                             openPrice = myTrade.Price;
                         }
                     }
-                    else
+                    else   
                     {
-                        openPrice = (_calcVolume * openPrice + myTrade.Volume * myTrade.Price) / (_calcVolume + myTrade.Volume);
+    // изсенил расчет 
+                        //_calcVolume *= -1;
+                        openPrice = (Math.Abs(_calcVolume) * openPrice + myTrade.Volume * myTrade.Price) / (Math.Abs(_calcVolume) + myTrade.Volume);
                     }
                 }
              
