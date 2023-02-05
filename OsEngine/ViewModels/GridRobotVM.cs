@@ -637,10 +637,10 @@ namespace OsEngine.ViewModels
                     {
                         level.CancelAllOrders(Server, GetStringForSave);
 
-                        LevelTradeLogicClose(level, Action.CLOSE);
+                        LevelTradeLogicClose(level, Action.STOP);
+                        RobotWindowVM.Log(Header, " Сработал СТОП ЛОНГ ");
 
-                    }
-                    RobotWindowVM.Log(Header, " Сработал СТОП ЛОНГ закрываем позиции по рынку ");
+                    } 
 
                     StopLong = 0;
                     return;
@@ -656,10 +656,11 @@ namespace OsEngine.ViewModels
                     {
                         level.CancelAllOrders(Server, GetStringForSave);
 
-                        LevelTradeLogicClose(level, Action.CLOSE);
+                        RobotWindowVM.Log(Header, " Сработал СТОП ШОРТА ");
 
+                        LevelTradeLogicClose(level, Action.STOP );
                     }
-                    RobotWindowVM.Log(Header, " Сработал СТОП ШОРТА закрываем позиции по рынку ");
+                    
                     StopShort = 0;
                     return ;
                 }
@@ -739,7 +740,7 @@ namespace OsEngine.ViewModels
 
                     if (IsChekCurrency && Lot > 6 || !IsChekCurrency)
                     {
-                        Order order = SendOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
+                        Order order = SendLimitOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
                         if (order != null)
                         {
                             level.OrdersForOpen.Add(order);
@@ -758,21 +759,42 @@ namespace OsEngine.ViewModels
         private void LevelTradeLogicClose( Level level, Action action)
         {
             decimal stepLevel = 0;
-            if (action == Action.CLOSE)      
-            {
-                stepLevel = 0;
-                decimal price = 0;
+            if (action == Action.STOP)
+            {  
                 Side side = Side.None;
 
-                if (StepType == StepType.PUNKT)
+                if (level.Volume > 0)
                 {
-                    stepLevel = StepLevel * SelectedSecurity.PriceStep;
+                    side = Side.Sell;
                 }
-                else if (StepType == StepType.PERCENT)
+                else if (level.Volume < 0)
                 {
-                    stepLevel = StepLevel * Price / 100;
-                    stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
+                    side = Side.Buy;
                 }
+                level.PassTake = false;
+
+                decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
+                if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
+                {
+                    Order order = SendMarketOrder(SelectedSecurity, worklot, side);
+                    if (order != null)
+                    {
+                        if (order.State != OrderStateType.Activ ||
+                            order.State != OrderStateType.Patrial ||
+                            order.State != OrderStateType.Pending)
+                        {
+                            level.OrdersForClose.Add(order);
+                            RobotWindowVM.Log(Header, "Отправлен Маркет ордер на закрытие =  " + GetStringForSave(order));
+                        }
+                    }  
+                }
+            } 
+
+            if (action == Action.CLOSE)      
+            {                
+                decimal price = 0;
+                Side side = Side.None;   
+ 
                 if (level.Volume > 0)
                 {
                     price = Price;                       
@@ -790,24 +812,26 @@ namespace OsEngine.ViewModels
                 decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
                 if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
                 {
-                    Order order = SendOrder(SelectedSecurity, price, worklot, side);
-                    if (order != null)
+                    Order order = SendLimitOrder(SelectedSecurity, price, worklot, side);
+                    if (order != null )
                     {
-                        level.OrdersForClose.Add(order);
-                        RobotWindowVM.Log(Header, "Отправляем ордер на закрытие позиции по рынку  =  " + GetStringForSave(order));
-                    }
-                    else
-                    {
-                        level.PassTake = true;
-                    }
+                        if (order.State != OrderStateType.Activ ||
+                            order.State != OrderStateType.Patrial ||
+                            order.State != OrderStateType.Pending)
+                        {
+                            level.OrdersForClose.Add(order);
+                            RobotWindowVM.Log(Header, "Отправляем  Лимит ордер на закрытие по цене посленего трейда   =  " + GetStringForSave(order));
+                        }  
+                    }  
                 }
-
             }
-
-            if (IsRun == false || SelectedSecurity == null && action == Action.TAKE)       // && action == Action.TAKE)
+   
+            if (IsRun == false || SelectedSecurity == null && action == Action.TAKE) 
             {
                 return; 
             }
+
+            // выбрана бумага и робот включен следует логика выставления тейков 
 
             if (StepType == StepType.PUNKT)
             {
@@ -862,7 +886,7 @@ namespace OsEngine.ViewModels
 
                     if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
                     {
-                        Order order = SendOrder(SelectedSecurity, price, worklot, side);
+                        Order order = SendLimitOrder(SelectedSecurity, price, worklot, side);
                         if (order != null)
                         {
                             level.OrdersForClose.Add(order);
@@ -924,9 +948,9 @@ namespace OsEngine.ViewModels
         }
 
         /// <summary>
-        ///  отправить оредер на биржу 
+        ///  отправить лимитный оредер на биржу 
         /// </summary>
-        private Order SendOrder(Security sec, decimal prise, decimal volume, Side side)
+        private Order SendLimitOrder(Security sec, decimal prise, decimal volume, Side side)
         {
             if (string.IsNullOrEmpty(StringPortfolio))
             {
@@ -948,7 +972,33 @@ namespace OsEngine.ViewModels
             Server.ExecuteOrder(order);
             return order;
         }
- 
+
+        /// <summary>
+        ///  отправить Маркетный оредер на биржу 
+        /// </summary>
+        private Order SendMarketOrder(Security sec, decimal volume, Side side)
+        {
+            if (string.IsNullOrEmpty(StringPortfolio))
+            {
+                // сообщение в лог  сделать 
+                MessageBox.Show(" еще нет портфеля ");
+                return null;
+            }
+            Order order = new Order()
+            {
+                //Price = prise,
+                Volume = volume,
+                Side = side,
+                PortfolioNumber = StringPortfolio,
+                TypeOrder = OrderPriceType.Market,
+                NumberUser = NumberGen.GetNumberOrder(StartProgram.IsOsTrader),
+                SecurityNameCode = sec.Name,
+                SecurityClassCode = sec.NameClass,
+            };
+            Server.ExecuteOrder(order);
+            return order;
+        }
+
         private void StartStop( object o)
         {
             RobotWindowVM.Log( Header, " \n\n StartStop = " + !IsRun);
