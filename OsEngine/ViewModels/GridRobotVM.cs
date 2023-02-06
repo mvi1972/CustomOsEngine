@@ -506,6 +506,9 @@ namespace OsEngine.ViewModels
 
         #region Поля =======================================================================================
 
+        decimal _bestBid;
+        decimal _bestAsk;
+
         /// <summary>
         /// количество  портфелей
         /// </summary>
@@ -690,9 +693,8 @@ namespace OsEngine.ViewModels
                 stepLevel = StepLevel * Price / 100;
                 stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
             } 
-
-            StopLong = StartPoint - stepLevel * CountLevels;
-            StopShort = StartPoint + stepLevel * CountLevels;
+            StopLong = StartPoint - stepLevel * (CountLevels +1);
+            StopShort = StartPoint + stepLevel * (CountLevels +1);
         }
          
         private void LevelTradeLogicOpen(Level level)
@@ -793,13 +795,13 @@ namespace OsEngine.ViewModels
  
                 if (level.Volume > 0)
                 {
-                    price = Price;                       
+                    price = _bestAsk;                       
 
                     side = Side.Sell;
                 }
                 else if (level.Volume < 0)
                 {
-                    price = Price;
+                    price = _bestBid;
  
                     side = Side.Buy;
                 }
@@ -817,7 +819,9 @@ namespace OsEngine.ViewModels
                         {
                             level.PassVolume = false;
                             level.OrdersForClose.Add(order);
-                            RobotWindowVM.Log(Header, "Отправляем  Лимит ордер на закрытие по цене посленего трейда   =  " + GetStringForSave(order));
+                            RobotWindowVM.Log(Header, 
+                            "Отправляем  Лимит ордер на закрытие по цене посленего трейда " 
+                             + GetStringForSave(order));
                         }  
                     }
                     else
@@ -1050,9 +1054,10 @@ namespace OsEngine.ViewModels
             _server.NewTradeEvent += Server_NewTradeEvent;
             _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
+            _server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
 
             RobotWindowVM.Log( Header, " Подключаемся к серверу = " + _server.ServerType);
-        }
+        } 
 
         /// <summary>
         ///  отключиться от сервера 
@@ -1065,8 +1070,23 @@ namespace OsEngine.ViewModels
             _server.NewTradeEvent -= Server_NewTradeEvent;
             _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
+            _server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
 
             RobotWindowVM.Log( Header, " Отключаем от сервера = " + _server.ServerType);
+        }
+
+        /// <summary>
+        /// изменились лучшие цены 
+        /// </summary>
+        private void _server_NewBidAscIncomeEvent(decimal bid, decimal ask, Security namesecur)
+        {
+            _bestBid = 0;
+            _bestAsk = 0;
+            if (namesecur.Name == SelectedSecurity.Name)
+            {
+                _bestAsk = ask;
+                _bestBid = bid;
+            }
         }
 
         private void Server_NewTradeEvent(List<Trade> trades)
@@ -1114,7 +1134,7 @@ namespace OsEngine.ViewModels
                 {
                     foreach (Level level in Levels)
                     {
-                        bool newOrderBool= level.NewOrder(order);
+                        bool newOrderBool = level.NewOrder(order);
 
                         if (newOrderBool && rec)
                         {
@@ -1331,6 +1351,7 @@ namespace OsEngine.ViewModels
                 else IsChekCurrency = false;
             }
         } 
+
         /// <summary>
         /// Начать получать данные по бумге
         /// </summary> 
