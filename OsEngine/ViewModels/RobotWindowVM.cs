@@ -9,6 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -95,7 +96,9 @@ namespace OsEngine.ViewModels
         /// многопоточный словарь для ордеров
         /// </summary>
         public static ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> 
-            Orders = new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();   
+            Orders = new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();
+
+        CultureInfo CultureInfo = new CultureInfo("ru-RU");
 
         #endregion
 

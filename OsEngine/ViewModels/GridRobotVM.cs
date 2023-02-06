@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -518,7 +519,9 @@ namespace OsEngine.ViewModels
             Side.Sell,
         };
 
-        public int NumberTab=0;     
+        public int NumberTab=0;
+
+        CultureInfo CultureInfo = new CultureInfo("ru-RU");
         #endregion
 
         #region Команды =====================================================================================
@@ -586,7 +589,6 @@ namespace OsEngine.ViewModels
             }
         }
 
-
         #endregion
 
         #region Методы =====================================================================================
@@ -639,9 +641,7 @@ namespace OsEngine.ViewModels
 
                         LevelTradeLogicClose(level, Action.STOP);
                         RobotWindowVM.Log(Header, " Сработал СТОП ЛОНГ ");
-
                     } 
-
                     StopLong = 0;
                     return;
                 }
@@ -659,10 +659,8 @@ namespace OsEngine.ViewModels
                         RobotWindowVM.Log(Header, " Сработал СТОП ШОРТА ");
 
                         LevelTradeLogicClose(level, Action.STOP );
-                    }
-                    
-                    StopShort = 0;
-                    return ;
+                    }              
+                     return ;
                 }
             }
         }  
@@ -691,13 +689,10 @@ namespace OsEngine.ViewModels
             {
                 stepLevel = StepLevel * Price / 100;
                 stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
-            }
+            } 
 
-            decimal borderUp = Price + stepLevel * MaxActiveLevel;
-            decimal borderDown = Price - stepLevel * MaxActiveLevel;
-
-            StopLong = borderDown - stepLevel;
-            StopShort = borderUp + stepLevel;
+            StopLong = StartPoint - stepLevel * CountLevels;
+            StopShort = StartPoint + stepLevel * CountLevels;
         }
          
         private void LevelTradeLogicOpen(Level level)
@@ -770,8 +765,7 @@ namespace OsEngine.ViewModels
                 else if (level.Volume < 0)
                 {
                     side = Side.Buy;
-                }
-                level.PassTake = false;
+                }                
 
                 decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
                 if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
@@ -783,10 +777,12 @@ namespace OsEngine.ViewModels
                             order.State != OrderStateType.Patrial ||
                             order.State != OrderStateType.Pending)
                         {
+                            level.PassVolume = false;
                             level.OrdersForClose.Add(order);
                             RobotWindowVM.Log(Header, "Отправлен Маркет ордер на закрытие =  " + GetStringForSave(order));
-                        }
-                    }  
+                        }                        
+                    }
+                    else level.PassVolume = true;
                 }
             } 
 
@@ -819,10 +815,15 @@ namespace OsEngine.ViewModels
                             order.State != OrderStateType.Patrial ||
                             order.State != OrderStateType.Pending)
                         {
+                            level.PassVolume = false;
                             level.OrdersForClose.Add(order);
                             RobotWindowVM.Log(Header, "Отправляем  Лимит ордер на закрытие по цене посленего трейда   =  " + GetStringForSave(order));
                         }  
-                    }  
+                    }
+                    else
+                    {
+                        level.PassVolume = true;
+                    }
                 }
             }
    
@@ -1553,7 +1554,7 @@ namespace OsEngine.ViewModels
         }
 
         ///<summary>
-        /// взять текущий обем на бирже выбаной  бумаги
+        /// взять текущий объем на бирже выбаной  бумаги
         /// </summary>
         private void GetBalansSecur()
         {

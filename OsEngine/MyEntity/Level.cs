@@ -357,7 +357,7 @@ namespace OsEngine.MyEntity
                 {
                     server.CancelOrder(order);
                     RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитки на сервере " + getStringForSave(order));
-                    Thread.Sleep(30);
+                    // Thread.Sleep(30); для записи
                 }
             }
         }
