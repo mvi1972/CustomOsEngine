@@ -182,6 +182,9 @@ namespace OsEngine.MyEntity
         /// </summary>
         public List<Order> OrdersForOpen = new List<Order>();
 
+        /// <summary>
+        ///  список трейдов моего робота
+        /// </summary>
         private List<MyTrade> _myTrades = new List<MyTrade>();
 
         private decimal _calcVolume = 0;
@@ -356,8 +359,8 @@ namespace OsEngine.MyEntity
                         || order.State == OrderStateType.Pending)
                 {
                     server.CancelOrder(order);
-                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитки на сервере " + getStringForSave(order));
-                    // Thread.Sleep(30); для записи
+                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитку на открытие с биржи " + getStringForSave(order));
+                     Thread.Sleep(30); 
                 }
             }
         }
@@ -376,7 +379,7 @@ namespace OsEngine.MyEntity
                 {
                     server.CancelOrder(order);
                     RobotWindowVM.Log(order.SecurityNameCode, " Снимаем тейк на сервере " + getStringForSave(order));
-                    //Thread.Sleep(30);
+                    Thread.Sleep(30);
                 }
             }
         }
@@ -472,6 +475,10 @@ namespace OsEngine.MyEntity
             OpenPrice = openPrice;
             Accum = accum * contLot;
         }
+
+        /// <summary>
+        /// принадлежит ли трейд ордеру
+        /// </summary>
         private bool IsMyTrade(MyTrade myTrade)
         {
             foreach (Order order in OrdersForOpen)

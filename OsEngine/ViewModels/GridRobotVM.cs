@@ -737,9 +737,16 @@ namespace OsEngine.ViewModels
 
                     if (IsChekCurrency && Lot > 6 || !IsChekCurrency)
                     {
+                        if (worklot == 0)
+                        {
+                            level.PassVolume = true;
+                            LevelTradeLogicOpen(level);
+                            RobotWindowVM.Log(Header, " worklot = 0 ретурн " );
+                            return;
+                        }
                         Order order = SendLimitOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
                         if (order != null)
-                        {
+                        {       
                             level.OrdersForOpen.Add(order);
 
                             RobotWindowVM.Log(Header, " Отправляем лимитку  " + GetStringForSave(order));
@@ -748,7 +755,7 @@ namespace OsEngine.ViewModels
                         {
                             level.PassVolume = true;
                         }
-                    }
+                    } 
                 }
             }
         }
@@ -786,6 +793,15 @@ namespace OsEngine.ViewModels
                     }
                     else level.PassVolume = true;
                 }
+                else if (worklot * level.PriceLevel <= 6 && worklot != 0)
+                {
+                    RobotWindowVM.Log(Header, "ВНИМАНИЕ объём МАРКЕТ ордера <= 6 $ \n ордер не отправлен\n" +
+                        "action == Action.STOP \n " +
+                        " worklot  =  " + worklot);
+                    level.PassVolume = true;
+                    LevelTradeLogicClose(level, Action.STOP);
+                    return;
+                }
             } 
 
             if (action == Action.CLOSE)      
@@ -809,10 +825,17 @@ namespace OsEngine.ViewModels
 
                 decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
                 if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
-                {
+                {  
                     Order order = SendLimitOrder(SelectedSecurity, price, worklot, side);
                     if (order != null )
                     {
+                        if (price == 0)
+                        {
+                            level.PassTake = true;
+                            LevelTradeLogicClose(level, Action.CLOSE);
+                            return;
+                        }
+
                         if (order.State != OrderStateType.Activ ||
                             order.State != OrderStateType.Patrial ||
                             order.State != OrderStateType.Pending)
@@ -828,6 +851,15 @@ namespace OsEngine.ViewModels
                     {
                         level.PassVolume = true;
                     }
+                }
+                else if (worklot * level.PriceLevel <= 6 && worklot !=0)
+                {
+                    RobotWindowVM.Log(Header, "ВНИМАНИЕ ордер <= 6 $ \n " +
+                        "action == Action.CLOSE ордер не отправлен \n" +
+                        " worklot  =  " + worklot);
+                    level.PassVolume = true;
+                    LevelTradeLogicClose(level, Action.CLOSE);
+                    return;
                 }
             }
    
@@ -890,7 +922,7 @@ namespace OsEngine.ViewModels
                     RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
 
                     if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
-                    {
+                    {  
                         Order order = SendLimitOrder(SelectedSecurity, price, worklot, side);
                         if (order != null)
                         {
@@ -901,6 +933,13 @@ namespace OsEngine.ViewModels
                         {
                             level.PassTake = true;
                         }
+                    }
+                    else if (worklot * level.PriceLevel <= 6 && worklot != 0 )
+                    {
+                        RobotWindowVM.Log(Header, "ВНИМАНИЕ action ТЭЙК ордер меньше 6 $ не отрпавлен \n" +
+                            " worklot  =  " + worklot);
+                        level.PassTake = true;
+                        LevelTradeLogicClose(level, Action.TAKE);                        ;
                     }
                 }
             } 
