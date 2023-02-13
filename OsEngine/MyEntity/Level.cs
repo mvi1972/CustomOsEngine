@@ -3,6 +3,7 @@ using OsEngine.Market.Servers;
 using OsEngine.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -12,8 +13,7 @@ using System.Threading.Tasks;
 namespace OsEngine.MyEntity
 {
     public class Level : BaseVM
-    {
- 
+    { 
         #region ======================================Свойства======================================
         /// <summary>
         /// расчетная цена уровня
@@ -79,7 +79,7 @@ namespace OsEngine.MyEntity
             set
             {
                 _volume = value;
-                Change();
+                Change(); 
             }
         }
         public decimal _volume = 0;
@@ -92,7 +92,6 @@ namespace OsEngine.MyEntity
             {
                 _margine = value;
                 Change();
-               
             }
         }
         public decimal _margine = 0;
@@ -192,6 +191,19 @@ namespace OsEngine.MyEntity
         #endregion
 
         #region ======================================Методы====================================
+       
+        //public void GetCounOrdersForOpen()
+        //{
+        //    int count = 0;
+        //    count = OrdersForOpen.Count;
+        //    if (count>0)
+        //    {
+        //        decimal orderprice = OrdersForOpen[OrdersForOpen.Count - 1].Price;
+        //        string str = "ордеров на открытие = " + count + "\n"
+        //            + " цена последнего = " + orderprice;
+        //        Debug.WriteLine(str);
+        //    }  
+        //}
 
         public void SetVolumeStart()
         {
@@ -234,7 +246,7 @@ namespace OsEngine.MyEntity
         }
 
         private void CalculateOrders()
-        {
+        { 
             decimal activeVolume = 0;
             decimal volumeExecute = 0;
 
@@ -342,8 +354,28 @@ namespace OsEngine.MyEntity
         /// </summary>
         public void CancelAllOrders(IServer server, DelegateGetStringForSave getStringForSave)
         {
-            CanselCloseOrders(server, getStringForSave);
-            CanselOpenOrders(server, getStringForSave);
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    CanselCloseOrders(server, getStringForSave);
+                    CanselOpenOrders(server, getStringForSave);
+
+                    string str = "ВКЛЮЧЕН поток для отзыва ордеров \n"                    ;
+                    Debug.WriteLine(str);
+
+                    RobotWindowVM.Log( " ВКЛЮЧЕН поток отзыва ордеров с сервера \n"," ");
+
+                    Thread.Sleep(2000);
+                    if (LimitVolume == 0 && TakeVolume == 0)
+                    {
+                        RobotWindowVM.Log(" Поток отзыва ордеров с сервера ВЫКЛЮЧЕН\n", " ");
+                        string str2 = "Поток для отзыва ордеров ОТКЛЮЧЕН \n";
+                        Debug.WriteLine(str2);
+                        break;
+                    }
+                }
+            });                    
         }
 
         /// <summary>
@@ -359,7 +391,7 @@ namespace OsEngine.MyEntity
                         || order.State == OrderStateType.Pending)
                 {
                     server.CancelOrder(order);
-                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитку на открытие с биржи " + getStringForSave(order));
+                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитку на открытие с биржи \n" + getStringForSave(order));
                      Thread.Sleep(30); 
                 }
             }
@@ -378,7 +410,7 @@ namespace OsEngine.MyEntity
                         || order.State == OrderStateType.Pending)
                 {
                     server.CancelOrder(order);
-                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем тейк на сервере " + getStringForSave(order));
+                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем тейк на сервере \n" + getStringForSave(order));
                     Thread.Sleep(30);
                 }
             }

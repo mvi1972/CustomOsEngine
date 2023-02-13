@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Action = OsEngine.MyEntity.Action;
+using Level = OsEngine.MyEntity.Level;
 using Direction = OsEngine.MyEntity.Direction;
 
 namespace OsEngine.ViewModels
@@ -58,8 +60,10 @@ namespace OsEngine.ViewModels
         /// колекция уровней 
         /// </summary>
         public ObservableCollection<Level> Levels { get; set; } = new ObservableCollection<Level>() ;
+        //string str = "Levels колекция  = " + Levels.Count;
+        //Debug.WriteLine(str);
 
-         /// <summary>
+        /// <summary>
          /// заголовок робота 
          /// </summary>
         public string Header
@@ -635,21 +639,26 @@ namespace OsEngine.ViewModels
             if (StopLong != 0 && Price != 0 )
             {
                 if (Price < StopLong && Direction == Direction.BUY ||
-                       Price < StopLong && Direction == Direction.BUYSELL)
+                    Price < StopLong && Direction == Direction.BUYSELL)
                 {
                     IsRun = false;
                     foreach (Level level in Levels)
                     {
                         level.CancelAllOrders(Server, GetStringForSave);
+                        string str = "level long = " + level;
+                        Debug.WriteLine(str);
+
+                        string str2 = "Всего уровней = " + Levels.Count;
+                        Debug.WriteLine(str2);
 
                         LevelTradeLogicClose(level, Action.STOP);
                         RobotWindowVM.Log(Header, " Сработал СТОП ЛОНГ ");
-                    } 
-                    StopLong = 0;
+                        StopLong = 0;
+                    }                     
                     return;
                 }
             }
-            if (StopLong != 0 && Price != 0)
+            if (StopShort != 0 && Price != 0)
             {
                 if (Price > StopShort && Direction == Direction.SELL ||
                     Price > StopShort && Direction == Direction.BUYSELL)
@@ -660,10 +669,15 @@ namespace OsEngine.ViewModels
                         level.CancelAllOrders(Server, GetStringForSave);
 
                         RobotWindowVM.Log(Header, " Сработал СТОП ШОРТА ");
+                        string str = "level Short = " + level ;
+                        Debug.WriteLine(str);
+
+                        string str2 = "Всего уровней = " + Levels.Count;
+                        Debug.WriteLine(str2);
 
                         LevelTradeLogicClose(level, Action.STOP );
-                    }              
-                     return ;
+                        StopShort = 0;
+                    }
                 }
             }
         }  
@@ -750,6 +764,7 @@ namespace OsEngine.ViewModels
                             level.OrdersForOpen.Add(order);
 
                             RobotWindowVM.Log(Header, " Отправляем лимитку  " + GetStringForSave(order));
+                            Thread.Sleep(10);
                         }
                         else
                         {
@@ -788,7 +803,7 @@ namespace OsEngine.ViewModels
                         {
                             level.PassVolume = false;
                             level.OrdersForClose.Add(order);
-                            RobotWindowVM.Log(Header, "Отправлен Маркет ордер на закрытие =  " + GetStringForSave(order));
+                            RobotWindowVM.Log(Header, "Отправлен Маркет ордер на закрытие \n  " + GetStringForSave(order));
                         }                        
                     }
                     else level.PassVolume = true;
@@ -1153,7 +1168,7 @@ namespace OsEngine.ViewModels
         }
 
         private void Server_NewOrderIncomeEvent(Order order)
-        {
+        {           
             if (order == null || _portfolio == null) return;
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType
