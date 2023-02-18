@@ -9,6 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -32,11 +33,10 @@ namespace OsEngine.ViewModels
             });
 
             Load();
-               
-            ServerMaster.ActivateAutoConnection();
-            
-        }
 
+            ServerMaster.ActivateAutoConnection();
+
+        }
 
         #region  ================================ Свойства =====================================
 
@@ -57,10 +57,10 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// список типов стратегий
         /// </summary>
-        public List<NameStrat> NameStrategies { get; set; }  = new List<NameStrat>()
+        public List<NameStrat> NameStrategies { get; set; } = new List<NameStrat>()
         {
             NameStrat.GRID, NameStrat.BREAKDOWN, NameStrat.NONE
-        }; 
+        };
         /// <summary>
         /// колекция созданых роботов
         /// </summary> 
@@ -77,7 +77,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(SelectedRobot));
             }
         }
-        private IRobotVM _selectedRobot; 
+        private IRobotVM _selectedRobot;
 
         #endregion
 
@@ -95,8 +95,9 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// многопоточный словарь для ордеров
         /// </summary>
-        public static ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> 
+        public static ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>
             Orders = new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();
+
 
         CultureInfo CultureInfo = new CultureInfo("ru-RU");
 
@@ -352,7 +353,12 @@ namespace OsEngine.ViewModels
                 using ( StreamWriter writer = new StreamWriter(@"Parametrs\param.txt"))
                 {
                     writer.WriteLine(str);
-                    writer.WriteLine(SelectedRobot.Header);
+                    if (SelectedRobot == null)
+                    {
+                        writer.WriteLine("none tab");
+                    }
+                    else writer.WriteLine(SelectedRobot.Header);
+
                     writer.WriteLine(SelectedRobot.NameStrat);
 
                     writer.Close();
@@ -410,6 +416,14 @@ namespace OsEngine.ViewModels
             }    
 
             #endregion
+        }
+        /// <summary>
+        /// отправить строку в дебаг
+        /// </summary>
+        public static void SendStrTextDb(string text, string text2 = null)
+        {
+            string str = text + " \n" + text2 + "\n" ;
+            Debug.WriteLine(str);
         }
     }
 }

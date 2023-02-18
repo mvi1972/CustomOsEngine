@@ -296,7 +296,6 @@ namespace OsEngine.MyEntity
             TakeVolume = activeTake;
             PassVolume = passLimit;
             PassTake= passTake;
-
         }
         private void ClearOrders(ref List<Order> orders)
         {
@@ -308,6 +307,7 @@ namespace OsEngine.MyEntity
                     && order.State != OrderStateType.Done)
                 {
                     newOrders.Add(order);
+                    RobotWindowVM.SendStrTextDb(" Удалили ордера Cancel и Done " );
                 }
             }
             orders = newOrders;  
@@ -335,7 +335,7 @@ namespace OsEngine.MyEntity
         public string GetStringForSave()
         {
             string str = "";
-
+            str += "Уровень = \n";
             str += "Volume = " + Volume.ToString(CultureInfo) + " | ";
             str += "PriceLevel = " + PriceLevel.ToString(CultureInfo) + " | ";
             str += "OpenPrice = " + OpenPrice.ToString(CultureInfo) + " | ";
@@ -358,24 +358,41 @@ namespace OsEngine.MyEntity
             {
                 while (true)
                 {
+                    string namsec = "";
+                    if (OrdersForOpen.Count != 0)
+                    {
+                        Order order = OrdersForOpen[0];
+                        namsec = order.SecurityNameCode;
+
+                        RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток для отзыва ордеров на открытие \n");
+                    }
+                    if (OrdersForClose.Count != 0)
+                    {
+                        Order order = OrdersForClose[0];
+                        namsec = order.SecurityNameCode;
+
+                        RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток отзыва ордеров на закрытие \n");
+                    }
                     CanselCloseOrders(server, getStringForSave);
                     CanselOpenOrders(server, getStringForSave);
 
-                    string str = "ВКЛЮЧЕН поток для отзыва ордеров \n"                    ;
-                    Debug.WriteLine(str);
-
-                    RobotWindowVM.Log( " ВКЛЮЧЕН поток отзыва ордеров с сервера \n"," ");
+                    //string str = "ВКЛЮЧЕН поток для отзыва ордеров \n";
+                    //Debug.WriteLine(str);
 
                     Thread.Sleep(2000);
                     if (LimitVolume == 0 && TakeVolume == 0)
                     {
-                        RobotWindowVM.Log(" Поток отзыва ордеров с сервера ВЫКЛЮЧЕН\n", " ");
                         string str2 = "Поток для отзыва ордеров ОТКЛЮЧЕН \n";
                         Debug.WriteLine(str2);
+                        if (namsec != "")
+                        {
+                            RobotWindowVM.Log(namsec, "Поток для отзыва ордеров ОТКЛЮЧЕН \n");
+                        }
+
                         break;
                     }
                 }
-            });                    
+            });
         }
 
         /// <summary>
@@ -385,6 +402,7 @@ namespace OsEngine.MyEntity
         {
             foreach (Order order in OrdersForOpen)
             {
+                RobotWindowVM.SendStrTextDb("OrdersForOpen[0].NumberMarket " + OrdersForOpen[0].NumberMarket.ToString());
                 if (order != null
                        && order.State == OrderStateType.Activ
                         || order.State == OrderStateType.Patrial
@@ -392,7 +410,7 @@ namespace OsEngine.MyEntity
                 {
                     server.CancelOrder(order);
                     RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитку на открытие с биржи \n" + getStringForSave(order));
-                     Thread.Sleep(30); 
+                    Thread.Sleep(30); 
                 }
             }
         }
@@ -404,6 +422,7 @@ namespace OsEngine.MyEntity
         {
             foreach (Order order in OrdersForClose)
             {
+                RobotWindowVM.SendStrTextDb("OrdersForClose[0].NumberMarket " + OrdersForClose[0].NumberMarket.ToString());
                 if (order != null
                        && order.State == OrderStateType.Activ
                         || order.State == OrderStateType.Patrial

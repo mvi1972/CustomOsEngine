@@ -25,6 +25,7 @@ using Action = OsEngine.MyEntity.Action;
 using Level = OsEngine.MyEntity.Level;
 using Direction = OsEngine.MyEntity.Direction;
 
+
 namespace OsEngine.ViewModels
 {
     public class GridRobotVM : BaseVM, IRobotVM
@@ -642,11 +643,14 @@ namespace OsEngine.ViewModels
                     Price < StopLong && Direction == Direction.BUYSELL)
                 {
                     IsRun = false;
+                    StopLong = 0;
+                    string str = " Сработал СТОП лонга \n IsRun = false , сохранились \n ";
+                    Debug.WriteLine(str);
                     foreach (Level level in Levels)
                     {
                         level.CancelAllOrders(Server, GetStringForSave);
-                        string str = "level long = " + level;
-                        Debug.WriteLine(str);
+                        string str3 = "level long = " + level;
+                        Debug.WriteLine(str3);
 
                         string str2 = "Всего уровней = " + Levels.Count;
                         Debug.WriteLine(str2);
@@ -664,13 +668,17 @@ namespace OsEngine.ViewModels
                     Price > StopShort && Direction == Direction.BUYSELL)
                 {
                     IsRun = false;
+                    Save();
+                    string str = " Сработал СТОП, IsRun = false , сохранились \n ";
+                    Debug.WriteLine(str);
+                    StopShort = 0;
                     foreach (Level level in Levels)
                     {
                         level.CancelAllOrders(Server, GetStringForSave);
 
-                        RobotWindowVM.Log(Header, " Сработал СТОП ШОРТА ");
-                        string str = "level Short = " + level ;
-                        Debug.WriteLine(str);
+                        RobotWindowVM.Log(Header, "ExaminationStop "+" Сработал СТОП ШОРТА ");
+                        string str4 = "level Short = " + level ;
+                        Debug.WriteLine(str4);
 
                         string str2 = "Всего уровней = " + Levels.Count;
                         Debug.WriteLine(str2);
@@ -791,10 +799,10 @@ namespace OsEngine.ViewModels
                     side = Side.Buy;
                 }                
 
-                decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
+                decimal worklot = Math.Abs(level.Volume) ;// -level.TakeVolume
                 if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
                 {
-                    Order order = SendMarketOrder(SelectedSecurity, worklot, side);
+                    Order order = SendMarketOrder(SelectedSecurity,Price, worklot, side);
                     if (order != null)
                     {
                         if (order.State != OrderStateType.Activ ||
@@ -1027,7 +1035,9 @@ namespace OsEngine.ViewModels
                 NumberUser = NumberGen.GetNumberOrder(StartProgram.IsOsTrader),
                 SecurityNameCode = sec.Name,
                 SecurityClassCode = sec.NameClass,
-            };     
+            };
+            RobotWindowVM.Log(Header, "SendLimitOrder\n " + " отправляем лимитку на биржу\n" + GetStringForSave(order));
+            RobotWindowVM.SendStrTextDb(" SendLimitOrder " + order.NumberUser);
             Server.ExecuteOrder(order);
             return order;
         }
@@ -1035,7 +1045,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         ///  отправить Маркетный оредер на биржу 
         /// </summary>
-        private Order SendMarketOrder(Security sec, decimal volume, Side side)
+        private Order SendMarketOrder(Security sec, decimal prise, decimal volume, Side side)
         {
             if (string.IsNullOrEmpty(StringPortfolio))
             {
@@ -1045,7 +1055,7 @@ namespace OsEngine.ViewModels
             }
             Order order = new Order()
             {
-                //Price = prise,
+                Price = prise,
                 Volume = volume,
                 Side = side,
                 PortfolioNumber = StringPortfolio,
@@ -1054,7 +1064,9 @@ namespace OsEngine.ViewModels
                 SecurityNameCode = sec.Name,
                 SecurityClassCode = sec.NameClass,
             };
-            Server.ExecuteOrder(order);
+            RobotWindowVM.Log(Header, "SendMarketOrder\n " + " отправляем маркет на биржу\n"+ GetStringForSave(order));
+            RobotWindowVM.SendStrTextDb(" SendMarketOrder " + order.NumberUser);
+            Server.ExecuteOrder(order); 
             return order;
         }
 
@@ -1083,7 +1095,7 @@ namespace OsEngine.ViewModels
                 {
                     level.CancelAllOrders(Server, GetStringForSave);
                 }
-                //Thread.Sleep(3000);
+                Thread.Sleep(3000);
                 bool flag = true;
                 foreach (Level level in Levels)
                 {
@@ -1171,9 +1183,39 @@ namespace OsEngine.ViewModels
         {           
             if (order == null || _portfolio == null) return;
             if (order.SecurityNameCode == SelectedSecurity.Name
-                && order.ServerType == Server.ServerType
-                && order.PortfolioNumber == _portfolio.Number) // 
+                && order.ServerType == Server.ServerType ) // 
             {
+                RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, order.NumberUser.ToString());
+                foreach (Level level in Levels)
+                {
+
+                    if (level.OrdersForClose.Count > 0)
+                    {
+                        if (level.OrdersForClose[0].NumberUser == order.NumberUser
+                           || level.OrdersForClose[0].NumberMarket == order.NumberMarket)
+                        {
+                            level.OrdersForClose[0].NumberMarket = order.NumberMarket;
+                            level.OrdersForClose[0].State = order.State;
+                            //level.OrdersForClose[0].Volume = order.Volume;
+                            string str = " Server_NewOrder Обновили ордер в OrdersForClose[0] = \n" + order.NumberMarket + " или \n" + order.NumberUser;
+                            Debug.WriteLine(str);
+                        }
+                    }
+                    if (level.OrdersForOpen.Count > 0)
+                    {
+                        if (level.OrdersForOpen[0].NumberUser == order.NumberUser
+                           || level.OrdersForOpen[0].NumberMarket == order.NumberMarket)
+                        {
+                            level.OrdersForOpen[0].NumberMarket = order.NumberMarket;
+                            level.OrdersForOpen[0].State = order.State;
+                            //level.OrdersForOpen[0].Volume = order.Volume;
+
+                            RobotWindowVM.SendStrTextDb(" Server_NewOrder Обновили ордер в Орд опен[0]" + order.NumberMarket, order.NumberUser.ToString());
+                        }
+                    }
+                }
+
+                //  дальше запись в лог ответа с биржи по ордеру
                 bool rec =true;
                 if (order.State == OrderStateType.Activ
                     && order.TimeCallBack.AddSeconds(15) < Server.ServerTime) 
@@ -1212,6 +1254,7 @@ namespace OsEngine.ViewModels
                 bool newTrade = level.AddMyTrade(myTrade, SelectedSecurity.Lot);
                 if (newTrade)
                 {
+                    RobotWindowVM.SendStrTextDb(" Trade ордера " + myTrade.NumberOrderParent+ "\n NumberTrade " + myTrade.NumberTrade);
                     RobotWindowVM.Log(Header, "MyTrade =  " + GetStringForSave(myTrade));
                     if (myTrade.Side == level.Side)
                     {
@@ -1438,7 +1481,7 @@ namespace OsEngine.ViewModels
         private string GetStringForSave(Order order)
         {
             string str = "";
-
+            str += "ордер = \n";
             str += order.SecurityNameCode + " | ";
             str += order.PortfolioNumber + " | ";
             str += order.TimeCreate + " | ";
@@ -1459,7 +1502,7 @@ namespace OsEngine.ViewModels
         private string GetStringForSave(MyTrade myTrade)
         {
             string str = "";
-
+            str += "мой трейд = \n";
             str += myTrade.SecurityNameCode + " | ";
             str += myTrade.Side + " | ";
             str += "Объем = " + myTrade.Volume + " | ";
