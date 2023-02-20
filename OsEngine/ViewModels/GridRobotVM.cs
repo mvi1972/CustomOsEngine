@@ -24,6 +24,7 @@ using System.Windows;
 using Action = OsEngine.MyEntity.Action;
 using Level = OsEngine.MyEntity.Level;
 using Direction = OsEngine.MyEntity.Direction;
+using System.Runtime.Serialization;
 
 
 namespace OsEngine.ViewModels
@@ -51,6 +52,10 @@ namespace OsEngine.ViewModels
 
         #region Свойства ================================================================================== 
 
+        /// <summary>
+        /// ордера на бирже
+        /// </summary>
+        public List<Order> OrdersIncome = new List<Order>();
 
         /// <summary>
         /// список портфелей 
@@ -649,7 +654,7 @@ namespace OsEngine.ViewModels
                     foreach (Level level in Levels)
                     {
                         level.CancelAllOrders(Server, GetStringForSave);
-                        string str3 = "level long = " + level;
+                        string str3 = "level long = " + level.PriceLevel;
                         Debug.WriteLine(str3);
 
                         string str2 = "Всего уровней = " + Levels.Count;
@@ -676,8 +681,8 @@ namespace OsEngine.ViewModels
                     {
                         level.CancelAllOrders(Server, GetStringForSave);
 
-                        RobotWindowVM.Log(Header, "ExaminationStop "+" Сработал СТОП ШОРТА ");
-                        string str4 = "level Short = " + level ;
+                        RobotWindowVM.Log(Header, "ExaminationStop \n "+" Сработал СТОП ШОРТА ");
+                        string str4 = "level Short = " + level.PriceLevel ;
                         Debug.WriteLine(str4);
 
                         string str2 = "Всего уровней = " + Levels.Count;
@@ -1066,7 +1071,8 @@ namespace OsEngine.ViewModels
             };
             RobotWindowVM.Log(Header, "SendMarketOrder\n " + " отправляем маркет на биржу\n"+ GetStringForSave(order));
             RobotWindowVM.SendStrTextDb(" SendMarketOrder " + order.NumberUser);
-            Server.ExecuteOrder(order); 
+            Server.ExecuteOrder(order);
+            
             return order;
         }
 
@@ -1185,7 +1191,11 @@ namespace OsEngine.ViewModels
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType ) // 
             {
-                RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, order.NumberUser.ToString());
+                // OrdersIncome.Add(order);
+                
+                RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser "+ order.NumberUser.ToString() +"\n"
+                                            + " NewOrder Status " + order.State + "\n"
+                                            + " OrdersIncome count " + OrdersIncome.Count);
                 foreach (Level level in Levels)
                 {
 
@@ -1197,7 +1207,8 @@ namespace OsEngine.ViewModels
                             level.OrdersForClose[0].NumberMarket = order.NumberMarket;
                             level.OrdersForClose[0].State = order.State;
                             //level.OrdersForClose[0].Volume = order.Volume;
-                            string str = " Server_NewOrder Обновили ордер в OrdersForClose[0] = \n" + order.NumberMarket + " или \n" + order.NumberUser;
+                            string str = " Server_NewOrder Обновили ордер в OrdersForClose[0] = \n"
+                                + order.NumberMarket + " или \n" + order.NumberUser;
                             Debug.WriteLine(str);
                         }
                     }
@@ -1274,7 +1285,7 @@ namespace OsEngine.ViewModels
         /// расчитывает уровни 
         /// </summary>
         void Calculate( object o)
-        {
+        {            
             decimal volume = 0;
             decimal stepTake =0;
             
@@ -1704,6 +1715,7 @@ namespace OsEngine.ViewModels
             //    return balans;
 
         }
+
 
         #endregion
 

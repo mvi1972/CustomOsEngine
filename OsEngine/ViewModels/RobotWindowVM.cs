@@ -17,7 +17,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Runtime.Serialization;
 using static OsEngine.ViewModels.GridRobotVM;
+using System.Runtime.Serialization.Json;
 
 namespace OsEngine.ViewModels
 {
@@ -210,7 +212,7 @@ namespace OsEngine.ViewModels
                 numberOrders.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
 
                 Orders.AddOrUpdate(order.SecurityNameCode, numberOrders, (key, value) => value = numberOrders);
-            }
+            }           
         }
 
         /// <summary>
@@ -425,5 +427,6 @@ namespace OsEngine.ViewModels
             string str = text + " \n" + text2 + "\n" ;
             Debug.WriteLine(str);
         }
+     
     }
 }

@@ -5,13 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace OsEngine.MyEntity
 {
+    [DataContract]
     public class Level : BaseVM
     { 
         #region ======================================Свойства======================================
@@ -174,16 +178,19 @@ namespace OsEngine.MyEntity
         /// <summary>
         ///  список лимиток на закрытие
         /// </summary>
+        [DataMember]
         public List<Order> OrdersForClose = new List<Order>();
 
         /// <summary>
         /// лимитки на открытие позиций 
         /// </summary>
+        [DataMember]
         public List<Order> OrdersForOpen = new List<Order>();
 
         /// <summary>
         ///  список трейдов моего робота
         /// </summary>
+        [DataMember] 
         private List<MyTrade> _myTrades = new List<MyTrade>();
 
         private decimal _calcVolume = 0;
@@ -315,6 +322,7 @@ namespace OsEngine.MyEntity
 
         private void Change()
         {
+            //SerializerListsOrders();
             OnPropertyChanged(nameof(Volume));
             OnPropertyChanged(nameof(OpenPrice));
             OnPropertyChanged(nameof(LimitVolume));
@@ -547,6 +555,18 @@ namespace OsEngine.MyEntity
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// сериализация сохранение листов ордеров
+        /// </summary>
+        public void SerializerListsOrders()
+        {
+            DataContractJsonSerializer OrdersForCloseSerialazer = new DataContractJsonSerializer(typeof(List<Order>));
+            using (var file = new FileStream("OrdersForClose.json", FileMode.Create))
+            {
+                OrdersForCloseSerialazer.WriteObject(file, OrdersForClose);
+            }
         }
 
         #endregion
