@@ -23,6 +23,7 @@ using System.Runtime.Serialization.Json;
 
 namespace OsEngine.ViewModels
 {
+    [DataContract]  
     public class RobotWindowVM : BaseVM
     {
         public RobotWindowVM()

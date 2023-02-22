@@ -5,10 +5,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using OsEngine.Market;
+
 
 namespace OsEngine.Entity
 {
@@ -16,8 +19,10 @@ namespace OsEngine.Entity
     /// order
     /// ордер
     /// </summary>
+    [DataContract]
     public class Order
     {
+        
         public Order()
         {
             State = OrderStateType.None;
@@ -33,45 +38,52 @@ namespace OsEngine.Entity
         /// order number in the robot
         /// номер ордера в роботе
         /// </summary>
+        [DataMember]
         public int NumberUser;
 
         /// <summary>
         /// order number on the exchange
         /// номер ордера на бирже
         /// </summary>
+        [DataMember]
         public string NumberMarket;
 
         /// <summary>
         /// instrument code for which the transaction took place
         /// код инструмента по которому прошла сделка
         /// </summary>
+        [DataMember]
         public string SecurityNameCode;
 
-
+        [DataMember]
         public string SecurityClassCode;
 
         /// <summary>
         /// account number to which the order belongs
         /// номер счёта которому принадлежит ордер
         /// </summary>
+        [DataMember]
         public string PortfolioNumber;
 
         /// <summary>
         /// direction
         /// направление
         /// </summary>
+        [DataMember]
         public Side Side;
 
         /// <summary>
         /// bid price
         /// цена заявки
-        /// </summary>
+        /// </summary>        
+        [DataMember] 
         public decimal Price;
 
         /// <summary>
         /// real price
         /// цена исполнения
         /// </summary>
+      
         public decimal PriceReal
         {
             get
@@ -84,12 +96,14 @@ namespace OsEngine.Entity
         /// volume
         /// объём
         /// </summary>
+        [DataMember]
         public decimal Volume;
 
         /// <summary>
         /// execute volume
         /// объём исполнившийся
         /// </summary>
+        [DataMember]
         public decimal VolumeExecute
         {
             get
@@ -115,6 +129,7 @@ namespace OsEngine.Entity
         private decimal _volumeExecute;
         private bool _volumeExecuteChange;
 
+        
         public List<MyTrade> MyTrades
         {
             get { return _trades; }
@@ -124,6 +139,7 @@ namespace OsEngine.Entity
         /// order status: None, Pending, Done, Patrial, Fail
         /// статус ордера: None, Pending, Done, Patrial, Fail
         /// </summary>
+        [DataMember]
         public OrderStateType State 
         {
             get { return _state; }
@@ -139,30 +155,31 @@ namespace OsEngine.Entity
         /// order price type. Limit, Market
         /// тип цены ордера. Limit, Market
         /// </summary>
+     
         public OrderPriceType TypeOrder;
 
         /// <summary>
         /// why the order was created in the context of the position. Open is the opening order. Close is the closing order
         /// для чего создан ордер в контексте позиции. Open - для открытия позиции. Close - для закрытия позиции
         /// </summary>
+        
         public OrderPositionConditionType PositionConditionType;
 
         /// <summary>
         /// user comment
         /// комментарий пользователя
         /// </summary>
+        [DataMember] 
         public string Comment;
 
         /// <summary>
         /// time of the first response from the stock exchange on the order. Server time
         /// время первого отклика от биржи по ордеру. Время севрера.
         /// </summary>
+    
         public DateTime TimeCallBack;
 
-        /// <summary>
-        /// time of order removal from the system. Server time
-        /// время снятия ордера из системы. Время сервера
-        /// </summary>
+
         public DateTime TimeCancel;
 
         /// <summary>
@@ -237,6 +254,7 @@ namespace OsEngine.Entity
         /// order trades
         /// сделки ордера
         /// </summary>
+        [DataMember]
         private List<MyTrade> _trades;
 
         /// <summary>
@@ -480,7 +498,7 @@ namespace OsEngine.Entity
         }
     }
 
-
+    
     /// <summary>
     /// price type for order
     /// тип цены для ордера
@@ -491,18 +509,21 @@ namespace OsEngine.Entity
         /// limit order. Those. bid at a certain price
         /// лимитная заявка. Т.е. заявка по определённой цене
         /// </summary>
+        
         Limit,
 
         /// <summary>
         /// market application. Those. application at any price
         /// рыночная заявка. Т.е. заявка по любой цене
         /// </summary>
+        
         Market,
 
         /// <summary>
         /// iceberg application. Those. An application whose volume is not fully visible in the glass.
         /// айсберг заявка. Т.е. заявка объём которой полностью не виден в стакане.
         /// </summary>
+        
         Iceberg
     }
 
@@ -516,45 +537,52 @@ namespace OsEngine.Entity
         /// none
         /// отсутствует
         /// </summary>
+        
         None,
 
         /// <summary>
         /// accepted by the exchange and exhibited in the system
         /// принята биржей и выставленна в систему
         /// </summary>
+        
         Activ,
 
         /// <summary>
         /// waiting for registration
         /// ожидает регистрации
         /// </summary>
+       
         Pending,
 
         /// <summary>
         /// done
         /// исполнен
         /// </summary>
+       
         Done,
 
         /// <summary>
         /// partitial done
         /// исполнен частично
         /// </summary>
+       
         Patrial,
 
         /// <summary>
         /// error
         /// произошла ошибка
         /// </summary>
+       
         Fail,
 
         /// <summary>
         /// cancel
         /// отменён
         /// </summary>
+        
         Cancel
     }
-
+    
     public enum OrderPositionConditionType
     {
         None,

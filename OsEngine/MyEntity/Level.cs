@@ -17,8 +17,9 @@ namespace OsEngine.MyEntity
 {
     [DataContract]
     public class Level : BaseVM
-    { 
+    {
         #region ======================================Свойства======================================
+        [DataMember]
         /// <summary>
         /// расчетная цена уровня
         /// </summary>
@@ -34,6 +35,7 @@ namespace OsEngine.MyEntity
         }
         public decimal _priceLevel = 0;
 
+        [DataMember]
         public Side Side
         {
             get => _side;
@@ -48,6 +50,7 @@ namespace OsEngine.MyEntity
         /// <summary>
         /// реалькая цена открытой позиции
         /// </summary>
+        [DataMember]
         public decimal OpenPrice
         {
             get => _openPrice;
@@ -60,6 +63,7 @@ namespace OsEngine.MyEntity
         }
         public decimal _openPrice = 0;
 
+        [DataMember]
         public decimal TakePrice
         {
             get => _takePrice;
@@ -72,7 +76,7 @@ namespace OsEngine.MyEntity
         }
         public decimal _takePrice = 0;
 
-
+        [DataMember]
         /// <summary>
         /// объем позиции
         /// </summary>
@@ -87,7 +91,7 @@ namespace OsEngine.MyEntity
             }
         }
         public decimal _volume = 0;
-
+        [DataMember]
         public decimal Margin
         {
             get => _margine;
@@ -99,7 +103,7 @@ namespace OsEngine.MyEntity
             }
         }
         public decimal _margine = 0;
-
+        [DataMember]
         public decimal Accum
         {
             get => _accum;
@@ -112,7 +116,7 @@ namespace OsEngine.MyEntity
             }
         }
         public decimal _accum = 0;
-
+        [DataMember]
         /// <summary>
         /// объем ордера открытия поз
         /// <summary>
@@ -126,7 +130,7 @@ namespace OsEngine.MyEntity
             }
         }
         private decimal _limitVolume;
-
+        [DataMember]
         /// <summary>
         /// Обем ордера закрытия поз
         /// </summary>
@@ -140,7 +144,7 @@ namespace OsEngine.MyEntity
             }
         }
         private decimal _takeVolume;
-
+        [DataMember]
         /// <summary>
         /// разрешение открыть позицию        
         /// </summary>
@@ -155,7 +159,7 @@ namespace OsEngine.MyEntity
             }
         }
         public bool _passVolume = true;
-
+        [DataMember]
         /// <summary>
         /// разрешение выставить тейк     
         /// </summary>
@@ -253,7 +257,8 @@ namespace OsEngine.MyEntity
         }
 
         private void CalculateOrders()
-        { 
+        {
+            //SerializerListsOrders();
             decimal activeVolume = 0;
             decimal volumeExecute = 0;
 
@@ -322,7 +327,7 @@ namespace OsEngine.MyEntity
 
         private void Change()
         {
-            //SerializerListsOrders();
+          
             OnPropertyChanged(nameof(Volume));
             OnPropertyChanged(nameof(OpenPrice));
             OnPropertyChanged(nameof(LimitVolume));
@@ -466,6 +471,7 @@ namespace OsEngine.MyEntity
 
         private void CalculatePosition(decimal contLot)
         {
+            
             //decimal volume =0;
             decimal openPrice = 0;
             decimal accum = 0;
@@ -557,17 +563,7 @@ namespace OsEngine.MyEntity
             return false;
         }
 
-        /// <summary>
-        /// сериализация сохранение листов ордеров
-        /// </summary>
-        public void SerializerListsOrders()
-        {
-            DataContractJsonSerializer OrdersForCloseSerialazer = new DataContractJsonSerializer(typeof(List<Order>));
-            using (var file = new FileStream("OrdersForClose.json", FileMode.Create))
-            {
-                OrdersForCloseSerialazer.WriteObject(file, OrdersForClose);
-            }
-        }
+ 
 
         #endregion
 
