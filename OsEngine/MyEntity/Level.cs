@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OsEngine.MyEntity
 {
-    [DataContract]
+   
     public class Level : BaseVM
     {
         #region ======================================Свойства======================================
@@ -182,19 +182,19 @@ namespace OsEngine.MyEntity
         /// <summary>
         ///  список лимиток на закрытие
         /// </summary>
-        [DataMember]
+        
         public List<Order> OrdersForClose = new List<Order>();
 
         /// <summary>
         /// лимитки на открытие позиций 
         /// </summary>
-        [DataMember]
+        
         public List<Order> OrdersForOpen = new List<Order>();
 
         /// <summary>
         ///  список трейдов моего робота
         /// </summary>
-        [DataMember] 
+       
         private List<MyTrade> _myTrades = new List<MyTrade>();
 
         private decimal _calcVolume = 0;
@@ -255,10 +255,12 @@ namespace OsEngine.MyEntity
             }
             return false;
         }
-
+        /// <summary>
+        /// расчет объема ордеров 
+        /// </summary>
         private void CalculateOrders()
         {
-            //SerializerListsOrders();
+            //SerializerDictionaryOrders();
             decimal activeVolume = 0;
             decimal volumeExecute = 0;
 
@@ -372,8 +374,8 @@ namespace OsEngine.MyEntity
                 while (true)
                 {
                     string namsec = "";
-                    if (OrdersForOpen.Count != 0)
-                    {
+                    if (OrdersForOpen.Count != 0) // эта конструкция что бы взять имя бумаги для отправки в лог 
+                    {                        
                         Order order = OrdersForOpen[0];
                         namsec = order.SecurityNameCode;
 
@@ -389,8 +391,8 @@ namespace OsEngine.MyEntity
                     CanselCloseOrders(server, getStringForSave);
                     CanselOpenOrders(server, getStringForSave);
 
-                    //string str = "ВКЛЮЧЕН поток для отзыва ордеров \n";
-                    //Debug.WriteLine(str);
+                    string str = "ВКЛЮЧЕН поток для отзыва ордеров \n";
+                    Debug.WriteLine(str);
 
                     Thread.Sleep(2000);
                     if (LimitVolume == 0 && TakeVolume == 0)
@@ -401,7 +403,6 @@ namespace OsEngine.MyEntity
                         {
                             RobotWindowVM.Log(namsec, "Поток для отзыва ордеров ОТКЛЮЧЕН \n");
                         }
-
                         break;
                     }
                 }
@@ -422,6 +423,7 @@ namespace OsEngine.MyEntity
                         || order.State == OrderStateType.Pending)
                 {
                     server.CancelOrder(order);
+                  
                     RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитку на открытие с биржи \n" + getStringForSave(order));
                     Thread.Sleep(30); 
                 }
@@ -561,9 +563,7 @@ namespace OsEngine.MyEntity
                 }
             }
             return false;
-        }
-
- 
+        } 
 
         #endregion
 

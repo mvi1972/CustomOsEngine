@@ -26,6 +26,7 @@ using Level = OsEngine.MyEntity.Level;
 using Direction = OsEngine.MyEntity.Direction;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
+using System.Collections.Concurrent;
 
 namespace OsEngine.ViewModels
 {
@@ -53,11 +54,11 @@ namespace OsEngine.ViewModels
 
         #region Свойства ================================================================================== 
 
-        
+
         /// <summary>
-        /// ордера на бирже
+        /// словарь  ордеров на бирже
         /// </summary>
-        public List<Order> OrdersAcyivIncome = new List<Order>();
+        public ConcurrentDictionary<string, Order> OrdersAcyivIncome = new ConcurrentDictionary<string, Order>();
 
         /// <summary>
         /// список портфелей 
@@ -613,12 +614,12 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// сериализация сохранение листов ордеров
         /// </summary>
-        public void SerializerListsOrders()
+        public void SerializerDictionaryOrders()
         {
-            DataContractJsonSerializer OrdersForCloseSerialazer = new DataContractJsonSerializer(typeof(List<Order>));
+            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
             using (var file = new FileStream("OrdersForClose.json", FileMode.Create))
             {
-                OrdersForCloseSerialazer.WriteObject(file, OrdersAcyivIncome);
+                DictionaryOrdersSerialazer.WriteObject(file, OrdersAcyivIncome);
             }
         }
         /// <summary>
@@ -1201,6 +1202,9 @@ namespace OsEngine.ViewModels
            
         }
 
+        /// <summary>
+        /// пришел ответ с биржи по ордеру 
+        /// </summary>
         private void Server_NewOrderIncomeEvent(Order order)
         {           
             if (order == null || _portfolio == null) return;
@@ -1212,43 +1216,14 @@ namespace OsEngine.ViewModels
                              + " OrdersAcyivIncome count " + OrdersAcyivIncome.Count);
                 if (order.State == OrderStateType.Activ)
                 {
-                    OrdersAcyivIncome.Add(order);
+                    OrdersAcyivIncome.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
 
                     RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
                                                 + " Add Activ order \n" );
-                    SerializerListsOrders();
-                    RobotWindowVM.SendStrTextDb(" SerializerListsOrders ");
-                }     
-
-                //foreach (Level level in Levels)
-                //{
-                //    if (level.OrdersForClose.Count > 0)
-                //    {
-                //        if (level.OrdersForClose[0].NumberUser == order.NumberUser
-                //           || level.OrdersForClose[0].NumberMarket == order.NumberMarket)
-                //        {
-                //            level.OrdersForClose[0].NumberMarket = order.NumberMarket;
-                //            level.OrdersForClose[0].State = order.State;
-                //            //level.OrdersForClose[0].Volume = order.Volume;
-                //            string str = " Server_NewOrder Обновили ордер в OrdersForClose[0] = \n"
-                //                + order.NumberMarket + " или \n" + order.NumberUser;
-                //            Debug.WriteLine(str);
-                //        }
-                //    }
-                //    if (level.OrdersForOpen.Count > 0)
-                //    {
-                //        if (level.OrdersForOpen[0].NumberUser == order.NumberUser
-                //           || level.OrdersForOpen[0].NumberMarket == order.NumberMarket)
-                //        {
-                //            level.OrdersForOpen[0].NumberMarket = order.NumberMarket;
-                //            level.OrdersForOpen[0].State = order.State;
-                //            //level.OrdersForOpen[0].Volume = order.Volume;
-
-                //            RobotWindowVM.SendStrTextDb(" Server_NewOrder Обновили ордер в Орд опен[0]" + order.NumberMarket, order.NumberUser.ToString());
-                //        }
-                //    }
-                //}
-
+                    SerializerDictionaryOrders();
+                    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
+                }
+                
                 //  дальше запись в лог ответа с биржи по ордеру
                 bool rec =true;
                 if (order.State == OrderStateType.Activ
