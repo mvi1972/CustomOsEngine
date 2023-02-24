@@ -58,7 +58,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// словарь  ордеров на бирже
         /// </summary>
-        public ConcurrentDictionary<string, Order> OrdersAcyivIncome = new ConcurrentDictionary<string, Order>();
+        public ConcurrentDictionary<string, Order> DictionaryOrdersActiv = new ConcurrentDictionary<string, Order>();
 
         /// <summary>
         /// список портфелей 
@@ -617,9 +617,9 @@ namespace OsEngine.ViewModels
         public void SerializerDictionaryOrders()
         {
             DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
-            using (var file = new FileStream("OrdersForClose.json", FileMode.Create))
+            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.Create))
             {
-                DictionaryOrdersSerialazer.WriteObject(file, OrdersAcyivIncome);
+                DictionaryOrdersSerialazer.WriteObject(file, DictionaryOrdersActiv);
             }
         }
         /// <summary>
@@ -1213,10 +1213,10 @@ namespace OsEngine.ViewModels
             {
                 RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
                              + " NewOrder Status " + order.State + "\n"
-                             + " OrdersAcyivIncome count " + OrdersAcyivIncome.Count);
+                             + " DictionaryOrdersActiv count " + DictionaryOrdersActiv.Count);
                 if (order.State == OrderStateType.Activ)
                 {
-                    OrdersAcyivIncome.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
+                    DictionaryOrdersActiv.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
 
                     RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
                                                 + " Add Activ order \n" );

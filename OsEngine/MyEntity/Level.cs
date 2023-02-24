@@ -14,8 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace OsEngine.MyEntity
-{
-   
+{   
     public class Level : BaseVM
     {
         #region ======================================Свойства======================================
