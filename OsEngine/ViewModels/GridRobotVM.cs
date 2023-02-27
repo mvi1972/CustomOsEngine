@@ -617,9 +617,26 @@ namespace OsEngine.ViewModels
         public void SerializerDictionaryOrders()
         {
             DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
-            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.Create))
+            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.OpenOrCreate))
             {
                 DictionaryOrdersSerialazer.WriteObject(file, DictionaryOrdersActiv);
+            }
+        }
+
+        public void DesirializerDictionaryOrders()
+        {
+            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
+            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.Open))
+            {
+                ConcurrentDictionary<string, Order> LoadDictionaryOrdersActiv = new ConcurrentDictionary<string, Order>();
+                ConcurrentDictionary<string, Order> DictionaryOrdersActiv = DictionaryOrdersSerialazer.ReadObject(file) as ConcurrentDictionary<string, Order>;
+                if (DictionaryOrdersActiv != null)
+                {
+                    foreach (var order in DictionaryOrdersActiv)
+                    {
+                        LoadDictionaryOrdersActiv.AddOrUpdate(order.Key, order.Value, (key, value) => value = order.Value);
+                    }
+                }
             }
         }
         /// <summary>
@@ -632,6 +649,7 @@ namespace OsEngine.ViewModels
                 MessageBox.Show("Перейдите в режим редактирования!  ");
             }
             Levels.Add(new Level());
+            DesirializerDictionaryOrders();
         }
 
         /// <summary>

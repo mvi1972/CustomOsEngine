@@ -25,7 +25,7 @@ namespace OsEngine.Views
         public ChengeEmitendWidow(GridRobotVM robot)
         {
             InitializeComponent();
-            DataContext = new ChangeEmitentVM(robot);
+            DataContext = new ChangeEmitentVM(robot);      
         }
 
         public ChengeEmitendWidow(RobotBreakVM robotBreakVM)
