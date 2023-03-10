@@ -68,7 +68,7 @@ namespace OsEngine.Language
             "Ru:Трейды_");
 
         public string PositionLabel4 => OsLocalization.ConvertToLocString(
-            "Eng:Save changes_" +
+            "Eng:SaveParamsBot changes_" +
             "Ru:Сохранить изменения_");
 
         public string PositionColumn1 => OsLocalization.ConvertToLocString(
@@ -400,7 +400,7 @@ namespace OsEngine.Language
             "Ru:Выбор времени_");
 
         public string TimeChangeDialogLabel2 => OsLocalization.ConvertToLocString(
-            "Eng:Save time_" +
+            "Eng:SaveParamsBot time_" +
             "Ru:Сохранить_");
 
         public string TimeChangeDialogLabel3 => OsLocalization.ConvertToLocString(

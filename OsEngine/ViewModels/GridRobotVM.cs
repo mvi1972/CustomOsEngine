@@ -41,9 +41,10 @@ namespace OsEngine.ViewModels
             string[]str = header.Split('=');
             NumberTab = numberTab;
             Header = str[0];    
-            Load(header);
+            LoadParamsBot(header);
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
-        }
+            
+         }
         /// <summary>
         /// конструктор для нового робота 
         /// </summary>
@@ -56,7 +57,7 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
-        /// словарь  ордеров на бирже
+        /// словарь  ордеров на бирже ТЕСТ 
         /// </summary>
         public ConcurrentDictionary<string, Order> DictionaryOrdersActiv = new ConcurrentDictionary<string, Order>();
 
@@ -610,9 +611,47 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region Методы =====================================================================================
-
         /// <summary>
-        /// сериализация сохранение листов ордеров
+        /// сохраяие уровни в файл 
+        /// </summary>
+        public void SerializerLevel()
+        {
+            if (!Directory.Exists(@"Parametrs\Tabs"))
+            {
+                Directory.CreateDirectory(@"Parametrs\Tabs");
+            }    
+  
+            DataContractJsonSerializer LevelSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
+
+            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            {
+                LevelSerialazer.WriteObject(file, Levels);
+            }
+        }
+        /// <summary>
+        /// загружаеи из фала сохраненные уровни 
+        /// </summary>
+        public void DesirializerLevels()
+        {
+            if (!File.Exists(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json"))
+            {
+                RobotWindowVM.Log(Header, " DesirializerLevels \n нет файла levels_.json ");
+                return;
+            }
+            
+            DataContractJsonSerializer LevelsDsSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
+            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            {
+                ObservableCollection<Level> LevelsDeseriolazer = LevelsDsSerialazer.ReadObject(file) as ObservableCollection<Level>;
+                if (LevelsDeseriolazer != null)
+                {
+                    Levels = LevelsDeseriolazer;
+                    RobotWindowVM.Log(Header, " DesirializerLevels \n загрузили уровни из levels_.json ");
+                }
+            }
+        }
+        /// <summary>
+        /// сериализация сохранение словарей ордеров
         /// </summary>
         public void SerializerDictionaryOrders()
         {
@@ -622,7 +661,9 @@ namespace OsEngine.ViewModels
                 DictionaryOrdersSerialazer.WriteObject(file, DictionaryOrdersActiv);
             }
         }
-
+        /// <summary>
+        ///  десериализация словаря ордеров 
+        /// </summary>
         public void DesirializerDictionaryOrders()
         {
             DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
@@ -649,7 +690,7 @@ namespace OsEngine.ViewModels
                 MessageBox.Show("Перейдите в режим редактирования!  ");
             }
             Levels.Add(new Level());
-            DesirializerDictionaryOrders();
+            //DesirializerDictionaryOrders();
         }
 
         /// <summary>
@@ -708,7 +749,7 @@ namespace OsEngine.ViewModels
                     Price > StopShort && Direction == Direction.BUYSELL)
                 {
                     IsRun = false;
-                    Save();
+                    SaveParamsBot();
                     string str = " Сработал СТОП, IsRun = false , сохранились \n ";
                     Debug.WriteLine(str);
                     StopShort = 0;
@@ -728,8 +769,11 @@ namespace OsEngine.ViewModels
                     }
                 }
             }
-        }  
+        }
 
+        /// <summary>
+        /// каждые 5 секунд после нового трейда по бумаге гоняет по уровням  логику отправки ореров на открытип и закрытие 
+        /// </summary>
         private void TradeLogic()
         {
             foreach (Level level in Levels)
@@ -758,7 +802,10 @@ namespace OsEngine.ViewModels
             StopLong = StartPoint - stepLevel * (CountLevels +1);
             StopShort = StartPoint + stepLevel * (CountLevels +1);
         }
-         
+
+        /// <summary>
+        /// логика отправки  лимит ордера на открытия на уровнях
+        /// </summary>
         private void LevelTradeLogicOpen(Level level)
         {
             if (IsRun == false
@@ -791,6 +838,7 @@ namespace OsEngine.ViewModels
                     decimal lot = CalcWorkLot(Lot, level.PriceLevel);
 
                     decimal worklot = lot - Math.Abs(level.Volume) - level.LimitVolume;
+                    RobotWindowVM.Log(Header, "LevelTradeLogicOpen ");
                     RobotWindowVM.Log(Header, " Уровень = " + level.GetStringForSave());
                     RobotWindowVM.Log(Header, "Рабочий лот =  " + worklot);
                     RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
@@ -811,7 +859,7 @@ namespace OsEngine.ViewModels
                         {       
                             level.OrdersForOpen.Add(order);
 
-                            RobotWindowVM.Log(Header, " Отправляем лимитку  " + GetStringForSave(order));
+                            RobotWindowVM.Log(Header, " Отправляем лимитку в level.OrdersForOpen " + GetStringForSave(order));
                             Thread.Sleep(10);
                         }
                         else
@@ -823,6 +871,9 @@ namespace OsEngine.ViewModels
             }
         }
 
+        /// <summary>
+        /// логика отправки ордеров на закрытия на уровнях
+        /// </summary>
         private void LevelTradeLogicClose( Level level, Action action)
         {
             decimal stepLevel = 0;
@@ -1116,7 +1167,7 @@ namespace OsEngine.ViewModels
             RobotWindowVM.Log( Header, " \n\n StartStop = " + !IsRun);
             Thread.Sleep(300);
 
-            Save();
+            SaveParamsBot();
 
             IsRun = !IsRun;
 
@@ -1162,9 +1213,15 @@ namespace OsEngine.ViewModels
             _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
             _server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
+            _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
 
             RobotWindowVM.Log( Header, " Подключаемся к серверу = " + _server.ServerType);
-        } 
+        }
+
+        private void _server_ConnectStatusChangeEvent(string status)
+        {
+            //DesirializerLevels();
+        }
 
         /// <summary>
         ///  отключиться от сервера 
@@ -1177,7 +1234,8 @@ namespace OsEngine.ViewModels
             _server.NewTradeEvent -= Server_NewTradeEvent;
             _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
-            _server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
+            _server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
+            _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
 
             RobotWindowVM.Log( Header, " Отключаем от сервера = " + _server.ServerType);
         }
@@ -1229,20 +1287,23 @@ namespace OsEngine.ViewModels
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType ) // 
             {
-                RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
-                             + " NewOrder Status " + order.State + "\n"
-                             + " DictionaryOrdersActiv count " + DictionaryOrdersActiv.Count);
-                if (order.State == OrderStateType.Activ)
-                {
-                    DictionaryOrdersActiv.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
+                SerializerLevel();
+                RobotWindowVM.SendStrTextDb(" SerializerLevel ");
 
-                    RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
-                                                + " Add Activ order \n" );
-                    SerializerDictionaryOrders();
-                    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
-                }
+                //RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
+                //             + " NewOrder Status " + order.State + "\n"
+                //             + " DictionaryOrdersActiv count " + DictionaryOrdersActiv.Count);
+                //if (order.State == OrderStateType.Activ)
+                //{
+                //    DictionaryOrdersActiv.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
+
+                //    RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
+                //                                + " Add Activ order \n" );
+                //    //SerializerDictionaryOrders();
+                //    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
+                //}
                 
-                //  дальше запись в лог ответа с биржи по ордеру
+                //  дальше запись в лог ответа с биржи по ордеру  и уровню 
                 bool rec =true;
                 if (order.State == OrderStateType.Activ
                     && order.TimeCallBack.AddSeconds(15) < Server.ServerTime) 
@@ -1265,16 +1326,19 @@ namespace OsEngine.ViewModels
                         }
                     }
                 }
-                Save();
+                SaveParamsBot();
             }
         }
-
+        /// <summary>
+        ///  пришел мой трейд перевыставляем ордера по уровням
+        /// </summary>
         private void Server_NewMyTradeEvent(MyTrade myTrade)
         {
             if (myTrade == null || myTrade.SecurityNameCode != SelectedSecurity.Name) 
             {
                 return; // нашей бумаги нет
             }
+            SerializerLevel();
 
             foreach (Level level in Levels)
             {
@@ -1291,8 +1355,8 @@ namespace OsEngine.ViewModels
                     {
                         LevelTradeLogicOpen(level);
                     }
-                    RobotWindowVM.Log(Header, "Уровень  =  " + level.GetStringForSave());
-                    Save();
+                    RobotWindowVM.Log(Header, " MyTrade \n Уровень  =  " + level.GetStringForSave());
+                    SaveParamsBot();
                 }
             }
          }
@@ -1373,7 +1437,7 @@ namespace OsEngine.ViewModels
 
             CalculateStop();
 
-            Save();
+            SaveParamsBot();
         }
 
         /// <summary>
@@ -1487,6 +1551,7 @@ namespace OsEngine.ViewModels
                 RobotWindowVM.Log( Header, "StartSecuritiy  security = null ");
                 return;
             }
+
             Task.Run(() =>
             {
                 while (true)
@@ -1495,7 +1560,8 @@ namespace OsEngine.ViewModels
                     if (series != null)
                     {
                         RobotWindowVM.Log( Header, "StartSecuritiy  security = " + series.Security.Name);
-                        Save();
+                        DesirializerLevels();
+                        SaveParamsBot();
                         break;
                     }
                     Thread.Sleep(1000);
@@ -1544,7 +1610,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// сохранение параметров робота
         /// </summary>
-        private void Save()
+        private void SaveParamsBot()
         {
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {
@@ -1578,23 +1644,24 @@ namespace OsEngine.ViewModels
                     writer.WriteLine(IsChekCurrency);
 
                     writer.Close();
+                    RobotWindowVM.Log(Header, "SaveParamsBot  \n cохраненили  параметры ");
                 }
             }
             catch (Exception ex)
             {
                 RobotWindowVM.Log( Header, " Ошибка сохранения параметров = " + ex.Message);
-
             }
         }
         /// <summary>
         /// загрузка во вкладку параметров из файла сохрана
         /// </summary>
-        private void Load(string name)
+        private void LoadParamsBot(string name)
         {
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {
                 return;
             }
+            RobotWindowVM.Log(Header, " LoadParamsBot \n загрузили параметры ");
             string servType ="" ;
             try
             {
@@ -1619,7 +1686,7 @@ namespace OsEngine.ViewModels
                     Lot = GetDecimalForString(reader.ReadLine());
 
                     StepType step = StepType.PUNKT;
-                    if (Enum.TryParse(reader.ReadLine(), out direct))
+                    if (Enum.TryParse(reader.ReadLine(), out step))
                     {
                         StepType = step;
                     }
@@ -1657,7 +1724,9 @@ namespace OsEngine.ViewModels
             decimal.TryParse(str, out value);
             return value;   
         }
-
+        /// <summary>
+        /// запускаем сервер
+        /// </summary>
         void StartServer (string servType)
         {
             if (servType == "" || servType == "null")
@@ -1669,6 +1738,7 @@ namespace OsEngine.ViewModels
             {
                 ServerType = type;  
                 ServerMaster.SetNeedServer(type);
+                // LoadParamsBot(Header);
             }
         }
         /// <summary>
@@ -1678,7 +1748,7 @@ namespace OsEngine.ViewModels
         {
             if (server.ServerType == ServerType)
             {
-                Server = server;
+                Server = server;               
             }
         }
 
@@ -1732,7 +1802,6 @@ namespace OsEngine.ViewModels
             //    return balans;
 
         }
-
 
         #endregion
 

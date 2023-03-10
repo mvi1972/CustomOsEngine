@@ -78,7 +78,7 @@ namespace OsEngine.Language
 
         public string Message5 => OsLocalization.ConvertToLocString(
             "Eng:Something went wrong !!! An unhandled exception occurred. Now we need to do the following: \r "
-            + "1) Save the image of this window by pressing PrintScrin on the keyboard and paste the image into Paint \r"
+            + "1) SaveParamsBot the image of this window by pressing PrintScrin on the keyboard and paste the image into Paint \r"
             + "2) Write the details of the incident. Under what circumstances the program crashed \r"
             + "3) Send an image of this window and a description of the situation to the address: alexey@o-s-a.net \r"
             + "4) If the situation recurs, it will probably be necessary to clear the Engine and Data folder next to the exу file \r"

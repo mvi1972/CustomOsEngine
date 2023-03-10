@@ -144,7 +144,7 @@ namespace OsEngine.Entity
         private decimal _lastSelectPrice;
 
         /// <summary>
-        /// Load controls into the connector
+        /// LoadParamsBot controls into the connector
         /// загрузить контролы в коннектор
         /// </summary>
         public void CreateGlass()

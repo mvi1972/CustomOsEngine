@@ -107,7 +107,7 @@ namespace OsEngine.Entity
 
             List<MenuItem> items = new List<MenuItem>();
 
-            items.Add(new MenuItem("Save table in file"));
+            items.Add(new MenuItem("SaveParamsBot table in file"));
 
             items[items.Count - 1].Click += delegate (Object sender, EventArgs e)
             {

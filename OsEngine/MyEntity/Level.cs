@@ -14,13 +14,14 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace OsEngine.MyEntity
-{   
+{
+    [DataContract]   
     public class Level : BaseVM
     {
         #region ======================================Свойства======================================
         [DataMember]
         /// <summary>
-        /// расчетная цена уровня
+        /// цена уровня
         /// </summary>
         public decimal PriceLevel
         {
@@ -33,7 +34,9 @@ namespace OsEngine.MyEntity
             }
         }
         public decimal _priceLevel = 0;
-
+        /// <summary>
+        /// направлние сделок на уровне
+        /// </summary>
         [DataMember]
         public Side Side
         {
@@ -46,6 +49,23 @@ namespace OsEngine.MyEntity
             }
         }
         public Side _side;
+
+        /// <summary>
+        /// Статус сделок на уровне
+        /// </summary>
+        [DataMember]
+        public PositionStatus StatusLevel
+        {
+            get => _statusLevel;
+
+            set
+            {
+                _statusLevel = value;
+                OnPropertyChanged(nameof(StatusLevel));
+            }
+        }
+        private PositionStatus _statusLevel;
+        
         /// <summary>
         /// реалькая цена открытой позиции
         /// </summary>
@@ -61,7 +81,9 @@ namespace OsEngine.MyEntity
             }
         }
         public decimal _openPrice = 0;
-
+        /// <summary>
+        ///  цена закрытия позиции (прибыли)
+        /// </summary>
         [DataMember]
         public decimal TakePrice
         {
@@ -176,24 +198,25 @@ namespace OsEngine.MyEntity
         #endregion
 
         #region ======================================Поля===========================================
+
         CultureInfo CultureInfo = new CultureInfo("ru-RU");
 
         /// <summary>
         ///  список лимиток на закрытие
         /// </summary>
-        
+        [DataMember]
         public List<Order> OrdersForClose = new List<Order>();
 
         /// <summary>
         /// лимитки на открытие позиций 
         /// </summary>
-        
+        [DataMember]
         public List<Order> OrdersForOpen = new List<Order>();
 
         /// <summary>
         ///  список трейдов моего робота
         /// </summary>
-       
+        [DataMember]
         private List<MyTrade> _myTrades = new List<MyTrade>();
 
         private decimal _calcVolume = 0;
@@ -326,9 +349,11 @@ namespace OsEngine.MyEntity
             orders = newOrders;  
         }
 
+        /// <summary>
+        /// список свойств для обновления в интефейсе после изменений
+        /// </summary>
         private void Change()
-        {
-          
+        {          
             OnPropertyChanged(nameof(Volume));
             OnPropertyChanged(nameof(OpenPrice));
             OnPropertyChanged(nameof(LimitVolume));
@@ -340,7 +365,7 @@ namespace OsEngine.MyEntity
             OnPropertyChanged(nameof(PriceLevel));
             OnPropertyChanged(nameof(Margin));
             OnPropertyChanged(nameof(Accum));
-
+            OnPropertyChanged(nameof(StatusLevel));
         }
 
         /// <summary>
@@ -469,10 +494,11 @@ namespace OsEngine.MyEntity
             }
             return false;
         }
-
+        /// <summary>
+        /// расчет объема позиции (по лотам)
+        /// </summary>
         private void CalculatePosition(decimal contLot)
-        {
-            
+        {            
             //decimal volume =0;
             decimal openPrice = 0;
             decimal accum = 0;
@@ -543,7 +569,7 @@ namespace OsEngine.MyEntity
         }
 
         /// <summary>
-        /// принадлежит ли трейд ордеру
+        /// принадлежит ли трейд ордеру проверка
         /// </summary>
         private bool IsMyTrade(MyTrade myTrade)
         {

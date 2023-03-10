@@ -45,7 +45,7 @@ namespace OsEngine.Entity
         }
 
         /// <summary>
-        /// Load proxy status from a side
+        /// LoadParamsBot proxy status from a side
         /// загрузить состояние прокси из стороки
         /// </summary>
         /// <param name="saveStr"></param>

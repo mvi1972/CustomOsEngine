@@ -257,7 +257,7 @@ namespace OsEngine.Language
             "Ru:Найден сет- _");
 
         public string Message27 => OsLocalization.ConvertToLocString(
-            "Eng:Load new Data Set - _" +
+            "Eng:LoadParamsBot new Data Set - _" +
             "Ru:Подключаем новый сет данных- _");
 
         public string Message28 => OsLocalization.ConvertToLocString(
@@ -349,7 +349,7 @@ namespace OsEngine.Language
             "Ru:Загрузка бумаг прервана. В указанной папке не содержиться ни одного файла_");
 
         public string Message50 => OsLocalization.ConvertToLocString(
-            "Eng:Load securities_" +
+            "Eng:LoadParamsBot securities_" +
             "Ru:Скачиваем бумаги_");
 
         public string Message51 => OsLocalization.ConvertToLocString(
@@ -698,7 +698,7 @@ namespace OsEngine.Language
             "Ru:Ошибка входа в систему_");
 
         public string Label59 => OsLocalization.ConvertToLocString(
-            "Eng:Save trades array in Candle_" +
+            "Eng:SaveParamsBot trades array in Candle_" +
             "Ru:Сохранять трейды в свече_");
 
         public string Label60 => OsLocalization.ConvertToLocString(
@@ -751,7 +751,7 @@ namespace OsEngine.Language
             "Ru:Плечо_");
 
         public string ServerParam3 => OsLocalization.ConvertToLocString(
-            "Eng:Load data type_" +
+            "Eng:LoadParamsBot data type_" +
             "Ru:Скачиваем_");
 
         public string ServerParam4 => OsLocalization.ConvertToLocString(

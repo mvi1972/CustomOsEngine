@@ -37,8 +37,8 @@ namespace OsEngine.ViewModels
 
             Load();
 
-            ServerMaster.ActivateAutoConnection();
-
+            ServerMaster.ActivateAutoConnection();     
+           
         }
 
         #region  ================================ Свойства =====================================
@@ -215,16 +215,16 @@ namespace OsEngine.ViewModels
                 Orders.AddOrUpdate(order.SecurityNameCode, numberOrders, (key, value) => value = numberOrders);
             }
             // колеция ордеров по бумаге, ключ NumberMarket
-            ConcurrentDictionary<string, Order> ordNam = Orders[order.SecurityNameCode];
+            //ConcurrentDictionary<string, Order> ordNam = Orders[order.SecurityNameCode];
 
-            foreach (var numMark in ordNam)
-            {
-                Order numOrd = numMark.Value;
-                RobotWindowVM.SendStrTextDb(" номер ордера в Orders = " + numOrd.NumberMarket);
-                RobotWindowVM.SendStrTextDb(" статус ордера в Orders = " + numOrd.State);
-            }
+            //foreach (var numMark in ordNam)
+            //{
+            //    Order numOrd = numMark.Value;
+            //    RobotWindowVM.SendStrTextDb(" номер ордера в Orders = " + numOrd.NumberMarket);
+            //    RobotWindowVM.SendStrTextDb(" статус ордера в Orders = " + numOrd.State);
+            //}
         }
-
+ 
         /// <summary>
         ///  подключение к серверу 
         /// </summary>

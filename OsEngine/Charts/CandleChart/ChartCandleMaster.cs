@@ -332,9 +332,9 @@ namespace OsEngine.Charts.CandleChart
 
         /// <summary>
         /// When loading data, robot tries to save it immediately, as indicators are created
-        /// this variable protects the Save method from being saved incorrectly at this time
+        /// this variable protects the SaveParamsBot method from being saved incorrectly at this time
         /// во время загрузки данных, робот пытается тутже сохранять их,т.к. создаются индикаторы
-        /// эта переменная защищает метод Save от ошибочного сохранения в это время
+        /// эта переменная защищает метод SaveParamsBot от ошибочного сохранения в это время
         /// </summary>
         private bool _canSave;
 

@@ -62,7 +62,7 @@ namespace OsEngine.Language
             "Ru:Риск Менеджер_");
 
         public string Label13 => OsLocalization.ConvertToLocString(
-            "Eng:In one of the fields is invalid values. Save process aborted_" +
+            "Eng:In one of the fields is invalid values. SaveParamsBot process aborted_" +
             "Ru:В одном из полей недопустимые значения. Процесс сохранения прерван_");
 
         public string Label14 => OsLocalization.ConvertToLocString(

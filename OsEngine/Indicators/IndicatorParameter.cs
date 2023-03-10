@@ -184,7 +184,7 @@ namespace OsEngine.Indicators
         }
 
         /// <summary>
-        /// Load the parameter from the saved file
+        /// LoadParamsBot the parameter from the saved file
         /// загрузить параметр из сохранённого файла
         /// </summary>
         public override void LoadParamFromString(string[] save)

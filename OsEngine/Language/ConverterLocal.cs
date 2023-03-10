@@ -30,11 +30,11 @@ namespace OsEngine.Language
             "Ru:Процедура конвертации начата_");
 
         public string Message5 => OsLocalization.ConvertToLocString(
-            "Eng:Load trades from file_" +
+            "Eng:LoadParamsBot trades from file_" +
             "Ru:Загружаем тики из файла_");
 
         public string Message6 => OsLocalization.ConvertToLocString(
-            "Eng:Load week _" +
+            "Eng:LoadParamsBot week _" +
             "Ru:Грузим неделю _");
 
         public string Message7 => OsLocalization.ConvertToLocString(
@@ -46,7 +46,7 @@ namespace OsEngine.Language
             "Ru: подгружен. Создаём серии свечек_");
 
         public string Message9 => OsLocalization.ConvertToLocString(
-            "Eng:Save ended_" +
+            "Eng:SaveParamsBot ended_" +
             "Ru:Сохранение завершено_");
 
         public string Message10 => OsLocalization.ConvertToLocString(

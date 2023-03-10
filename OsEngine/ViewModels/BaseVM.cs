@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 namespace OsEngine.ViewModels
 {
     /// <summary>
     /// реализация интефейса INotifyPropertyChanged
     /// </summary>
+    [DataContract]   
     public abstract class BaseVM : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
