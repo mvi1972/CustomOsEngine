@@ -649,6 +649,7 @@ namespace OsEngine.ViewModels
             using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
                 LevelSerialazer.WriteObject(file, Levels);
+                RobotWindowVM.SendStrTextDb(" Serializer Levels ");
             }
         }
         /// <summary>
@@ -1314,7 +1315,7 @@ namespace OsEngine.ViewModels
                     SerializerLevel();
                 }
                 
-                RobotWindowVM.SendStrTextDb(" SerializerLevel ");
+               
 
                 //RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
                 //             + " NewOrder Status " + order.State + "\n"
