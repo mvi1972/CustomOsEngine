@@ -1850,7 +1850,7 @@ namespace OsEngine.ViewModels
 
         ////#region ============================= Реализация интерфейса INotifyPropertyChanged =======================
 
-        //public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         //public virtual void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         //{
