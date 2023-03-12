@@ -27,6 +27,7 @@ using Direction = OsEngine.MyEntity.Direction;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Collections.Concurrent;
+using ControlzEx.Theming;
 
 namespace OsEngine.ViewModels
 {
@@ -242,6 +243,10 @@ namespace OsEngine.ViewModels
             }
         }
         private Direction _direction;
+
+        /// <summary>
+        /// свойство список направления сделок
+        /// </summary>
         public List<Direction> Directions { get; set; } = new List<Direction>()
         {
             Direction.BUY, Direction.SELL, Direction.BUYSELL
@@ -611,6 +616,24 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region Методы =====================================================================================
+
+        /// <summary>
+        /// есть актиыные сделки на уровнях
+        /// </summary> 
+        private bool AreActiveLevel()
+        {
+            if (Levels ==null || Levels.Count ==0) return false;
+            foreach (Level level in Levels)
+            {
+                if (level.StatusLevel == PositionStatus.OPENING ||
+                    level.StatusLevel == PositionStatus.OPEN||
+                    level.StatusLevel == PositionStatus.CLOSING)
+                {
+                    return true;
+                }                
+            }
+            return false;
+        }
         /// <summary>
         /// сохраяие уровни в файл 
         /// </summary>
@@ -808,8 +831,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void LevelTradeLogicOpen(Level level)
         {
-            if (IsRun == false
-                || SelectedSecurity == null)
+            if (IsRun == false || SelectedSecurity == null)
             {
                 return;
             }
@@ -1267,7 +1289,7 @@ namespace OsEngine.ViewModels
 
                 if(trade.Time.Second % 5 == 0)
                 {
-                    TradeLogic();
+                    // TradeLogic();
                 }
             }
             ExaminationStop();
@@ -1287,7 +1309,11 @@ namespace OsEngine.ViewModels
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType ) // 
             {
-                SerializerLevel();
+                if (AreActiveLevel())
+                {
+                    SerializerLevel();
+                }
+                
                 RobotWindowVM.SendStrTextDb(" SerializerLevel ");
 
                 //RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
@@ -1326,9 +1352,11 @@ namespace OsEngine.ViewModels
                         }
                     }
                 }
+
                 SaveParamsBot();
             }
         }
+
         /// <summary>
         ///  пришел мой трейд перевыставляем ордера по уровням
         /// </summary>
@@ -1338,14 +1366,20 @@ namespace OsEngine.ViewModels
             {
                 return; // нашей бумаги нет
             }
-            SerializerLevel();
+            if (AreActiveLevel())
+            {
+                SerializerLevel();
+            }
+            
 
             foreach (Level level in Levels)
             {
                 bool newTrade = level.AddMyTrade(myTrade, SelectedSecurity.Lot);
                 if (newTrade)
                 {
-                    RobotWindowVM.SendStrTextDb(" Trade ордера " + myTrade.NumberOrderParent+ "\n NumberTrade " + myTrade.NumberTrade);
+                    RobotWindowVM.SendStrTextDb(" Trade ордера " + myTrade.NumberOrderParent+ "\n " +
+                                                    "NumberTrade " + myTrade.NumberTrade);
+
                     RobotWindowVM.Log(Header, "MyTrade =  " + GetStringForSave(myTrade));
                     if (myTrade.Side == level.Side)
                     {
@@ -1362,7 +1396,7 @@ namespace OsEngine.ViewModels
          }
 
         /// <summary>
-        /// расчитывает уровни 
+        /// расчитывает уровни (цены открвтия и профитов)
         /// </summary>
         void Calculate( object o)
         {
@@ -1383,6 +1417,7 @@ namespace OsEngine.ViewModels
                     return;
                 }
             }
+
             ObservableCollection<Level> levels = new ObservableCollection<Level>();
 
             decimal currBuyPrice = StartPoint;

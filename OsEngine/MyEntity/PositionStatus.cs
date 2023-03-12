@@ -7,49 +7,49 @@ using System.Threading.Tasks;
 namespace OsEngine.MyEntity
 {
     /// <summary>
-    /// перечисление типов статусов позиции
+    /// перечисление состояний статусов позиции на уровне 
     /// </summary>
     public enum PositionStatus
     {
         /// <summary>
-        /// не назначен
+        /// нет позиции
         /// </summary>
-        None,
+        NONE,
 
         /// <summary>
         /// открывается
         /// </summary>
-        Opening,
+        OPENING,
 
         /// <summary>
         /// закрыта
         /// </summary>
-        Done,
+        DONE,
 
         /// <summary>
         /// ошибка
         /// </summary>
-        OpeningFail,
+        OpeningFAIL,
 
         /// <summary>
         /// открыта
         /// </summary>
-        Open,
+        OPEN,
 
         /// <summary>
         /// закрывается
         /// </summary>
-        Closing,
+        CLOSING,
 
         /// <summary>
         /// ошибка на закрытии
         /// </summary>
-        ClosingFail,
+        ClosingFAIL,
 
         /// <summary>
         /// удалена
         /// </summary>
-        Deleted
+        DELETET
     }
 
 }

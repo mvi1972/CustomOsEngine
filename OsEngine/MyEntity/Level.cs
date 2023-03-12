@@ -214,7 +214,7 @@ namespace OsEngine.MyEntity
         public List<Order> OrdersForOpen = new List<Order>();
 
         /// <summary>
-        ///  список трейдов моего робота
+        ///  список моих трейдов принадлежащих уровню
         /// </summary>
         [DataMember]
         private List<MyTrade> _myTrades = new List<MyTrade>();
@@ -255,6 +255,10 @@ namespace OsEngine.MyEntity
             }
         }
 
+
+        /// <summary>
+        /// принадлежит ли ордер уровню 
+        /// </summary>
         public bool NewOrder(Order newOrder)
         {
             foreach (Order order in OrdersForOpen)
@@ -262,6 +266,7 @@ namespace OsEngine.MyEntity
                 if (order.NumberMarket == newOrder.NumberMarket)
                 {
                     CalculateOrders();
+                    StatusLevel = PositionStatus.OPEN;
 
                     return true;
                 }
@@ -271,18 +276,18 @@ namespace OsEngine.MyEntity
                 if (order.NumberMarket == newOrder.NumberMarket)
                 {
                     CalculateOrders();
-
+                    StatusLevel = PositionStatus.DONE;
                     return true;
                 }
             }
             return false;
         }
+
         /// <summary>
-        /// расчет объема ордеров 
+        /// проверка объема исполненых ордеров на уровне + смена статусов сделки уровня
         /// </summary>
         private void CalculateOrders()
         {
-            //SerializerDictionaryOrders();
             decimal activeVolume = 0;
             decimal volumeExecute = 0;
 
@@ -297,12 +302,14 @@ namespace OsEngine.MyEntity
                 if (order.State == OrderStateType.Activ
                     || order.State == OrderStateType.Patrial)
                 {
-                    activeVolume += order.Volume - order.VolumeExecute; 
+                    activeVolume += order.Volume - order.VolumeExecute;
+                    StatusLevel = PositionStatus.OPENING;
                 }
                 else if (order.State == OrderStateType.Pending
                         || order.State == OrderStateType.None)
                 {
-                    passLimit = false;  
+                    passLimit = false;
+                    StatusLevel = PositionStatus.NONE;
                 }
             }
 
@@ -313,11 +320,13 @@ namespace OsEngine.MyEntity
                     || order.State == OrderStateType.Patrial)
                 {
                     activeTake += order.Volume - order.VolumeExecute;
+                    StatusLevel = PositionStatus.CLOSING;
                 }
                 else if (order.State == OrderStateType.Pending
                         || order.State == OrderStateType.None)
                 {
                     passTake = false;
+                    StatusLevel = PositionStatus.NONE;
                 }
             }
 
@@ -474,6 +483,9 @@ namespace OsEngine.MyEntity
             }
         }
 
+        /// <summary>
+        /// проверяет принадлежность трейд к уроню и добавляет если да
+        /// </summary>
         public bool AddMyTrade(MyTrade myTrade, decimal contLot)
         {
             foreach (MyTrade trade in _myTrades)
@@ -577,13 +589,17 @@ namespace OsEngine.MyEntity
             {
                 if (order.NumberMarket == myTrade.NumberOrderParent)
                 {
-                    return true;
+                    // номер трейда принадлежит ордеру открытия позы на бирже
+                    // StatusLevel = PositionStatus.OPEN;
+                    return true;                   
                 }
             }
             foreach (Order order in OrdersForClose)
             {
                 if (order.NumberMarket == myTrade.NumberOrderParent)
                 {
+                    // номер трейда принадлежит ордеру закрытия позы на бирже
+                    // StatusLevel = PositionStatus.DONE;
                     return true;
                 }
             }

@@ -1057,9 +1057,6 @@
     <Compile Include="Views\Grid.xaml.cs">
       <DependentUpon>Grid.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Page1.xaml.cs">
-      <DependentUpon>Page1.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\RobotBreak.xaml.cs">
       <DependentUpon>RobotBreak.xaml</DependentUpon>
     </Compile>
@@ -1584,10 +1581,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Grid.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Page1.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

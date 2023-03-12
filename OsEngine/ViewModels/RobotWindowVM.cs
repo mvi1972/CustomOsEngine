@@ -29,7 +29,7 @@ namespace OsEngine.ViewModels
         public RobotWindowVM()
         {
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
-
+            // поток для записи логирования 
             Task.Run(() =>
             {
                 RecordLog();
@@ -165,6 +165,7 @@ namespace OsEngine.ViewModels
          {
             //GetNameSecuretiClass();
         }
+
         private void GetBalansSecur()
         {
             List<Portfolio> portfolios = new List<Portfolio>();
@@ -195,7 +196,6 @@ namespace OsEngine.ViewModels
             //    return balans;
 
         }
-
 
         /// <summary>
         /// добвляет или обновляет пришедшие ордера с биржы в словарь ордеров на компе
@@ -232,6 +232,7 @@ namespace OsEngine.ViewModels
         {
             ServerMaster.ShowDialog(false);
         }
+
         /// <summary>
         ///  добавление робота на вкладку 
         /// </summary>
@@ -305,6 +306,7 @@ namespace OsEngine.ViewModels
             };
             _logMessges.Enqueue(mess);
         }
+
         /// <summary>
         /// конструктор отправки строки в лог с стартегией
         /// </summary>
@@ -318,6 +320,7 @@ namespace OsEngine.ViewModels
             };
             _logMessges.Enqueue(mess);
         }
+
         /// <summary>
         /// Запись логa 
         /// </summary>
@@ -344,6 +347,7 @@ namespace OsEngine.ViewModels
                 Thread.Sleep(10);
             }
         }
+
         /// <summary>
         /// сохранение заголовка и бумаги последнего выбраного робота
         /// </summary>
@@ -381,6 +385,7 @@ namespace OsEngine.ViewModels
                 Log("App", " Ошибка сохранения параметров = " + ex.Message);
             }
         }
+
         /// <summary>
         /// загрузка в робота параметров 
         /// </summary>
@@ -425,18 +430,19 @@ namespace OsEngine.ViewModels
                         }
                     }
                 }
-            }    
+            }
 
-            #endregion
         }
+
         /// <summary>
         /// отправить строку в дебаг
         /// </summary>
         public static void SendStrTextDb(string text, string text2 = null)
         {
-            string str = text + " \n" + text2 + "\n" ;
+            string str = text + " \n" + text2 + "\n";
             Debug.WriteLine(str);
         }
-     
+
+        #endregion
     }
 }
