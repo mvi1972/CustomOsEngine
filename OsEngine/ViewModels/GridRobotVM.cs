@@ -1153,6 +1153,7 @@ namespace OsEngine.ViewModels
             RobotWindowVM.Log(Header, "SendLimitOrder\n " + " отправляем лимитку на биржу\n" + GetStringForSave(order));
             RobotWindowVM.SendStrTextDb(" SendLimitOrder " + order.NumberUser);
             Server.ExecuteOrder(order);
+            
             return order;
         }
 
@@ -1850,7 +1851,7 @@ namespace OsEngine.ViewModels
 
         ////#region ============================= Реализация интерфейса INotifyPropertyChanged =======================
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        //public event PropertyChangedEventHandler PropertyChanged;
 
         //public virtual void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         //{

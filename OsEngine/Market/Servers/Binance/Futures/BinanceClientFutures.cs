@@ -1057,7 +1057,8 @@ namespace OsEngine.Market.Servers.Binance.Futures
                     }
                     param.Add("&type=", order.TypeOrder == OrderPriceType.Limit ? "LIMIT" : "MARKET");
                     //param.Add("&timeInForce=", "GTC");
-                    param.Add("&newClientOrderId=", "x-gnrPHWyE" + order.NumberUser.ToString());
+       // метки ордеров
+                    param.Add("&newClientOrderId=", "vv-" + order.NumberUser.ToString());
                     param.Add("&quantity=",
                         order.Volume.ToString(CultureInfo.InvariantCulture)
                             .Replace(CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, "."));
@@ -1260,8 +1261,8 @@ namespace OsEngine.Market.Servers.Binance.Futures
                         {
                             continue;
                         }
-
-                        string id = allOrders[i2].clientOrderId.Replace("x-gnrPHWyE", "");
+      // метки ордеров
+                        string id = allOrders[i2].clientOrderId.Replace("vv-", "");
 
                         try
                         {
@@ -1379,9 +1380,9 @@ namespace OsEngine.Market.Servers.Binance.Futures
                     allOrders.AddRange(orders);
                 }
             }
-
+ // метки ордеров
             HistoryOrderReport orderOnBoard =
-                allOrders.Find(ord => ord.clientOrderId.Replace("x-gnrPHWyE", "") == oldOrder.NumberUser.ToString());
+                allOrders.Find(ord => ord.clientOrderId.Replace("vv-", "") == oldOrder.NumberUser.ToString());
 
             if (orderOnBoard == null)
             {
@@ -1594,10 +1595,10 @@ namespace OsEngine.Market.Servers.Binance.Futures
                                 var order = ord.o;
 
                                 Int32 orderNumUser;
-
+// метки ордеров
                                 try
                                 {
-                                    orderNumUser = Convert.ToInt32(order.c.ToString().Replace("x-gnrPHWyE", ""));
+                                    orderNumUser = Convert.ToInt32(order.c.ToString().Replace("vv-", ""));
                                 }
                                 catch (Exception)
                                 {
