@@ -670,6 +670,11 @@ namespace OsEngine.Market.Servers.Livecoin
             }
         }
 
+        public void GetOpenOrderState(List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing log message
         /// исходящее сообщение для лога

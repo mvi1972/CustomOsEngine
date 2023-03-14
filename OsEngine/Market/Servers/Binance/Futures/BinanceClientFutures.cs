@@ -612,6 +612,9 @@ namespace OsEngine.Market.Servers.Binance.Futures
 
         private object _locker = new object();
 
+        /// <summary>
+        /// взять историю трейдов по бумаге
+        /// </summary>
         public List<Trade> GetTickHistoryToSecurity(string security, DateTime endTime)
         {
             lock (_locker)
@@ -1403,6 +1406,84 @@ namespace OsEngine.Market.Servers.Binance.Futures
             newOrder.TimeCancel = newOrder.TimeCallBack;
             newOrder.ServerType = ServerType.Binance;
             newOrder.PortfolioNumber = oldOrder.PortfolioNumber;
+
+            if (orderOnBoard.status == "NEW" ||
+                orderOnBoard.status == "PARTIALLY_FILLED")
+            { // order is active. Do nothing / ордер активен. Ничего не делаем
+                newOrder.State = OrderStateType.Activ;
+            }
+            else if (orderOnBoard.status == "FILLED")
+            {
+                newOrder.State = OrderStateType.Done;
+            }
+            else
+            {
+                newOrder.State = OrderStateType.Cancel;
+            }
+
+            if (MyOrderEvent != null)
+            {
+                MyOrderEvent(newOrder);
+            }
+
+            return newOrder;
+        }
+
+        private Order GetOpenOrderState(Order openOrder)
+        {
+            List<string> namesSec = new List<string>();
+            namesSec.Add(openOrder.SecurityNameCode);
+
+            string endPoint = "/" + type_str_selector + "/v1/openOrders";
+
+            List<HistoryOrderReport> allOrders = new List<HistoryOrderReport>();
+
+            for (int i = 0; i < namesSec.Count; i++)
+            {
+                var param = new Dictionary<string, string>();
+                param.Add("symbol=", namesSec[i].ToUpper());
+                param.Add("&recvWindow=" , "100");
+                param.Add("&limit=", GetNonce());
+                //param.Add("&limit=", "500");
+                //"symbol={symbol.ToUpper()}&recvWindow={recvWindow}"
+
+                var res = CreateQuery(Method.GET, endPoint, param, true);
+
+                if (res == null)
+                {
+                    continue;
+                }
+
+                HistoryOrderReport[] orders = JsonConvert.DeserializeObject<HistoryOrderReport[]>(res);
+
+                if (orders != null && orders.Length != 0)
+                {
+                    allOrders.AddRange(orders);
+                }
+            }
+            // метки ордеров
+            HistoryOrderReport orderOnBoard =
+                allOrders.Find(ord => ord.clientOrderId.Replace("vv-", "") == openOrder.NumberUser.ToString());
+
+            if (orderOnBoard == null)
+            {
+                return null;
+            }
+
+            Order newOrder = new Order();
+            newOrder.NumberMarket = orderOnBoard.orderId;
+            newOrder.NumberUser = openOrder.NumberUser;
+            newOrder.SecurityNameCode = openOrder.SecurityNameCode;
+            newOrder.State = OrderStateType.Cancel;
+
+            newOrder.Volume = openOrder.Volume;
+            newOrder.VolumeExecute = openOrder.VolumeExecute;
+            newOrder.Price = openOrder.Price;
+            newOrder.TypeOrder = openOrder.TypeOrder;
+            newOrder.TimeCallBack = openOrder.TimeCallBack;
+            newOrder.TimeCancel = newOrder.TimeCallBack;
+            newOrder.ServerType = ServerType.Binance;
+            newOrder.PortfolioNumber = openOrder.PortfolioNumber;
 
             if (orderOnBoard.status == "NEW" ||
                 orderOnBoard.status == "PARTIALLY_FILLED")

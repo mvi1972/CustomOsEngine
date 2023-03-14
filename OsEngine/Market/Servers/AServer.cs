@@ -2353,10 +2353,12 @@ namespace OsEngine.Market.Servers
             if(_myExecuteOrders.Count != 0)
             {
                 _serverRealization.GetOrdersState(_myExecuteOrders);
+                _serverRealization.GetOpenOrderState(_myExecuteOrders);
             }
             if(_myCanselOrders.Count != 0)
             {
                 _serverRealization.GetOrdersState(_myCanselOrders);
+                
             }
         }
 

@@ -583,5 +583,9 @@ namespace OsEngine.Market.Servers.MFD
             }
         }
 
+        public void GetOpenOrderState(List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

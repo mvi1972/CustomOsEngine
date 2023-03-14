@@ -777,5 +777,10 @@ namespace OsEngine.Market.Servers.MOEX
                 MessageBox.Show(message);
             }
         }
+
+        public void GetOpenOrderState(List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

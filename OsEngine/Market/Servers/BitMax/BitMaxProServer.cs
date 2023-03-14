@@ -779,6 +779,11 @@ namespace OsEngine.Market.Servers.BitMax
             }
         }
 
+        public void GetOpenOrderState(List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing lom message
         /// исходящее сообщение для лога

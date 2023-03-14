@@ -320,6 +320,14 @@ namespace OsEngine.Market.Servers.Binance.Futures
         }
 
         /// <summary>
+        /// запросить статус открытых ордеров
+        /// </summary>
+        public void GetOpenOrderState(List<Order> orders)
+        {
+            _client.GetAllOrders(orders);
+        }
+
+        /// <summary>
         /// request account info
         /// запросить статистику по аккаунту пользователя
         /// </summary>

@@ -169,6 +169,11 @@ namespace OsEngine.Market.Servers
             }
         }
 
+        public virtual void GetOpenOrderState(List<Order> orders)
+        {
+           
+        }
+
         /// <summary>
         /// outgoing lom message
         /// исходящее сообщение для лога

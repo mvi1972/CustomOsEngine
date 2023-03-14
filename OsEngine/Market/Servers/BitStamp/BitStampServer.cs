@@ -444,6 +444,11 @@ namespace OsEngine.Market.Servers.BitStamp
             }
         }
 
+        public void GetOpenOrderState(List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing log message
         /// исходящее сообщение для лога

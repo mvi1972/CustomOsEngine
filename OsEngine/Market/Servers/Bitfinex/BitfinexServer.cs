@@ -1171,6 +1171,11 @@ namespace OsEngine.Market.Servers.Bitfinex
             }
         }
 
+        public void GetOpenOrderState(List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
+
         public event Action<string, LogMessageType> LogMessageEvent;
     }
 }

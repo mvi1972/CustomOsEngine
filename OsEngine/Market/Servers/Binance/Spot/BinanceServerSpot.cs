@@ -793,6 +793,11 @@ namespace OsEngine.Market.Servers.Binance.Spot
             }
         }
 
+        public void GetOpenOrderState(List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing log message
         /// исходящее сообщение для лога

@@ -812,6 +812,11 @@ namespace OsEngine.Market.Servers.Hitbtc
             }
         }
 
+        public void GetOpenOrderState(List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing lom message
         /// исходящее сообщение для лога
