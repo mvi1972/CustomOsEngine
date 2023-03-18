@@ -1415,6 +1415,11 @@ namespace OsEngine.Market.Servers.QuikLua
             throw new NotImplementedException();
         }
 
+        public void GetOpenOrderState()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing log message
         /// исходящее сообщение для лога

@@ -322,9 +322,9 @@ namespace OsEngine.Market.Servers.Binance.Futures
         /// <summary>
         /// запросить статус открытых ордеров
         /// </summary>
-        public void GetOpenOrderState(List<Order> orders)
+        public void GetOpenOrderState(string SecurityNameCode)
         {
-            _client.GetAllOrders(orders);
+            _client.OpenOrderState(SecurityNameCode);
         }
 
         /// <summary>
@@ -529,7 +529,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
         {
             while (true)
             {
-                Thread.Sleep(30000);
+                Thread.Sleep(3000);
 
                 if (this.ServerStatus == ServerConnectStatus.Disconnect)
                 {
@@ -882,7 +882,6 @@ namespace OsEngine.Market.Servers.Binance.Futures
         }
 
 
-
         void _client_Connected()
         {
 
@@ -961,6 +960,12 @@ namespace OsEngine.Market.Servers.Binance.Futures
                 LogMessageEvent(message, type);
             }
         }
+
+        public void GetOpenOrderState()
+        {
+            throw new NotImplementedException();
+        }
+
 
         /// <summary>
         /// outgoing log message

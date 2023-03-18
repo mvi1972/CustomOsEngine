@@ -356,6 +356,11 @@ namespace OsEngine.Market.Servers.ExMo
             throw new NotImplementedException();
         }
 
+        public void GetOpenOrderState()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing log message
         /// исходящее сообщение для лога

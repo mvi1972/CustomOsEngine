@@ -28,6 +28,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Collections.Concurrent;
 using ControlzEx.Theming;
+using OsEngine.Market.Servers.Binance.Futures;
 
 namespace OsEngine.ViewModels
 {
@@ -125,7 +126,11 @@ namespace OsEngine.ViewModels
                 if (SelectedSecurity != null )
                 {
                     StartSecuritiy(SelectedSecurity); // запуск бумаги 
-                    OnSelectedSecurity?.Invoke(SelectedSecurity.Name); 
+                    OnSelectedSecurity?.Invoke(SelectedSecurity.Name);
+                    if (SelectedSecurity == null)
+                    {
+                        StartSecuritiy(SelectedSecurity);
+                    }
                 }
             }
         }
@@ -617,10 +622,16 @@ namespace OsEngine.ViewModels
 
         #region Методы =====================================================================================
 
+        private void Get()
+        {
+            //BinanceServerFuturesRealization binanceServerFutures = new BinanceServerFuturesRealization();
+
+            //binanceServerFutures.GetOpenOrderState(SelectedSecurity.Name);
+        }
         /// <summary>
-        /// есть актиыные сделки на уровнях
-        /// </summary> 
-        private bool AreActiveLevel()
+        ///  уровень является активным 
+        /// </summary>
+        private bool LevelAreActive()
         {
             if (Levels ==null || Levels.Count ==0) return false;
             foreach (Level level in Levels)
@@ -1153,6 +1164,7 @@ namespace OsEngine.ViewModels
             RobotWindowVM.Log(Header, "SendLimitOrder\n " + " отправляем лимитку на биржу\n" + GetStringForSave(order));
             RobotWindowVM.SendStrTextDb(" SendLimitOrder " + order.NumberUser);
             Server.ExecuteOrder(order);
+
             
             return order;
         }
@@ -1244,7 +1256,7 @@ namespace OsEngine.ViewModels
 
         private void _server_ConnectStatusChangeEvent(string status)
         {
-            //DesirializerLevels();
+           
         }
 
         /// <summary>
@@ -1311,13 +1323,11 @@ namespace OsEngine.ViewModels
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType ) // 
             {
-                if (AreActiveLevel())
+                if (LevelAreActive())
                 {
-                    SerializerLevel();
+                   // SerializerLevel();
                 }
                 
-               
-
                 //RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
                 //             + " NewOrder Status " + order.State + "\n"
                 //             + " DictionaryOrdersActiv count " + DictionaryOrdersActiv.Count);
@@ -1356,6 +1366,7 @@ namespace OsEngine.ViewModels
                 }
 
                 SaveParamsBot();
+                //Get();
             }
         }
 
@@ -1368,9 +1379,9 @@ namespace OsEngine.ViewModels
             {
                 return; // нашей бумаги нет
             }
-            if (AreActiveLevel())
+            if (LevelAreActive())
             {
-                SerializerLevel();
+                // SerializerLevel();
             }
             
 
@@ -1597,7 +1608,7 @@ namespace OsEngine.ViewModels
                     if (series != null)
                     {
                         RobotWindowVM.Log( Header, "StartSecuritiy  security = " + series.Security.Name);
-                        DesirializerLevels();
+                        // DesirializerLevels();
                         SaveParamsBot();
                         break;
                     }
@@ -1679,6 +1690,7 @@ namespace OsEngine.ViewModels
                     writer.WriteLine(JsonConvert.SerializeObject(Levels));
 
                     writer.WriteLine(IsChekCurrency);
+                    writer.WriteLine(IsRun);
 
                     writer.Close();
                     RobotWindowVM.Log(Header, "SaveParamsBot  \n cохраненили  параметры ");
@@ -1740,7 +1752,12 @@ namespace OsEngine.ViewModels
                     if (bool.TryParse(reader.ReadLine(), out check))
                     {
                         IsChekCurrency = check;
-                    }  
+                    }
+                    bool run = false;
+                    if (bool.TryParse(reader.ReadLine(), out run))
+                    {
+                        IsRun = run;
+                    }
 
                     reader.Close();
                 }

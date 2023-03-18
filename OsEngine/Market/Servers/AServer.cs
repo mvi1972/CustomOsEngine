@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using OsEngine.Entity;
 using OsEngine.Language;
 using OsEngine.Logging;
+using OsEngine.Market.Servers.Binance.Futures;
 using OsEngine.Market.Servers.Entity;
 
 namespace OsEngine.Market.Servers
@@ -2189,7 +2190,7 @@ namespace OsEngine.Market.Servers
         private void SaveLoadOrdersThreadArea()
         {
             LoadOrders();
-
+            
             myExecureOrdersCount = _myExecuteOrders.Count;
             myCanselOrdersCount = _myCanselOrders.Count;
 
@@ -2216,6 +2217,7 @@ namespace OsEngine.Market.Servers
                         if (_lastTimeCheckOrders == DateTime.MinValue)
                         {
                             _lastTimeCheckOrders = DateTime.Now;
+    
                             CheckOrderState();
                             SaveOrders();
                         }
@@ -2242,6 +2244,7 @@ namespace OsEngine.Market.Servers
             }
         }
 
+
         private void SaveOrders()
         {
             SaveOpenOrders();
@@ -2249,7 +2252,8 @@ namespace OsEngine.Market.Servers
         }
 
         private void LoadOrders()
-        {
+        {            
+
             LoadOpenOrders();
             LoadCanselOrders();
         }
@@ -2353,12 +2357,11 @@ namespace OsEngine.Market.Servers
             if(_myExecuteOrders.Count != 0)
             {
                 _serverRealization.GetOrdersState(_myExecuteOrders);
-                _serverRealization.GetOpenOrderState(_myExecuteOrders);
+                //_serverRealization.GetOpenOrderState();
             }
             if(_myCanselOrders.Count != 0)
             {
-                _serverRealization.GetOrdersState(_myCanselOrders);
-                
+                _serverRealization.GetOrdersState(_myCanselOrders);                
             }
         }
 

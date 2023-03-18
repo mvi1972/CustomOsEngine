@@ -1175,6 +1175,11 @@ namespace OsEngine.Market.Servers.Quik
             throw new NotImplementedException();
         }
 
+        public void GetOpenOrderState()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// send exeptions
         /// отправляет исключения

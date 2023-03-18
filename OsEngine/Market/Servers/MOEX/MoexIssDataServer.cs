@@ -782,5 +782,10 @@ namespace OsEngine.Market.Servers.MOEX
         {
             throw new NotImplementedException();
         }
+
+        public void GetOpenOrderState()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

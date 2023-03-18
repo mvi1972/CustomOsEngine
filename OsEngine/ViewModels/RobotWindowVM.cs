@@ -29,15 +29,17 @@ namespace OsEngine.ViewModels
         public RobotWindowVM()
         {
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
+
             // поток для записи логирования 
             Task.Run(() =>
             {
                 RecordLog();
             });
 
-            Load();
+            LoadHeaderBot();
 
             ServerMaster.ActivateAutoConnection();     
+
            
         }
 
@@ -215,14 +217,14 @@ namespace OsEngine.ViewModels
                 Orders.AddOrUpdate(order.SecurityNameCode, numberOrders, (key, value) => value = numberOrders);
             }
             // колеция ордеров по бумаге, ключ NumberMarket
-            //ConcurrentDictionary<string, Order> ordNam = Orders[order.SecurityNameCode];
+            ConcurrentDictionary<string, Order> ordNam = Orders[order.SecurityNameCode];
 
-            //foreach (var numMark in ordNam)
-            //{
-            //    Order numOrd = numMark.Value;
-            //    RobotWindowVM.SendStrTextDb(" номер ордера в Orders = " + numOrd.NumberMarket);
-            //    RobotWindowVM.SendStrTextDb(" статус ордера в Orders = " + numOrd.State);
-            //}
+            foreach (var numMark in ordNam)
+            {
+                Order numOrd = numMark.Value;
+                RobotWindowVM.SendStrTextDb(" номер ордера в Orders = " + numOrd.NumberMarket);
+                RobotWindowVM.SendStrTextDb(" статус ордера в Orders = " + numOrd.State);
+            }
         }
  
         /// <summary>
@@ -275,7 +277,7 @@ namespace OsEngine.ViewModels
 
         private void RobotWindowVM_OnSelectedSecurity(string name)
         {
-            Save();
+            SaveHeaderBot();
         }
 
         /// <summary>
@@ -289,7 +291,7 @@ namespace OsEngine.ViewModels
                 if (res == MessageBoxResult.Yes)
                 {
                     Robots.Remove(SelectedRobot);
-                    Save();
+                    SaveHeaderBot();
                 }
             }
         }
@@ -351,7 +353,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// сохранение заголовка и бумаги последнего выбраного робота
         /// </summary>
-        private void Save()
+        private void SaveHeaderBot()
         {
             if (!Directory.Exists(@"Parametrs"))
             {
@@ -389,7 +391,7 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// загрузка в робота параметров 
         /// </summary>
-        private void Load()
+        private void LoadHeaderBot()
         {
             if (!Directory.Exists(@"Parametrs"))
             {
