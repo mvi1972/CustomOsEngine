@@ -97,6 +97,7 @@ namespace OsEngine.ViewModels
         /// поле окна выбора инструмента
         /// </summary>
         public static ChengeEmitendWidow ChengeEmitendWidow = null;
+
         /// <summary>
         /// многопоточный словарь для ордеров
         /// </summary>

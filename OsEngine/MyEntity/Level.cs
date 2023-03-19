@@ -392,7 +392,7 @@ namespace OsEngine.MyEntity
             str += "PassTake = " + PassTake.ToString(CultureInfo) + " | ";
             str += "LimitVolume = " + LimitVolume.ToString(CultureInfo) + " | ";
             str += "TakeVolume = " + TakeVolume.ToString(CultureInfo) + " | ";
-            str += "TacePrice = " + TakePrice.ToString(CultureInfo) + " | ";
+            str += "TakePrice = " + TakePrice.ToString(CultureInfo) + " | ";
        
             return str;
         }

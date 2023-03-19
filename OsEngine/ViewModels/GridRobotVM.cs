@@ -44,6 +44,7 @@ namespace OsEngine.ViewModels
             NumberTab = numberTab;
             Header = str[0];    
             LoadParamsBot(header);
+            DesirializerDictionaryOrders();
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
             
          }
@@ -72,6 +73,7 @@ namespace OsEngine.ViewModels
         /// колекция уровней 
         /// </summary>
         public ObservableCollection<Level> Levels { get; set; } = new ObservableCollection<Level>() ;
+
         //string str = "Levels колекция  = " + Levels.Count;
         //Debug.WriteLine(str);
 
@@ -620,101 +622,160 @@ namespace OsEngine.ViewModels
 
         #endregion
 
-        #region Методы =====================================================================================
+        #region все Методы =====================================================================================
 
-        private void Get()
-        {
-            //BinanceServerFuturesRealization binanceServerFutures = new BinanceServerFuturesRealization();
+        #region ===== логика ======
 
-            //binanceServerFutures.GetOpenOrderState(SelectedSecurity.Name);
-        }
+
         /// <summary>
-        ///  уровень является активным 
+        /// расчитывает уровни (цены открвтия и профитов)
         /// </summary>
-        private bool LevelAreActive()
+        void Calculate(object o)
         {
-            if (Levels ==null || Levels.Count ==0) return false;
+
+            decimal volume = 0;
+            decimal stepTake = 0;
+
             foreach (Level level in Levels)
             {
-                if (level.StatusLevel == PositionStatus.OPENING ||
-                    level.StatusLevel == PositionStatus.OPEN||
-                    level.StatusLevel == PositionStatus.CLOSING)
+                volume += Math.Abs(level.Volume);
+            }
+            if (volume > 0)
+            {
+                MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно пресчитать? ", " ВНИМАНИЕ !!! ",
+                    MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.No)
                 {
-                    return true;
-                }                
+                    return;
+                }
             }
-            return false;
-        }
-        /// <summary>
-        /// сохраяие уровни в файл 
-        /// </summary>
-        public void SerializerLevel()
-        {
-            if (!Directory.Exists(@"Parametrs\Tabs"))
-            {
-                Directory.CreateDirectory(@"Parametrs\Tabs");
-            }    
-  
-            DataContractJsonSerializer LevelSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
 
-            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            ObservableCollection<Level> levels = new ObservableCollection<Level>();
+
+            decimal currBuyPrice = StartPoint;
+            decimal currSellPrice = StartPoint;
+
+            if (CountLevels <= 0 || SelectedSecurity == null)
             {
-                LevelSerialazer.WriteObject(file, Levels);
-                RobotWindowVM.SendStrTextDb(" Serializer Levels ");
-            }
-        }
-        /// <summary>
-        /// загружаеи из фала сохраненные уровни 
-        /// </summary>
-        public void DesirializerLevels()
-        {
-            if (!File.Exists(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json"))
-            {
-                RobotWindowVM.Log(Header, " DesirializerLevels \n нет файла levels_.json ");
                 return;
             }
-            
-            DataContractJsonSerializer LevelsDsSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
-            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            RobotWindowVM.Log(Header, " \n\n Пересчитываем уровни  ");
+            for (int i = 0; i < CountLevels; i++)
             {
-                ObservableCollection<Level> LevelsDeseriolazer = LevelsDsSerialazer.ReadObject(file) as ObservableCollection<Level>;
-                if (LevelsDeseriolazer != null)
+                Level levelBuy = new Level() { Side = Side.Buy };
+                Level levelSell = new Level() { Side = Side.Sell };
+
+                if (StepType == StepType.PUNKT)
                 {
-                    Levels = LevelsDeseriolazer;
-                    RobotWindowVM.Log(Header, " DesirializerLevels \n загрузили уровни из levels_.json ");
+                    currBuyPrice -= StepLevel * SelectedSecurity.PriceStep;
+                    currSellPrice += StepLevel * SelectedSecurity.PriceStep;
+
+                    stepTake = TakeLevel * SelectedSecurity.PriceStep;
                 }
-            }
-        }
-        /// <summary>
-        /// сериализация сохранение словарей ордеров
-        /// </summary>
-        public void SerializerDictionaryOrders()
-        {
-            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
-            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.OpenOrCreate))
-            {
-                DictionaryOrdersSerialazer.WriteObject(file, DictionaryOrdersActiv);
-            }
-        }
-        /// <summary>
-        ///  десериализация словаря ордеров 
-        /// </summary>
-        public void DesirializerDictionaryOrders()
-        {
-            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
-            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.Open))
-            {
-                ConcurrentDictionary<string, Order> LoadDictionaryOrdersActiv = new ConcurrentDictionary<string, Order>();
-                ConcurrentDictionary<string, Order> DictionaryOrdersActiv = DictionaryOrdersSerialazer.ReadObject(file) as ConcurrentDictionary<string, Order>;
-                if (DictionaryOrdersActiv != null)
+                else if (StepType == StepType.PERCENT)
                 {
-                    foreach (var order in DictionaryOrdersActiv)
+                    currBuyPrice -= StepLevel * currBuyPrice / 100;
+                    currBuyPrice = Decimal.Round(currBuyPrice, SelectedSecurity.Decimals);
+
+                    currSellPrice += StepLevel * currSellPrice / 100;
+                    currSellPrice = Decimal.Round(currSellPrice, SelectedSecurity.Decimals);
+
+                    stepTake = TakeLevel * currBuyPrice / 100;
+                    stepTake = Decimal.Round(stepTake, SelectedSecurity.Decimals);
+
+                }
+                levelSell.PriceLevel = currSellPrice;
+                levelBuy.PriceLevel = currBuyPrice;
+
+                if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
+                {
+                    levelBuy.TakePrice = levelBuy.PriceLevel + stepTake;
+                    levels.Add(levelBuy);
+                }
+                if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
+                {
+                    levelSell.TakePrice = levelSell.PriceLevel - stepTake;
+                    levels.Insert(0, levelSell);
+                }
+                RobotWindowVM.Log(Header, "Уровень =  " + levels.Last().GetStringForSave());
+            }
+            Levels = levels;
+            OnPropertyChanged(nameof(Levels));
+
+            CalculateStop();
+
+            SaveParamsBot();
+        }
+
+        /// <summary>
+        /// выбрать бумагу
+        /// </summary>
+        void SelectSecurity(object o)
+        {
+            if (RobotWindowVM.ChengeEmitendWidow != null)
+            {
+                return;
+            }
+            RobotWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow(this);
+            RobotWindowVM.ChengeEmitendWidow.ShowDialog();
+            RobotWindowVM.ChengeEmitendWidow = null;
+            if (_server != null)
+            {
+                if (_server.ServerType == ServerType.Binance
+                    || _server.ServerType == ServerType.BinanceFutures)
+                {
+                    IsChekCurrency = true;
+                }
+                else IsChekCurrency = false;
+            }
+        }
+
+        /// <summary>
+        /// Начать получать данные по бумге
+        /// </summary> 
+        private void StartSecuritiy(Security security)
+        {
+            if (security == null)
+            {
+                RobotWindowVM.Log(Header, "StartSecuritiy  security = null ");
+                return;
+            }
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    var series = Server.StartThisSecurity(security.Name, new TimeFrameBuilder(), security.NameClass);
+                    if (series != null)
                     {
-                        LoadDictionaryOrdersActiv.AddOrUpdate(order.Key, order.Value, (key, value) => value = order.Value);
+                        RobotWindowVM.Log(Header, "StartSecuritiy  security = " + series.Security.Name);
+                        // DesirializerLevels();
+                        SaveParamsBot();
+                        break;
                     }
+                    Thread.Sleep(1000);
                 }
+            });
+        }
+
+        /// <summary>
+        /// запускаем сервер
+        /// </summary>
+        void StartServer(string servType)
+        {
+            if (servType == "" || servType == "null")
+            {
+                return;
+            }
+            ServerType type = ServerType.None;
+            if (Enum.TryParse(servType, out type))
+            {
+                ServerType = type;
+                ServerMaster.SetNeedServer(type);
+                // LoadParamsBot(Header);
             }
         }
+
         /// <summary>
         /// добавить строку уровня
         /// </summary>
@@ -751,9 +812,9 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void ExaminationStop()
         {
-            if (SelectSecurBalans == 0 ) return;
+            if (SelectSecurBalans == 0) return;
 
-            if (StopLong != 0 && Price != 0 )
+            if (StopLong != 0 && Price != 0)
             {
                 if (Price < StopLong && Direction == Direction.BUY ||
                     Price < StopLong && Direction == Direction.BUYSELL)
@@ -774,7 +835,7 @@ namespace OsEngine.ViewModels
                         LevelTradeLogicClose(level, Action.STOP);
                         RobotWindowVM.Log(Header, " Сработал СТОП ЛОНГ ");
                         StopLong = 0;
-                    }                     
+                    }
                     return;
                 }
             }
@@ -792,14 +853,14 @@ namespace OsEngine.ViewModels
                     {
                         level.CancelAllOrders(Server, GetStringForSave);
 
-                        RobotWindowVM.Log(Header, "ExaminationStop \n "+" Сработал СТОП ШОРТА ");
-                        string str4 = "level Short = " + level.PriceLevel ;
+                        RobotWindowVM.Log(Header, "ExaminationStop \n " + " Сработал СТОП ШОРТА ");
+                        string str4 = "level Short = " + level.PriceLevel;
                         Debug.WriteLine(str4);
 
                         string str2 = "Всего уровней = " + Levels.Count;
                         Debug.WriteLine(str2);
 
-                        LevelTradeLogicClose(level, Action.STOP );
+                        LevelTradeLogicClose(level, Action.STOP);
                         StopShort = 0;
                     }
                 }
@@ -833,9 +894,9 @@ namespace OsEngine.ViewModels
             {
                 stepLevel = StepLevel * Price / 100;
                 stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
-            } 
-            StopLong = StartPoint - stepLevel * (CountLevels +1);
-            StopShort = StartPoint + stepLevel * (CountLevels +1);
+            }
+            StopLong = StartPoint - stepLevel * (CountLevels + 1);
+            StopShort = StartPoint + stepLevel * (CountLevels + 1);
         }
 
         /// <summary>
@@ -861,7 +922,7 @@ namespace OsEngine.ViewModels
 
             decimal borderUp = Price + stepLevel * MaxActiveLevel;
             decimal borderDown = Price - stepLevel * MaxActiveLevel;
-  
+
             if (level.PassVolume
                   && level.PriceLevel != 0
                   && Math.Abs(level.Volume) + level.LimitVolume < Lot)
@@ -885,12 +946,12 @@ namespace OsEngine.ViewModels
                         {
                             level.PassVolume = true;
                             LevelTradeLogicOpen(level);
-                            RobotWindowVM.Log(Header, " worklot = 0 ретурн " );
+                            RobotWindowVM.Log(Header, " worklot = 0 ретурн ");
                             return;
                         }
                         Order order = SendLimitOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
                         if (order != null)
-                        {       
+                        {
                             level.OrdersForOpen.Add(order);
 
                             RobotWindowVM.Log(Header, " Отправляем лимитку в level.OrdersForOpen " + GetStringForSave(order));
@@ -900,7 +961,7 @@ namespace OsEngine.ViewModels
                         {
                             level.PassVolume = true;
                         }
-                    } 
+                    }
                 }
             }
         }
@@ -908,11 +969,11 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// логика отправки ордеров на закрытия на уровнях
         /// </summary>
-        private void LevelTradeLogicClose( Level level, Action action)
+        private void LevelTradeLogicClose(Level level, Action action)
         {
             decimal stepLevel = 0;
             if (action == Action.STOP)
-            {  
+            {
                 Side side = Side.None;
 
                 if (level.Volume > 0)
@@ -922,12 +983,12 @@ namespace OsEngine.ViewModels
                 else if (level.Volume < 0)
                 {
                     side = Side.Buy;
-                }                
+                }
 
-                decimal worklot = Math.Abs(level.Volume) ;// -level.TakeVolume
+                decimal worklot = Math.Abs(level.Volume);// -level.TakeVolume
                 if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
                 {
-                    Order order = SendMarketOrder(SelectedSecurity,Price, worklot, side);
+                    Order order = SendMarketOrder(SelectedSecurity, Price, worklot, side);
                     if (order != null)
                     {
                         if (order.State != OrderStateType.Activ ||
@@ -937,7 +998,7 @@ namespace OsEngine.ViewModels
                             level.PassVolume = false;
                             level.OrdersForClose.Add(order);
                             RobotWindowVM.Log(Header, "Отправлен Маркет ордер на закрытие \n  " + GetStringForSave(order));
-                        }                        
+                        }
                     }
                     else level.PassVolume = true;
                 }
@@ -950,32 +1011,32 @@ namespace OsEngine.ViewModels
                     LevelTradeLogicClose(level, Action.STOP);
                     return;
                 }
-            } 
+            }
 
-            if (action == Action.CLOSE)      
-            {                
+            if (action == Action.CLOSE)
+            {
                 decimal price = 0;
-                Side side = Side.None;   
- 
+                Side side = Side.None;
+
                 if (level.Volume > 0)
                 {
-                    price = _bestAsk;                       
+                    price = _bestAsk;
 
                     side = Side.Sell;
                 }
                 else if (level.Volume < 0)
                 {
                     price = _bestBid;
- 
+
                     side = Side.Buy;
                 }
                 level.PassTake = false;
 
                 decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
                 if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
-                {  
+                {
                     Order order = SendLimitOrder(SelectedSecurity, price, worklot, side);
-                    if (order != null )
+                    if (order != null)
                     {
                         if (price == 0)
                         {
@@ -990,17 +1051,17 @@ namespace OsEngine.ViewModels
                         {
                             level.PassVolume = false;
                             level.OrdersForClose.Add(order);
-                            RobotWindowVM.Log(Header, 
-                            "Отправляем  Лимит ордер на закрытие по цене посленего трейда " 
+                            RobotWindowVM.Log(Header,
+                            "Отправляем  Лимит ордер на закрытие по цене посленего трейда "
                              + GetStringForSave(order));
-                        }  
+                        }
                     }
                     else
                     {
                         level.PassVolume = true;
                     }
                 }
-                else if (worklot * level.PriceLevel <= 6 && worklot !=0)
+                else if (worklot * level.PriceLevel <= 6 && worklot != 0)
                 {
                     RobotWindowVM.Log(Header, "ВНИМАНИЕ ордер <= 6 $ \n " +
                         "action == Action.CLOSE ордер не отправлен \n" +
@@ -1010,10 +1071,10 @@ namespace OsEngine.ViewModels
                     return;
                 }
             }
-   
-            if (IsRun == false || SelectedSecurity == null && action == Action.TAKE) 
+
+            if (IsRun == false || SelectedSecurity == null && action == Action.TAKE)
             {
-                return; 
+                return;
             }
 
             // выбрана бумага и робот включен следует логика выставления тейков 
@@ -1050,7 +1111,7 @@ namespace OsEngine.ViewModels
                         if (action == Action.TAKE)
                         {
                             price = level.TakePrice;
-                        } 
+                        }
                         side = Side.Sell;
                     }
                     else if (level.Volume < 0)
@@ -1058,19 +1119,19 @@ namespace OsEngine.ViewModels
                         if (action == Action.TAKE)
                         {
                             price = level.TakePrice;
-                        } 
+                        }
                         side = Side.Buy;
                     }
                     level.PassTake = false;
 
                     RobotWindowVM.Log(Header, "Уровень = " + level.GetStringForSave());
-  
+
                     decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
                     RobotWindowVM.Log(Header, "Рабочий лот =  " + worklot);
                     RobotWindowVM.Log(Header, "IsChekCurrency =  " + IsChekCurrency);
 
                     if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
-                    {  
+                    {
                         Order order = SendLimitOrder(SelectedSecurity, price, worklot, side);
                         if (order != null)
                         {
@@ -1082,15 +1143,15 @@ namespace OsEngine.ViewModels
                             level.PassTake = true;
                         }
                     }
-                    else if (worklot * level.PriceLevel <= 6 && worklot != 0 )
+                    else if (worklot * level.PriceLevel <= 6 && worklot != 0)
                     {
                         RobotWindowVM.Log(Header, "ВНИМАНИЕ action ТЭЙК ордер меньше 6 $ не отрпавлен \n" +
                             " worklot  =  " + worklot);
                         level.PassTake = true;
-                        LevelTradeLogicClose(level, Action.TAKE);                        ;
+                        LevelTradeLogicClose(level, Action.TAKE); ;
                     }
                 }
-            } 
+            }
         }
 
         /// <summary>
@@ -1103,16 +1164,16 @@ namespace OsEngine.ViewModels
             decimal volume = 0;
             decimal accum = 0;
             decimal margine = 0;
-            decimal averagePrice = 0;   
+            decimal averagePrice = 0;
 
             foreach (Level level in Levels)
             {
-                if (level.Volume !=0)
+                if (level.Volume != 0)
                 {
                     averagePrice = (level.OpenPrice * level.Volume + averagePrice * volume)
                         / (level.Volume + volume);
 
-                    level.Margin = (Price - level.OpenPrice) * level.Volume* SelectedSecurity.Lot;
+                    level.Margin = (Price - level.OpenPrice) * level.Volume * SelectedSecurity.Lot;
                 }
                 volume += level.Volume;
                 accum += level.Accum;
@@ -1121,7 +1182,7 @@ namespace OsEngine.ViewModels
 
             AllPositionsCount = volume;
             PriceAverege = averagePrice;
-            Accum = accum;  
+            Accum = accum;
             VarMargine = margine;
             Total = Accum + VarMargine;
             PriceAverege = averagePrice;
@@ -1152,9 +1213,9 @@ namespace OsEngine.ViewModels
             }
             Order order = new Order()
             {
-                Price = prise,  
-                Volume = volume,    
-                Side = side, 
+                Price = prise,
+                Volume = volume,
+                Side = side,
                 PortfolioNumber = StringPortfolio,
                 TypeOrder = OrderPriceType.Limit,
                 NumberUser = NumberGen.GetNumberOrder(StartProgram.IsOsTrader),
@@ -1165,7 +1226,7 @@ namespace OsEngine.ViewModels
             RobotWindowVM.SendStrTextDb(" SendLimitOrder " + order.NumberUser);
             Server.ExecuteOrder(order);
 
-            
+
             return order;
         }
 
@@ -1191,16 +1252,16 @@ namespace OsEngine.ViewModels
                 SecurityNameCode = sec.Name,
                 SecurityClassCode = sec.NameClass,
             };
-            RobotWindowVM.Log(Header, "SendMarketOrder\n " + " отправляем маркет на биржу\n"+ GetStringForSave(order));
+            RobotWindowVM.Log(Header, "SendMarketOrder\n " + " отправляем маркет на биржу\n" + GetStringForSave(order));
             RobotWindowVM.SendStrTextDb(" SendMarketOrder " + order.NumberUser);
             Server.ExecuteOrder(order);
-            
+
             return order;
         }
 
-        private void StartStop( object o)
+        private void StartStop(object o)
         {
-            RobotWindowVM.Log( Header, " \n\n StartStop = " + !IsRun);
+            RobotWindowVM.Log(Header, " \n\n StartStop = " + !IsRun);
             Thread.Sleep(300);
 
             SaveParamsBot();
@@ -1227,7 +1288,7 @@ namespace OsEngine.ViewModels
                 bool flag = true;
                 foreach (Level level in Levels)
                 {
-                    if ( flag && level.LimitVolume != 0
+                    if (flag && level.LimitVolume != 0
                         || level.TakeVolume != 0)
                     {
                         flag = false;
@@ -1251,370 +1312,45 @@ namespace OsEngine.ViewModels
             _server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
 
-            RobotWindowVM.Log( Header, " Подключаемся к серверу = " + _server.ServerType);
+            RobotWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
         }
 
-        private void _server_ConnectStatusChangeEvent(string status)
-        {
-           
-        }
+        #endregion
 
-        /// <summary>
-        ///  отключиться от сервера 
+        #region  ===== сервисные ======
+
+        ///<summary>
+        /// взять текущий объем на бирже выбаной  бумаги
         /// </summary>
-        private void UnSubscribeToServer()
+        private void GetBalansSecur()
         {
-            _server.NewMyTradeEvent -= Server_NewMyTradeEvent;
-            _server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
-            _server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
-            _server.NewTradeEvent -= Server_NewTradeEvent;
-            _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
-            _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
-            _server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
-            _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
-
-            RobotWindowVM.Log( Header, " Отключаем от сервера = " + _server.ServerType);
-        }
-
-        /// <summary>
-        /// изменились лучшие цены 
-        /// </summary>
-        private void _server_NewBidAscIncomeEvent(decimal bid, decimal ask, Security namesecur)
-        {
-            _bestBid = 0;
-            _bestAsk = 0;
-            if (namesecur.Name == SelectedSecurity.Name)
+            List<Portfolio> portfolios = new List<Portfolio>();
+            if (Server.Portfolios != null)
             {
-                _bestAsk = ask;
-                _bestBid = bid;
+                portfolios = Server.Portfolios;
             }
-        }
-
-        private void Server_NewTradeEvent(List<Trade> trades)
-        {
-            if (trades != null
-                && trades[0].SecurityNameCode == SelectedSecurity.Name)
+            if (portfolios.Count > 0 && portfolios != null
+                && _selectedSecurity != null)
             {
-                Trade trade = trades.Last();
-
-                Price = trade.Price;
-
-                CalculateMargin();
-
-                if(trade.Time.Second % 5 == 0)
+                int count = portfolios[0].GetPositionOnBoard().Count;
+                string nam = SelectedSecurity.Name;
+                string suf = "_BOTH";
+                string SecurName = nam + suf;
+                for (int i = 0; i < count; i++)
                 {
-                    // TradeLogic();
-                }
-            }
-            ExaminationStop();
-        }
-
-        private void Server_NewCandleIncomeEvent(CandleSeries candle)
-        {
-           
-        }
-
-        /// <summary>
-        /// пришел ответ с биржи по ордеру 
-        /// </summary>
-        private void Server_NewOrderIncomeEvent(Order order)
-        {           
-            if (order == null || _portfolio == null) return;
-            if (order.SecurityNameCode == SelectedSecurity.Name
-                && order.ServerType == Server.ServerType ) // 
-            {
-                if (LevelAreActive())
-                {
-                   // SerializerLevel();
-                }
-                
-                //RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
-                //             + " NewOrder Status " + order.State + "\n"
-                //             + " DictionaryOrdersActiv count " + DictionaryOrdersActiv.Count);
-                //if (order.State == OrderStateType.Activ)
-                //{
-                //    DictionaryOrdersActiv.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
-
-                //    RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
-                //                                + " Add Activ order \n" );
-                //    //SerializerDictionaryOrders();
-                //    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
-                //}
-                
-                //  дальше запись в лог ответа с биржи по ордеру  и уровню 
-                bool rec =true;
-                if (order.State == OrderStateType.Activ
-                    && order.TimeCallBack.AddSeconds(15) < Server.ServerTime) 
-                {
-                    rec = false;
-                }
-                if (rec)
-                {
-                    RobotWindowVM.Log(Header, "NewOrderIncomeEvent = " + GetStringForSave(order));
-                }
-                if (order.NumberMarket !="")
-                {
-                    foreach (Level level in Levels)
+                    string seсurCode = portfolios[0].GetPositionOnBoard()[i].SecurityNameCode;
+                    if (seсurCode == SecurName)
                     {
-                        bool newOrderBool = level.NewOrder(order);
-
-                        if (newOrderBool && rec)
-                        {
-                            RobotWindowVM.Log(Header, "Уровень = " + level.GetStringForSave());
-                        }
-                    }
-                }
-
-                SaveParamsBot();
-                //Get();
-            }
-        }
-
-        /// <summary>
-        ///  пришел мой трейд перевыставляем ордера по уровням
-        /// </summary>
-        private void Server_NewMyTradeEvent(MyTrade myTrade)
-        {
-            if (myTrade == null || myTrade.SecurityNameCode != SelectedSecurity.Name) 
-            {
-                return; // нашей бумаги нет
-            }
-            if (LevelAreActive())
-            {
-                // SerializerLevel();
-            }
-            
-
-            foreach (Level level in Levels)
-            {
-                bool newTrade = level.AddMyTrade(myTrade, SelectedSecurity.Lot);
-                if (newTrade)
-                {
-                    RobotWindowVM.SendStrTextDb(" Trade ордера " + myTrade.NumberOrderParent+ "\n " +
-                                                    "NumberTrade " + myTrade.NumberTrade);
-
-                    RobotWindowVM.Log(Header, "MyTrade =  " + GetStringForSave(myTrade));
-                    if (myTrade.Side == level.Side)
-                    {
-                        LevelTradeLogicClose(level, Action.TAKE);
-                    }
-                    else
-                    {
-                        LevelTradeLogicOpen(level);
-                    }
-                    RobotWindowVM.Log(Header, " MyTrade \n Уровень  =  " + level.GetStringForSave());
-                    SaveParamsBot();
-                }
-            }
-         }
-
-        /// <summary>
-        /// расчитывает уровни (цены открвтия и профитов)
-        /// </summary>
-        void Calculate( object o)
-        {
- 
-            decimal volume = 0;
-            decimal stepTake =0;
-            
-            foreach (Level level in Levels)
-            {
-                volume+= Math.Abs(level.Volume);
-            }
-            if (volume > 0)
-            {
-                MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно пресчитать? ", " ВНИМАНИЕ !!! ",
-                    MessageBoxButton.YesNo);
-                if (result == MessageBoxResult.No)
-                {
-                    return;
-                }
-            }
-
-            ObservableCollection<Level> levels = new ObservableCollection<Level>();
-
-            decimal currBuyPrice = StartPoint;
-            decimal currSellPrice = StartPoint;
-
-            if (CountLevels <=0 || SelectedSecurity == null )
-            {
-                return;
-            }
-            RobotWindowVM.Log( Header, " \n\n Пересчитываем уровни  ");
-            for (int i = 0; i < CountLevels; i++)
-            {
-                Level levelBuy = new Level() {Side = Side.Buy};
-                Level levelSell = new Level() { Side = Side.Sell };
-
-                if (StepType == StepType.PUNKT)
-                {
-                    currBuyPrice -= StepLevel * SelectedSecurity.PriceStep;
-                    currSellPrice += StepLevel * SelectedSecurity.PriceStep;
-
-                    stepTake = TakeLevel * SelectedSecurity.PriceStep;
-                } 
-                else if (StepType == StepType.PERCENT)
-                {
-                    currBuyPrice -= StepLevel * currBuyPrice / 100;
-                    currBuyPrice = Decimal.Round(currBuyPrice, SelectedSecurity.Decimals);
-
-                    currSellPrice += StepLevel * currSellPrice / 100;
-                    currSellPrice = Decimal.Round(currSellPrice, SelectedSecurity.Decimals);
-
-                    stepTake = TakeLevel * currBuyPrice / 100;
-                    stepTake = Decimal.Round(stepTake, SelectedSecurity.Decimals);
-
-                }
-                levelSell.PriceLevel = currSellPrice;
-                levelBuy.PriceLevel = currBuyPrice;
-
-                if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
-                {
-                    levelBuy.TakePrice = levelBuy.PriceLevel + stepTake;
-                    levels.Add(levelBuy);
-                }
-                if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
-                {
-                    levelSell.TakePrice = levelSell.PriceLevel - stepTake;
-                    levels.Insert(0, levelSell);
-                }
-                RobotWindowVM.Log( Header, "Уровень =  " + levels.Last().GetStringForSave());
-            }
-            Levels = levels;
-            OnPropertyChanged(nameof(Levels));
-
-            CalculateStop();
-
-            SaveParamsBot();
-        }
-
-        /// <summary>
-        /// изменлся портфель на сервере
-        /// </summary>
-        private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
-        {
-            GetBalansSecur();// запросить объем монеты на бирже 
-            if (portfolios == null || _portfoliosCount >= portfolios.Count) // нет новых портфелей 
-            {
-                return; 
-            }
-            _portfoliosCount = portfolios.Count;
-
-            StringPortfolios = GetStringPortfolios(_server); // грузим портфели
-
-            OnPropertyChanged(nameof(StringPortfolios));
-
-            if (StringPortfolios != null && StringPortfolios.Count > 0)
-            {
-                if (StringPortfolio == "")
-                {
-                    StringPortfolio = StringPortfolios[0];
-                }
-                for (int i = 0; i < portfolios.Count; i++)
-                {
-                    if (portfolios[i].Number == StringPortfolio)
-                    {
-                        _portfolio = portfolios[i];
-                    }
-                }
-            }
-            OnPropertyChanged(nameof(StringPortfolios));
-        }
-
-        /// <summary>
-        /// берет названия кошельков (бирж)
-        /// </summary>
-        public ObservableCollection<string> GetStringPortfolios(IServer server)
-        {
-            ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
-            if (server == null)
-            {
-                RobotWindowVM.Log( Header, "GetStringPortfolios server == null ");
-                return stringPortfolios;
-            }
-            if (server.Portfolios == null)
-            {
-                return stringPortfolios;
-            }
-           
-            foreach (Portfolio portf in server.Portfolios)
-            {
-                RobotWindowVM.Log( Header, "GetStringPortfolios  портфель =  " + portf.Number);
-                stringPortfolios.Add(portf.Number);
-            }
-            return stringPortfolios;  
-        }
-
-        /// <summary>
-        /// берет номер портфеля  
-        /// </summary>
-        private Portfolio GetPortfolio(string number)
-        {
-            if (Server != null && Server.Portfolios != null)
-            {
-                foreach (Portfolio portf in Server.Portfolios)
-                {
-                    if (portf.Number == number)
-                    {
-                        RobotWindowVM.Log( Header, " Выбран портфель =  " + portf.Number);
-                        return portf;
+                        decimal d = portfolios[0].GetPositionOnBoard()[i].ValueCurrent;
+                        SelectSecurBalans = d; // отправка значения в свойство
                     }
                 }
             }
 
-            RobotWindowVM.Log( Header, "GetStringPortfolios  портфель = null ");
-            return null;
-        }
+            //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
+            //    pos.SecurityNameCode == _securName).ValueCurrent;
+            //    return balans;
 
-        /// <summary>
-        /// выбрать бумагу
-        /// </summary>
-        void SelectSecurity (object o)
-        {
-            if (RobotWindowVM.ChengeEmitendWidow != null ) 
-            {
-                return;
-            }
-            RobotWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow(this);
-            RobotWindowVM.ChengeEmitendWidow.ShowDialog();
-            RobotWindowVM.ChengeEmitendWidow = null;
-            if (_server != null)
-            {
-                if (_server.ServerType == ServerType.Binance
-                    || _server.ServerType == ServerType.BinanceFutures)
-                {
-                    IsChekCurrency = true;
-                }
-                else IsChekCurrency = false;
-            }
-        } 
-
-        /// <summary>
-        /// Начать получать данные по бумге
-        /// </summary> 
-        private void StartSecuritiy(Security security)
-        {
-            if (security == null)
-            {
-                RobotWindowVM.Log( Header, "StartSecuritiy  security = null ");
-                return;
-            }
-
-            Task.Run(() =>
-            {
-                while (true)
-                {
-                    var series = Server.StartThisSecurity(security.Name, new TimeFrameBuilder(), security.NameClass);
-                    if (series != null)
-                    {
-                        RobotWindowVM.Log( Header, "StartSecuritiy  security = " + series.Security.Name);
-                        // DesirializerLevels();
-                        SaveParamsBot();
-                        break;
-                    }
-                    Thread.Sleep(1000);
-                }
-            });
         }
 
         /// <summary>
@@ -1651,7 +1387,7 @@ namespace OsEngine.ViewModels
             str += "Цена = " + myTrade.Price + " | ";
             str += "NumberOrderParent = " + myTrade.NumberOrderParent + " | ";
             str += "NumberTrade = " + myTrade.NumberTrade + " | ";
-  
+
             return str;
         }
 
@@ -1672,7 +1408,7 @@ namespace OsEngine.ViewModels
                     writer.WriteLine(Header);
                     writer.WriteLine(ServerType);
                     writer.WriteLine(StringPortfolio);
-                    
+
                     writer.WriteLine(StopShort);
                     writer.WriteLine(StartPoint);
                     writer.WriteLine(StopLong);
@@ -1698,7 +1434,7 @@ namespace OsEngine.ViewModels
             }
             catch (Exception ex)
             {
-                RobotWindowVM.Log( Header, " Ошибка сохранения параметров = " + ex.Message);
+                RobotWindowVM.Log(Header, " Ошибка сохранения параметров = " + ex.Message);
             }
         }
         /// <summary>
@@ -1711,7 +1447,7 @@ namespace OsEngine.ViewModels
                 return;
             }
             RobotWindowVM.Log(Header, " LoadParamsBot \n загрузили параметры ");
-            string servType ="" ;
+            string servType = "";
             try
             {
                 using (StreamReader reader = new StreamReader(@"Parametrs\Tabs\param_" + name + ".txt"))
@@ -1748,7 +1484,7 @@ namespace OsEngine.ViewModels
 
                     Levels = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Level>());
 
-                    bool check = false; 
+                    bool check = false;
                     if (bool.TryParse(reader.ReadLine(), out check))
                     {
                         IsChekCurrency = check;
@@ -1764,7 +1500,7 @@ namespace OsEngine.ViewModels
             }
             catch (Exception ex)
             {
-                RobotWindowVM.Log( Header, " Ошибка выгрузки параметров = " + ex.Message);
+                RobotWindowVM.Log(Header, " Ошибка выгрузки параметров = " + ex.Message);
             }
             StartServer(servType);
 
@@ -1776,23 +1512,330 @@ namespace OsEngine.ViewModels
         {
             decimal value = 0;
             decimal.TryParse(str, out value);
-            return value;   
+            return value;
         }
         /// <summary>
-        /// запускаем сервер
+        /// является ли уровень активным 
         /// </summary>
-        void StartServer (string servType)
+        private bool ActiveLevelAre()
         {
-            if (servType == "" || servType == "null")
+            if (Levels == null || Levels.Count == 0) return false;
+            foreach (Level level in Levels)
             {
+                if (level.StatusLevel == PositionStatus.OPENING ||
+                    level.StatusLevel == PositionStatus.OPEN ||
+                    level.StatusLevel == PositionStatus.CLOSING)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// сохраяие уровни в файл 
+        /// </summary>
+        public void SerializerLevel()
+        {
+            if (!Directory.Exists(@"Parametrs\Tabs"))
+            {
+                Directory.CreateDirectory(@"Parametrs\Tabs");
+            }
+
+            DataContractJsonSerializer LevelSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
+
+            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            {
+                LevelSerialazer.WriteObject(file, Levels);
+                RobotWindowVM.SendStrTextDb(" Serializer Levels ");
+            }
+        }
+        /// <summary>
+        /// загружаеи из фала сохраненные уровни 
+        /// </summary>
+        public void DesirializerLevels()
+        {
+            if (!File.Exists(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json"))
+            {
+                RobotWindowVM.Log(Header, " DesirializerLevels \n нет файла levels_.json ");
                 return;
             }
-            ServerType type = ServerType.None;
-            if (Enum.TryParse (servType, out type))
+
+            DataContractJsonSerializer LevelsDsSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
+            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                ServerType = type;  
-                ServerMaster.SetNeedServer(type);
-                // LoadParamsBot(Header);
+                ObservableCollection<Level> LevelsDeseriolazer = LevelsDsSerialazer.ReadObject(file) as ObservableCollection<Level>;
+                if (LevelsDeseriolazer != null)
+                {
+                    Levels = LevelsDeseriolazer;
+                    RobotWindowVM.Log(Header, " DesirializerLevels \n загрузили уровни из levels_.json ");
+                }
+            }
+        }
+
+        /// <summary>
+        /// сериализация словаря  ордеров
+        /// </summary>
+        public void SerializerDictionaryOrders()
+        {
+            DataContractJsonSerializer DictionaryOrdersSerialazer 
+              = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>));
+            using (var file = new FileStream("DictionaryAllOrders.json", FileMode.OpenOrCreate))
+            {
+                DictionaryOrdersSerialazer.WriteObject(file, RobotWindowVM.Orders);
+            }
+        }
+
+        /// <summary>
+        ///  десериализация словаря ордеров 
+        /// </summary>
+        public void DesirializerDictionaryOrders()
+        {
+            DataContractJsonSerializer DictionaryOrdersSerialazer 
+                = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>));
+            using (var file = new FileStream("DictionaryAllOrders.json", FileMode.Open))
+            {
+                ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> DictionaryOrders 
+                 = DictionaryOrdersSerialazer.ReadObject(file) as ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>;
+                if (DictionaryOrders != null)
+                {
+                    RobotWindowVM.Orders = DictionaryOrders;
+                }
+            }
+        }
+
+        /// <summary>
+        /// сериализация словарz активных ордеров
+        /// </summary>
+        public void SerializerDictionaryActivOrders()
+        {
+            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
+            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.OpenOrCreate))
+            {
+                DictionaryOrdersSerialazer.WriteObject(file, DictionaryOrdersActiv);
+            }
+        }
+        /// <summary>
+        ///  десериализация словаря ордеров 
+        /// </summary>
+        public void DesirializerDictionaryActivOrders()
+        {
+            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
+            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.Open))
+            {
+                ConcurrentDictionary<string, Order> LoadDictionaryOrdersActiv = new ConcurrentDictionary<string, Order>();
+                ConcurrentDictionary<string, Order> DictionaryOrdersActiv = DictionaryOrdersSerialazer.ReadObject(file) as ConcurrentDictionary<string, Order>;
+                if (DictionaryOrdersActiv != null)
+                {
+                    foreach (var order in DictionaryOrdersActiv)
+                    {
+                        LoadDictionaryOrdersActiv.AddOrUpdate(order.Key, order.Value, (key, value) => value = order.Value);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// берет названия кошельков (бирж)
+        /// </summary>
+        public ObservableCollection<string> GetStringPortfolios(IServer server)
+        {
+            ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
+            if (server == null)
+            {
+                RobotWindowVM.Log(Header, "GetStringPortfolios server == null ");
+                return stringPortfolios;
+            }
+            if (server.Portfolios == null)
+            {
+                return stringPortfolios;
+            }
+
+            foreach (Portfolio portf in server.Portfolios)
+            {
+                RobotWindowVM.Log(Header, "GetStringPortfolios  портфель =  " + portf.Number);
+                stringPortfolios.Add(portf.Number);
+            }
+            return stringPortfolios;
+        }
+
+        /// <summary>
+        /// берет номер портфеля  
+        /// </summary>
+        private Portfolio GetPortfolio(string number)
+        {
+            if (Server != null && Server.Portfolios != null)
+            {
+                foreach (Portfolio portf in Server.Portfolios)
+                {
+                    if (portf.Number == number)
+                    {
+                        RobotWindowVM.Log(Header, " Выбран портфель =  " + portf.Number);
+                        return portf;
+                    }
+                }
+            }
+
+            RobotWindowVM.Log(Header, "GetStringPortfolios  портфель = null ");
+            return null;
+        }
+        #endregion
+
+        #region ======= события сервера =====
+
+        private void _server_ConnectStatusChangeEvent(string status)
+        {
+
+        }
+
+        /// <summary>
+        ///  отключиться от сервера 
+        /// </summary>
+        private void UnSubscribeToServer()
+        {
+            _server.NewMyTradeEvent -= Server_NewMyTradeEvent;
+            _server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
+            _server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
+            _server.NewTradeEvent -= Server_NewTradeEvent;
+            _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
+            _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
+            _server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
+            _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
+
+            RobotWindowVM.Log(Header, " Отключаем от сервера = " + _server.ServerType);
+        }
+
+        /// <summary>
+        /// изменились лучшие цены 
+        /// </summary>
+        private void _server_NewBidAscIncomeEvent(decimal bid, decimal ask, Security namesecur)
+        {
+            _bestBid = 0;
+            _bestAsk = 0;
+            if (namesecur.Name == SelectedSecurity.Name)
+            {
+                _bestAsk = ask;
+                _bestBid = bid;
+            }
+        }
+
+        private void Server_NewTradeEvent(List<Trade> trades)
+        {
+            if (trades != null
+                && trades[0].SecurityNameCode == SelectedSecurity.Name)
+            {
+                Trade trade = trades.Last();
+
+                Price = trade.Price;
+
+                CalculateMargin();
+                ExaminationStop();
+
+                if (trade.Time.Second % 5 == 0)
+                {
+                    // TradeLogic();
+                }
+            }
+            
+        }
+
+        private void Server_NewCandleIncomeEvent(CandleSeries candle)
+        {
+
+        }
+
+        /// <summary>
+        /// пришел ответ с биржи по ордеру 
+        /// </summary>
+        private void Server_NewOrderIncomeEvent(Order order)
+        {
+            if (order == null || _portfolio == null) return;
+            if (order.SecurityNameCode == SelectedSecurity.Name
+                && order.ServerType == Server.ServerType) // 
+            {
+                if (ActiveLevelAre())
+                {
+                    SerializerDictionaryOrders();
+                    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
+                    // SerializerLevel();
+                }
+
+                //RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
+                //             + " NewOrder Status " + order.State + "\n"
+                //             + " DictionaryOrdersActiv count " + DictionaryOrdersActiv.Count);
+                //if (order.State == OrderStateType.Activ)
+                //{
+                //    DictionaryOrdersActiv.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
+
+                //    RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
+                //                                + " Add Activ order \n" );
+                //    //SerializerDictionaryOrders();
+                //    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
+                //}
+
+                //  дальше запись в лог ответа с биржи по ордеру  и уровню 
+                bool rec = true;
+                if (order.State == OrderStateType.Activ
+                    && order.TimeCallBack.AddSeconds(15) < Server.ServerTime)
+                {
+                    rec = false;
+                }
+                if (rec)
+                {
+                    RobotWindowVM.Log(Header, "NewOrderIncomeEvent = " + GetStringForSave(order));
+                }
+                if (order.NumberMarket != "")
+                {
+                    foreach (Level level in Levels)
+                    {
+                        bool newOrderBool = level.NewOrder(order);
+
+                        if (newOrderBool && rec)
+                        {
+                            RobotWindowVM.Log(Header, "Уровень = " + level.GetStringForSave());
+                        }
+                    }
+                }
+
+                SaveParamsBot();
+                //Get();
+            }
+        }
+
+        /// <summary>
+        ///  пришел мой трейд перевыставляем ордера по уровням
+        /// </summary>
+        private void Server_NewMyTradeEvent(MyTrade myTrade)
+        {
+            if (myTrade == null || myTrade.SecurityNameCode != SelectedSecurity.Name)
+            {
+                return; // нашей бумаги нет
+            }
+            if (ActiveLevelAre())
+            {
+                // SerializerLevel();
+            }
+
+
+            foreach (Level level in Levels)
+            {
+                bool newTrade = level.AddMyTrade(myTrade, SelectedSecurity.Lot);
+                if (newTrade)
+                {
+                    RobotWindowVM.SendStrTextDb(" Trade ордера " + myTrade.NumberOrderParent + "\n " +
+                                                    "NumberTrade " + myTrade.NumberTrade);
+
+                    RobotWindowVM.Log(Header, "MyTrade =  " + GetStringForSave(myTrade));
+                    if (myTrade.Side == level.Side)
+                    {
+                        LevelTradeLogicClose(level, Action.TAKE);
+                    }
+                    else
+                    {
+                        LevelTradeLogicOpen(level);
+                    }
+                    RobotWindowVM.Log(Header, " MyTrade \n Уровень  =  " + level.GetStringForSave());
+                    SaveParamsBot();
+                }
             }
         }
         /// <summary>
@@ -1802,7 +1845,7 @@ namespace OsEngine.ViewModels
         {
             if (server.ServerType == ServerType)
             {
-                Server = server;               
+                Server = server;
             }
         }
 
@@ -1816,48 +1859,48 @@ namespace OsEngine.ViewModels
             {
                 if (securities[i].Name == Header)
                 {
-                    SelectedSecurity = securities[i];   
+                    SelectedSecurity = securities[i];
                     StartSecuritiy(securities[i]);
                     break;
                 }
             }
         }
 
-        ///<summary>
-        /// взять текущий объем на бирже выбаной  бумаги
+        /// <summary>
+        /// изменлся портфель на сервере
         /// </summary>
-        private void GetBalansSecur()
+        private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
         {
-            List<Portfolio> portfolios = new List<Portfolio>(); 
-            if ( Server.Portfolios != null)
+            GetBalansSecur();// запросить объем монеты на бирже 
+            if (portfolios == null || _portfoliosCount >= portfolios.Count) // нет новых портфелей 
             {
-                portfolios = Server.Portfolios; 
+                return;
             }
-            if (portfolios.Count > 0 && portfolios != null 
-                && _selectedSecurity != null )
+            _portfoliosCount = portfolios.Count;
+
+            StringPortfolios = GetStringPortfolios(_server); // грузим портфели
+
+            OnPropertyChanged(nameof(StringPortfolios));
+
+            if (StringPortfolios != null && StringPortfolios.Count > 0)
             {
-                int count = portfolios[0].GetPositionOnBoard().Count;
-                string nam =SelectedSecurity.Name ;
-                string suf = "_BOTH";
-                string SecurName  = nam + suf;
-                for (int i = 0; i < count; i++)
+                if (StringPortfolio == "")
                 {
-                    string seсurCode = portfolios[0].GetPositionOnBoard()[i].SecurityNameCode;
-                    if (seсurCode == SecurName)
+                    StringPortfolio = StringPortfolios[0];
+                }
+                for (int i = 0; i < portfolios.Count; i++)
+                {
+                    if (portfolios[i].Number == StringPortfolio)
                     {
-                        decimal d = portfolios[0].GetPositionOnBoard()[i].ValueCurrent;
-                        SelectSecurBalans =d; // отправка значения в свойство
-                    }              
+                        _portfolio = portfolios[i];
+                    }
                 }
             }
-       
-            //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
-            //    pos.SecurityNameCode == _securName).ValueCurrent;
-            //    return balans;
-
+            OnPropertyChanged(nameof(StringPortfolios));
         }
-
         #endregion
+
+        #endregion ===========================================================================================
 
         #region ============================================События============================================
 
