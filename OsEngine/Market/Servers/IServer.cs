@@ -242,6 +242,8 @@ namespace OsEngine.Market.Servers
         /// </summary>
         void CancelAllOrders();
 
+        void GetOpen(string SecurityNameCode);
+
         /// <summary>
         /// order changed
         /// изменился ордер

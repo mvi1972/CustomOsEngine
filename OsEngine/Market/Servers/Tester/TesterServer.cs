@@ -3972,8 +3972,13 @@ namespace OsEngine.Market.Servers.Tester
             }
         }
 
+        public void GetOpen(string SecurityNameCode)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
-		/// log manager
+        /// log manager
         /// лог менеджер
         /// </summary>
         /// 

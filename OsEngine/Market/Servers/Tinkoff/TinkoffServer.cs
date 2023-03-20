@@ -499,6 +499,11 @@ namespace OsEngine.Market.Servers.Tinkoff
             throw new NotImplementedException();
         }
 
+        public void GetOpenOrderState(string SecurityNameCode)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing log message
         /// исходящее сообщение для лога

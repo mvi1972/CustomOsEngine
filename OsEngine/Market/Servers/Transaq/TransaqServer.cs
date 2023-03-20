@@ -1654,6 +1654,11 @@ namespace OsEngine.Market.Servers.Transaq
             throw new NotImplementedException();
         }
 
+        public void GetOpenOrderState(string SecurityNameCode)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing lom message
         /// исходящее сообщение для лога

@@ -592,5 +592,10 @@ namespace OsEngine.Market.Servers.MFD
         {
             throw new NotImplementedException();
         }
+
+        public void GetOpenOrderState(string SecurityNameCode)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

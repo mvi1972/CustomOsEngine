@@ -29,6 +29,7 @@ using System.Runtime.Serialization.Json;
 using System.Collections.Concurrent;
 using ControlzEx.Theming;
 using OsEngine.Market.Servers.Binance.Futures;
+using System.Windows.Controls.Primitives;
 
 namespace OsEngine.ViewModels
 {
@@ -632,7 +633,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         void Calculate(object o)
         {
-
+            
             decimal volume = 0;
             decimal stepTake = 0;
 
@@ -868,7 +869,7 @@ namespace OsEngine.ViewModels
         }
 
         /// <summary>
-        /// каждые 5 секунд после нового трейда по бумаге гоняет по уровням  логику отправки ореров на открытип и закрытие 
+        /// после трейда или ррдера с бижжи по бумаге гоняет по уровням  логику отправки ореров на открытип и закрытие 
         /// </summary>
         private void TradeLogic()
         {
@@ -1319,6 +1320,14 @@ namespace OsEngine.ViewModels
 
         #region  ===== сервисные ======
 
+        /// <summary>
+        /// запросить открытые ордера 
+        /// </summary>
+        private void GetOpenOrder()
+        {
+            Server.GetOpen(Header);
+        }
+
         ///<summary>
         /// взять текущий объем на бирже выбаной  бумаги
         /// </summary>
@@ -1531,46 +1540,6 @@ namespace OsEngine.ViewModels
             }
             return false;
         }
-        /// <summary>
-        /// сохраяие уровни в файл 
-        /// </summary>
-        public void SerializerLevel()
-        {
-            if (!Directory.Exists(@"Parametrs\Tabs"))
-            {
-                Directory.CreateDirectory(@"Parametrs\Tabs");
-            }
-
-            DataContractJsonSerializer LevelSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
-
-            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
-            {
-                LevelSerialazer.WriteObject(file, Levels);
-                RobotWindowVM.SendStrTextDb(" Serializer Levels ");
-            }
-        }
-        /// <summary>
-        /// загружаеи из фала сохраненные уровни 
-        /// </summary>
-        public void DesirializerLevels()
-        {
-            if (!File.Exists(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json"))
-            {
-                RobotWindowVM.Log(Header, " DesirializerLevels \n нет файла levels_.json ");
-                return;
-            }
-
-            DataContractJsonSerializer LevelsDsSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
-            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
-            {
-                ObservableCollection<Level> LevelsDeseriolazer = LevelsDsSerialazer.ReadObject(file) as ObservableCollection<Level>;
-                if (LevelsDeseriolazer != null)
-                {
-                    Levels = LevelsDeseriolazer;
-                    RobotWindowVM.Log(Header, " DesirializerLevels \n загрузили уровни из levels_.json ");
-                }
-            }
-        }
 
         /// <summary>
         /// сериализация словаря  ордеров
@@ -1592,6 +1561,10 @@ namespace OsEngine.ViewModels
         {
             DataContractJsonSerializer DictionaryOrdersSerialazer 
                 = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>));
+            if (!File.Exists("DictionaryAllOrders.json"))
+            {
+                return;
+            }
             using (var file = new FileStream("DictionaryAllOrders.json", FileMode.Open))
             {
                 ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> DictionaryOrders 
@@ -1602,38 +1575,7 @@ namespace OsEngine.ViewModels
                 }
             }
         }
-
-        /// <summary>
-        /// сериализация словарz активных ордеров
-        /// </summary>
-        public void SerializerDictionaryActivOrders()
-        {
-            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
-            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.OpenOrCreate))
-            {
-                DictionaryOrdersSerialazer.WriteObject(file, DictionaryOrdersActiv);
-            }
-        }
-        /// <summary>
-        ///  десериализация словаря ордеров 
-        /// </summary>
-        public void DesirializerDictionaryActivOrders()
-        {
-            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
-            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.Open))
-            {
-                ConcurrentDictionary<string, Order> LoadDictionaryOrdersActiv = new ConcurrentDictionary<string, Order>();
-                ConcurrentDictionary<string, Order> DictionaryOrdersActiv = DictionaryOrdersSerialazer.ReadObject(file) as ConcurrentDictionary<string, Order>;
-                if (DictionaryOrdersActiv != null)
-                {
-                    foreach (var order in DictionaryOrdersActiv)
-                    {
-                        LoadDictionaryOrdersActiv.AddOrUpdate(order.Key, order.Value, (key, value) => value = order.Value);
-                    }
-                }
-            }
-        }
-
+  
         /// <summary>
         /// берет названия кошельков (бирж)
         /// </summary>
@@ -1684,7 +1626,8 @@ namespace OsEngine.ViewModels
 
         private void _server_ConnectStatusChangeEvent(string status)
         {
-
+            DesirializerDictionaryOrders();
+            GetOpenOrder();
         }
 
         /// <summary>
@@ -1748,29 +1691,17 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void Server_NewOrderIncomeEvent(Order order)
         {
-            if (order == null || _portfolio == null) return;
+            if (order == null || _portfolio == null || SelectedSecurity == null) return;
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType) // 
             {
+                //TradeLogic();
                 if (ActiveLevelAre())
                 {
                     SerializerDictionaryOrders();
                     RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
                     // SerializerLevel();
                 }
-
-                //RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
-                //             + " NewOrder Status " + order.State + "\n"
-                //             + " DictionaryOrdersActiv count " + DictionaryOrdersActiv.Count);
-                //if (order.State == OrderStateType.Activ)
-                //{
-                //    DictionaryOrdersActiv.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
-
-                //    RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
-                //                                + " Add Activ order \n" );
-                //    //SerializerDictionaryOrders();
-                //    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
-                //}
 
                 //  дальше запись в лог ответа с биржи по ордеру  и уровню 
                 bool rec = true;
@@ -1812,7 +1743,7 @@ namespace OsEngine.ViewModels
             }
             if (ActiveLevelAre())
             {
-                // SerializerLevel();
+                SerializerDictionaryOrders();
             }
 
 
@@ -1846,6 +1777,7 @@ namespace OsEngine.ViewModels
             if (server.ServerType == ServerType)
             {
                 Server = server;
+               
             }
         }
 
@@ -1906,6 +1838,98 @@ namespace OsEngine.ViewModels
 
         public delegate void selectedSecurity(string name);
         public event selectedSecurity OnSelectedSecurity;
+
+        #endregion
+
+        #region == ЗАГОТОВКИ =====
+
+        /// <summary>
+        /// сериализация словарz активных ордеров
+        /// </summary>
+        public void SerializerDictionaryActivOrders()
+        {
+            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
+            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.OpenOrCreate))
+            {
+                DictionaryOrdersSerialazer.WriteObject(file, DictionaryOrdersActiv);
+            }
+        }
+        /// <summary>
+        ///  десериализация словаря ордеров 
+        /// </summary>
+        public void DesirializerDictionaryActivOrders()
+        {
+            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
+            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.Open))
+            {
+                ConcurrentDictionary<string, Order> LoadDictionaryOrdersActiv = new ConcurrentDictionary<string, Order>();
+                ConcurrentDictionary<string, Order> DictionaryOrdersActiv = DictionaryOrdersSerialazer.ReadObject(file) as ConcurrentDictionary<string, Order>;
+                if (DictionaryOrdersActiv != null)
+                {
+                    foreach (var order in DictionaryOrdersActiv)
+                    {
+                        LoadDictionaryOrdersActiv.AddOrUpdate(order.Key, order.Value, (key, value) => value = order.Value);
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// сохраяие уровни в файл 
+        /// </summary>
+        public void SerializerLevel()
+        {
+            if (!Directory.Exists(@"Parametrs\Tabs"))
+            {
+                Directory.CreateDirectory(@"Parametrs\Tabs");
+            }
+
+            DataContractJsonSerializer LevelSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
+
+            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            {
+                LevelSerialazer.WriteObject(file, Levels);
+                RobotWindowVM.SendStrTextDb(" Serializer Levels ");
+            }
+        }
+        /// <summary>
+        /// загружаеи из фала сохраненные уровни 
+        /// </summary>
+        public void DesirializerLevels()
+        {
+            if (!File.Exists(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json"))
+            {
+                RobotWindowVM.Log(Header, " DesirializerLevels \n нет файла levels_.json ");
+                return;
+            }
+
+            DataContractJsonSerializer LevelsDsSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
+            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            {
+                ObservableCollection<Level> LevelsDeseriolazer = LevelsDsSerialazer.ReadObject(file) as ObservableCollection<Level>;
+                if (LevelsDeseriolazer != null)
+                {
+                    Levels = LevelsDeseriolazer;
+                    RobotWindowVM.Log(Header, " DesirializerLevels \n загрузили уровни из levels_.json ");
+                }
+            }
+        }
+
+        //RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
+        //             + " NewOrder Status " + order.State + "\n"
+        //             + " DictionaryOrdersActiv count " + DictionaryOrdersActiv.Count);
+        //if (order.State == OrderStateType.Activ)
+        //{
+        //    DictionaryOrdersActiv.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
+
+        //    RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
+        //                                + " Add Activ order \n" );
+        //    //SerializerDictionaryOrders();
+        //    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
+        //}
+
+
 
         #endregion
 

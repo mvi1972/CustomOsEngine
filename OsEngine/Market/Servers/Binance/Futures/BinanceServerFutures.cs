@@ -318,14 +318,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
         {
             _client.GetAllOrders(orders);
         }
-
-        /// <summary>
-        /// запросить статус открытых ордеров
-        /// </summary>
-        public void GetOpenOrderState(string SecurityNameCode)
-        {
-            _client.OpenOrderState(SecurityNameCode);
-        }
+ 
 
         /// <summary>
         /// request account info
@@ -960,10 +953,12 @@ namespace OsEngine.Market.Servers.Binance.Futures
                 LogMessageEvent(message, type);
             }
         }
-
-        public void GetOpenOrderState()
+        /// <summary>
+        /// запросить статус открытых ордеров
+        /// </summary>
+        public void GetOpenOrderState(string SecurityNameCode)
         {
-            throw new NotImplementedException();
+            _client.OpenOrderState(SecurityNameCode);
         }
 
 

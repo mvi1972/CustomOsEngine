@@ -1572,6 +1572,11 @@ namespace OsEngine.Market.Servers.AstsBridge
             }
         }
 
+        public void GetOpen(string SecurityNameCode)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// log manager
         /// менеджер лога

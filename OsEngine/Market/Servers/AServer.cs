@@ -2220,6 +2220,7 @@ namespace OsEngine.Market.Servers
     
                             CheckOrderState();
                             SaveOrders();
+                           
                         }
 
                         continue;
@@ -2243,7 +2244,6 @@ namespace OsEngine.Market.Servers
                
             }
         }
-
 
         private void SaveOrders()
         {
@@ -2357,12 +2357,17 @@ namespace OsEngine.Market.Servers
             if(_myExecuteOrders.Count != 0)
             {
                 _serverRealization.GetOrdersState(_myExecuteOrders);
-                //_serverRealization.GetOpenOrderState();
+               // _serverRealization.GetOpenOrderState();
             }
             if(_myCanselOrders.Count != 0)
             {
                 _serverRealization.GetOrdersState(_myCanselOrders);                
             }
+        }
+
+        public void GetOpen(string Secur)
+        {
+            _serverRealization.GetOpenOrderState(Secur);
         }
 
         // log messages / сообщения для лога

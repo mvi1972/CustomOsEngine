@@ -2004,8 +2004,13 @@ namespace OsEngine.Market.Servers.Optimizer
             }
         }
 
+        public void GetOpen(string SecurityNameCode)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
-		/// log manager
+        /// log manager
         /// лог менеджер
         /// </summary>
         /// 
