@@ -1243,121 +1243,121 @@ namespace OsEngine.Market.Servers.Binance.Futures
                 param.Add("&limit=", "500");
                 //"symbol={symbol.ToUpper()}&recvWindow={recvWindow}"
 
-                var res = CreateQuery(Method.GET, endPoint, param, true);
+               // var res = CreateQuery(Method.GET, endPoint, param, true);
 
-                if (res == null)
-                {
-                    continue;
-                }
+                //if (res == null)
+                //{
+                //    continue;
+                //}
 
-                HistoryOrderReport[] orders = JsonConvert.DeserializeObject<HistoryOrderReport[]>(res);
+                //HistoryOrderReport[] orders = JsonConvert.DeserializeObject<HistoryOrderReport[]>(res);
 
-                if (orders != null && orders.Length != 0)
-                {
-                    allOrders.AddRange(orders);
-                }
+                //if (orders != null && orders.Length != 0)
+                //{
+                //    allOrders.AddRange(orders);
+                //}
             }
 
-            for (int i = 0; i < oldOpenOrders.Count; i++)
-            {
-                if (oldOpenOrders[i].Volume == oldOpenOrders[i].VolumeExecute)
-                {
-                    continue;
-                }
-                HistoryOrderReport myOrder = allOrders.Find(ord => ord.orderId == oldOpenOrders[i].NumberMarket);
+      //      for (int i = 0; i < oldOpenOrders.Count; i++)
+      //      {
+      //          if (oldOpenOrders[i].Volume == oldOpenOrders[i].VolumeExecute)
+      //          {
+      //              continue;
+      //          }
+      //          HistoryOrderReport myOrder = allOrders.Find(ord => ord.orderId == oldOpenOrders[i].NumberMarket);
 
-                if (myOrder == null)
-                {
-                    for (int i2 = 0; i2 < allOrders.Count; i2++)
-                    {
-                        if (string.IsNullOrEmpty(allOrders[i2].clientOrderId))
-                        {
-                            continue;
-                        }
-      // метки ордеров
-                        string id = allOrders[i2].clientOrderId.Replace("vv-", "");
+      //          if (myOrder == null)
+      //          {
+      //              for (int i2 = 0; i2 < allOrders.Count; i2++)
+      //              {
+      //                  if (string.IsNullOrEmpty(allOrders[i2].clientOrderId))
+      //                  {
+      //                      continue;
+      //                  }
+      //// метки ордеров
+      //                  string id = allOrders[i2].clientOrderId.Replace("vv-", "");
 
-                        try
-                        {
-                            if (Convert.ToInt32(id) == oldOpenOrders[i].NumberUser)
-                            {
-                                myOrder = allOrders[i2];
-                                break;
-                            }
-                        }
-                        catch
-                        {
-                            // ignore
-                        }
-                    }
-                }
+      //                  try
+      //                  {
+      //                      if (Convert.ToInt32(id) == oldOpenOrders[i].NumberUser)
+      //                      {
+      //                          myOrder = allOrders[i2];
+      //                          break;
+      //                      }
+      //                  }
+      //                  catch
+      //                  {
+      //                      // ignore
+      //                  }
+      //              }
+      //          }
 
-                if (myOrder == null)
-                {
-                    continue;
-                }
+      //          if (myOrder == null)
+      //          {
+      //              continue;
+      //          }
 
-                if (myOrder.status == "NEW")
-                { // order is active. Do nothing / ордер активен. Ничего не делаем
-                    continue;
-                }
+      //          if (myOrder.status == "NEW")
+      //          { // order is active. Do nothing / ордер активен. Ничего не делаем
+      //              continue;
+      //          }
 
-                else if (myOrder.status == "FILLED" ||
-                    myOrder.status == "PARTIALLY_FILLED")
-                { // order executed / ордер исполнен
+      //          else if (myOrder.status == "FILLED" ||
+      //              myOrder.status == "PARTIALLY_FILLED")
+      //          { // order executed / ордер исполнен
 
-                    try
-                    {
-                        if (myOrder.executedQty.ToDecimal() - oldOpenOrders[i].VolumeExecute <= 0)
-                        {
-                            continue;
-                        }
-                    }
-                    catch
-                    {
-                        continue;
-                    }
+      //              try
+      //              {
+      //                  if (myOrder.executedQty.ToDecimal() - oldOpenOrders[i].VolumeExecute <= 0)
+      //                  {
+      //                      continue;
+      //                  }
+      //              }
+      //              catch
+      //              {
+      //                  continue;
+      //              }
 
 
-                    MyTrade trade = new MyTrade();
-                    trade.NumberOrderParent = myOrder.orderId;
-                    trade.NumberTrade = NumberGen.GetNumberOrder(StartProgram.IsOsTrader).ToString();
-                    trade.SecurityNameCode = oldOpenOrders[i].SecurityNameCode;
-                    trade.Time = new DateTime(1970, 1, 1).AddMilliseconds(Convert.ToDouble(myOrder.updateTime));
-                    trade.Side = oldOpenOrders[i].Side;
-                    trade.Price = myOrder.price.ToDecimal();
-                    trade.Volume = myOrder.executedQty.ToDecimal() - oldOpenOrders[i].VolumeExecute;
+      //              MyTrade trade = new MyTrade();
+      //              trade.NumberOrderParent = myOrder.orderId;
+      //              trade.NumberTrade = NumberGen.GetNumberOrder(StartProgram.IsOsTrader).ToString();
+      //              trade.SecurityNameCode = oldOpenOrders[i].SecurityNameCode;
+      //              trade.Time = new DateTime(1970, 1, 1).AddMilliseconds(Convert.ToDouble(myOrder.updateTime));
+      //              trade.Side = oldOpenOrders[i].Side;
+      //              trade.Price = myOrder.price.ToDecimal();
+      //              trade.Volume = myOrder.executedQty.ToDecimal() - oldOpenOrders[i].VolumeExecute;
 
-                    oldOpenOrders[i].SetTrade(trade);
+      //              oldOpenOrders[i].SetTrade(trade);
 
-                    if (MyTradeEvent != null)
-                    {
-                        MyTradeEvent(trade);
-                    }
-                }
-                else
-                {
-                    Order newOrder = new Order();
-                    newOrder.NumberMarket = myOrder.orderId;
-                    newOrder.NumberUser = oldOpenOrders[i].NumberUser;
-                    newOrder.SecurityNameCode = oldOpenOrders[i].SecurityNameCode;
-                    newOrder.State = OrderStateType.Cancel;
+      //              if (MyTradeEvent != null)
+      //              {
+      //                  MyTradeEvent(trade);
+      //              }
+      //          }
+      //          else
+      //          {
+      //              Order newOrder = new Order();
+      //              newOrder.NumberMarket = myOrder.orderId;
+      //              newOrder.NumberUser = oldOpenOrders[i].NumberUser;
+      //              newOrder.SecurityNameCode = oldOpenOrders[i].SecurityNameCode;
+      //              newOrder.State = OrderStateType.Cancel;
 
-                    newOrder.Volume = oldOpenOrders[i].Volume;
-                    newOrder.VolumeExecute = oldOpenOrders[i].VolumeExecute;
-                    newOrder.Price = oldOpenOrders[i].Price;
-                    newOrder.TypeOrder = oldOpenOrders[i].TypeOrder;
-                    newOrder.TimeCallBack = new DateTime(1970, 1, 1).AddMilliseconds(Convert.ToDouble(myOrder.updateTime));
-                    newOrder.TimeCancel = newOrder.TimeCallBack;
-                    newOrder.ServerType = ServerType.Binance;
-                    newOrder.PortfolioNumber = oldOpenOrders[i].PortfolioNumber;
+      //              newOrder.Volume = oldOpenOrders[i].Volume;
+      //              newOrder.VolumeExecute = oldOpenOrders[i].VolumeExecute;
+      //              newOrder.Price = oldOpenOrders[i].Price;
+      //              newOrder.TypeOrder = oldOpenOrders[i].TypeOrder;
+      //              newOrder.TimeCallBack = new DateTime(1970, 1, 1).AddMilliseconds(Convert.ToDouble(myOrder.updateTime));
+      //              newOrder.TimeCancel = newOrder.TimeCallBack;
+      //              newOrder.ServerType = ServerType.Binance;
+      //              newOrder.PortfolioNumber = oldOpenOrders[i].PortfolioNumber;
 
-                    if (MyOrderEvent != null)
-                    {
-                        MyOrderEvent(newOrder);
-                    }
-                }
-            }
+      //              if (MyOrderEvent != null)
+      //              {
+      //                  MyOrderEvent(newOrder);
+      //              }
+      //          }
+      //      }
             return true;
         }
 
@@ -1379,62 +1379,62 @@ namespace OsEngine.Market.Servers.Binance.Futures
                 param.Add("&limit=", "500");
                 //"symbol={symbol.ToUpper()}&recvWindow={recvWindow}"
 
-                var res = CreateQuery(Method.GET, endPoint, param, true);
+               // var res = CreateQuery(Method.GET, endPoint, param, true);
 
-                if (res == null)
-                {
-                    continue;
-                }
+                //if (res == null)
+                //{
+                //    continue;
+                //}
 
-                HistoryOrderReport[] orders = JsonConvert.DeserializeObject<HistoryOrderReport[]>(res);
+                //HistoryOrderReport[] orders = JsonConvert.DeserializeObject<HistoryOrderReport[]>(res);
 
-                if (orders != null && orders.Length != 0)
-                {
-                    allOrders.AddRange(orders);
-                }
+                //if (orders != null && orders.Length != 0)
+                //{
+                //    allOrders.AddRange(orders);
+                //}
             }
- // метки ордеров
-            HistoryOrderReport orderOnBoard =
-                allOrders.Find(ord => ord.clientOrderId.Replace("vv-", "") == oldOrder.NumberUser.ToString());
+            // метки ордеров
+            //HistoryOrderReport orderOnBoard =
+            //    allOrders.Find(ord => ord.clientOrderId.Replace("vv-", "") == oldOrder.NumberUser.ToString());
 
-            if (orderOnBoard == null)
-            {
-                return null;
-            }
+            //if (orderOnBoard == null)
+            //{
+            //    return null;
+            //}
 
             Order newOrder = new Order();
-            newOrder.NumberMarket = orderOnBoard.orderId;
-            newOrder.NumberUser = oldOrder.NumberUser;
-            newOrder.SecurityNameCode = oldOrder.SecurityNameCode;
-            newOrder.State = OrderStateType.Cancel;
+            //newOrder.NumberMarket = orderOnBoard.orderId;
+            //newOrder.NumberUser = oldOrder.NumberUser;
+            //newOrder.SecurityNameCode = oldOrder.SecurityNameCode;
+            //newOrder.State = OrderStateType.Cancel;
 
-            newOrder.Volume = oldOrder.Volume;
-            newOrder.VolumeExecute = oldOrder.VolumeExecute;
-            newOrder.Price = oldOrder.Price;
-            newOrder.TypeOrder = oldOrder.TypeOrder;
-            newOrder.TimeCallBack = oldOrder.TimeCallBack;
-            newOrder.TimeCancel = newOrder.TimeCallBack;
-            newOrder.ServerType = ServerType.Binance;
-            newOrder.PortfolioNumber = oldOrder.PortfolioNumber;
+            //newOrder.Volume = oldOrder.Volume;
+            //newOrder.VolumeExecute = oldOrder.VolumeExecute;
+            //newOrder.Price = oldOrder.Price;
+            //newOrder.TypeOrder = oldOrder.TypeOrder;
+            //newOrder.TimeCallBack = oldOrder.TimeCallBack;
+            //newOrder.TimeCancel = newOrder.TimeCallBack;
+            //newOrder.ServerType = ServerType.Binance;
+            //newOrder.PortfolioNumber = oldOrder.PortfolioNumber;
 
-            if (orderOnBoard.status == "NEW" ||
-                orderOnBoard.status == "PARTIALLY_FILLED")
-            { // order is active. Do nothing / ордер активен. Ничего не делаем
-                newOrder.State = OrderStateType.Activ;
-            }
-            else if (orderOnBoard.status == "FILLED")
-            {
-                newOrder.State = OrderStateType.Done;
-            }
-            else
-            {
-                newOrder.State = OrderStateType.Cancel;
-            }
+            //if (orderOnBoard.status == "NEW" ||
+            //    orderOnBoard.status == "PARTIALLY_FILLED")
+            //{ // order is active. Do nothing / ордер активен. Ничего не делаем
+            //    newOrder.State = OrderStateType.Activ;
+            //}
+            //else if (orderOnBoard.status == "FILLED")
+            //{
+            //    newOrder.State = OrderStateType.Done;
+            //}
+            //else
+            //{
+            //    newOrder.State = OrderStateType.Cancel;
+            //}
 
-            if (MyOrderEvent != null)
-            {
-                MyOrderEvent(newOrder);
-            }
+            //if (MyOrderEvent != null)
+            //{
+            //    MyOrderEvent(newOrder);
+            //}
 
             return newOrder;
         }
@@ -1457,11 +1457,11 @@ namespace OsEngine.Market.Servers.Binance.Futures
             //{
             //    foreach (Order order in oldOrder)
             //    {
-            //        str = order.NumberMarket;
+            //        str = order.NumberMarket;                   
             //    }
-            //    param.Add("&orderId=", str);
             //}
-
+            //param.Add("&timestamp", GetNonce());
+            //param.Add("&orderId=", str);
             //param.Add("&limit=", GetNonce());
             param.Add("&limit=", "500");
             //"symbol={symbol.ToUpper()}&recvWindow={recvWindow}"
