@@ -450,11 +450,6 @@
     </Compile>
     <Compile Include="Market\Servers\AServerRealization.cs" />
     <Compile Include="Market\Servers\AServerTests.cs" />
-    <Compile Include="Market\Servers\AstsBridge\AstsBridgeWrapper.cs" />
-    <Compile Include="Market\Servers\AstsBridge\AstsBridgeServer.cs" />
-    <Compile Include="Market\Servers\AstsBridge\AstsServerUi.xaml.cs">
-      <DependentUpon>AstsServerUi.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Market\Servers\Binance\Futures\BinanceClientFutures.cs" />
     <Compile Include="Market\Servers\Binance\Futures\BinanceFuturesServerPermission.cs" />
     <Compile Include="Market\Servers\Binance\Futures\BinanceServerFutures.cs" />
@@ -477,237 +472,19 @@
     <Compile Include="Market\Servers\Binance\Spot\BinanceSpotEntity\TradeResponse.cs" />
     <Compile Include="Market\Servers\Binance\Spot\BinanceServerSpot.cs" />
     <Compile Include="Market\Servers\Binance\Spot\BinanceSpotServerPermission.cs" />
-    <Compile Include="Market\Servers\Bitfinex\BitfinexClient.cs" />
-    <Compile Include="Market\Servers\Bitfinex\BitfinexServer.cs" />
-    <Compile Include="Market\Servers\Bitfinex\BitFinexServerPermission.cs" />
-    <Compile Include="Market\Servers\Bitfinex\BitfitnexEntity\BitfinexOrder.cs" />
-    <Compile Include="Market\Servers\Bitfinex\BitfitnexEntity\BitfinexSecurity.cs" />
-    <Compile Include="Market\Servers\Bitfinex\BitfitnexEntity\BitfinexTickerTradeInfo.cs" />
-    <Compile Include="Market\Servers\Bitfinex\BitfitnexEntity\EventInfo.cs" />
-    <Compile Include="Market\Servers\Bitfinex\BitfitnexEntity\JsonConverter.cs" />
-    <Compile Include="Market\Servers\Bitfinex\BitfitnexEntity\NewOrderPayload.cs" />
-    <Compile Include="Market\Servers\Bitfinex\BitfitnexEntity\SubscriptionInformation.cs" />
-    <Compile Include="Market\Servers\BitMax\BitMaxEntity.cs" />
-    <Compile Include="Market\Servers\BitMax\BitMaxMarketDepthCreator.cs" />
-    <Compile Include="Market\Servers\BitMax\BitMaxProClient.cs" />
-    <Compile Include="Market\Servers\BitMax\BitMaxProServer.cs" />
-    <Compile Include="Market\Servers\BitMex\BitMexClient.cs" />
-    <Compile Include="Market\Servers\BitMex\BitMexEntity\BitMexMyOrders.cs" />
-    <Compile Include="Market\Servers\BitMex\BitMexEntity\BitMexOrder.cs" />
-    <Compile Include="Market\Servers\BitMex\BitMexEntity\BitMexPortfolio.cs" />
-    <Compile Include="Market\Servers\BitMex\BitMexEntity\BitMexPosition.cs" />
-    <Compile Include="Market\Servers\BitMex\BitMexEntity\BitMexQuotes.cs" />
-    <Compile Include="Market\Servers\BitMex\BitMexEntity\BitMexSecurity.cs" />
-    <Compile Include="Market\Servers\BitMex\BitMexEntity\BitMexTrades.cs" />
-    <Compile Include="Market\Servers\BitMex\BitMexServer.cs" />
-    <Compile Include="Market\Servers\BitStamp\BitStampClient.cs" />
-    <Compile Include="Market\Servers\BitStamp\BitStampEntity\RequestAuthenticator.cs" />
-    <Compile Include="Market\Servers\BitStamp\BitStampServer.cs" />
-    <Compile Include="Market\Servers\BitStamp\BitStampEntity\JsonResponse.cs" />
-    <Compile Include="Market\Servers\Bybit\BybitServer.cs" />
-    <Compile Include="Market\Servers\Bybit\BybitServerPermission.cs" />
-    <Compile Include="Market\Servers\Bybit\Entities\Client.cs" />
-    <Compile Include="Market\Servers\Bybit\EntityCreators\BybitCandlesCreator.cs" />
-    <Compile Include="Market\Servers\Bybit\EntityCreators\BybitMarketDepthCreator.cs" />
-    <Compile Include="Market\Servers\Bybit\EntityCreators\BybitOrderCreator.cs" />
-    <Compile Include="Market\Servers\Bybit\EntityCreators\BybitPortfolioCreator.cs" />
-    <Compile Include="Market\Servers\Bybit\EntityCreators\BybitSecurityCreator.cs" />
-    <Compile Include="Market\Servers\Bybit\EntityCreators\BybitTradesCreator.cs" />
-    <Compile Include="Market\Servers\Bybit\Utilities\BybitSigner.cs" />
-    <Compile Include="Market\Servers\Bybit\Utilities\BybitWsRequestBuilder.cs" />
-    <Compile Include="Market\Servers\Bybit\Utilities\Signer.cs" />
-    <Compile Include="Market\Servers\Bybit\Utilities\Utils.cs" />
     <Compile Include="Market\Servers\Entity\BidAskSender.cs" />
     <Compile Include="Market\Servers\Entity\OrderSender.cs" />
     <Compile Include="Market\Servers\Entity\PositionOnBoardSander.cs" />
     <Compile Include="Market\Servers\Entity\ServerParameter.cs" />
-    <Compile Include="Market\Servers\ExMo\ExmoClient.cs" />
-    <Compile Include="Market\Servers\ExMo\ExmoServer.cs" />
-    <Compile Include="Market\Servers\Finam\FinamServer.cs" />
-    <Compile Include="Market\Servers\Finam\FinamServerPermission.cs" />
-    <Compile Include="Market\Servers\Finam\FinamServerUi.xaml.cs">
-      <DependentUpon>FinamServerUi.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Market\Servers\FixProtocolEntities\Field.cs" />
-    <Compile Include="Market\Servers\FixProtocolEntities\FixEntity.cs" />
-    <Compile Include="Market\Servers\FixProtocolEntities\FixMessage.cs" />
-    <Compile Include="Market\Servers\FixProtocolEntities\StandartHeaderSettings.cs" />
-    <Compile Include="Market\Servers\FTX\EntityCreators\FTXCandlesCreator.cs" />
-    <Compile Include="Market\Servers\FTX\EntityCreators\FTXPortfolioCreator.cs" />
-    <Compile Include="Market\Servers\FTX\EntityCreators\FTXMarketDepthCreator.cs" />
-    <Compile Include="Market\Servers\FTX\EntityCreators\FTXOrderCreator.cs" />
-    <Compile Include="Market\Servers\FTX\EntityCreators\FTXSecurityCreator.cs" />
-    <Compile Include="Market\Servers\FTX\EntityCreators\FTXTradesCreator.cs" />
-    <Compile Include="Market\Servers\FTX\FTXApi\ClientApiKeys.cs" />
-    <Compile Include="Market\Servers\FTX\FtxRestClient.cs" />
-    <Compile Include="Market\Servers\FTX\FTXApi\Util\FtxWebSockerRequestGenerator.cs" />
-    <Compile Include="Market\Servers\FTX\FTXApi\Util\Util.cs" />
-    <Compile Include="Market\Servers\FTX\FTXServer.cs" />
-    <Compile Include="Market\Servers\GateIo\EntityCreators\GateMarketDepthCreator.cs" />
-    <Compile Include="Market\Servers\GateIo\EntityCreators\GateOrderCreator.cs" />
-    <Compile Include="Market\Servers\GateIo\EntityCreators\GatePortfolioCreator.cs" />
-    <Compile Include="Market\Servers\GateIo\EntityCreators\GateSecurityCreator.cs" />
-    <Compile Include="Market\Servers\GateIo\EntityCreators\GateTradesCreator.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Entities\Converter.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Entities\GfMarketDepthCreator.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Entities\GfOrderCreator.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Entities\GfSecurity.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Entities\PublicUrlBuilder.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Entities\RestRequestBuilder.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Entities\Signer.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Entities\WsRequestBuilder.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\GateIoFuturesServer.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\GateIoFuturesServerPermission.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Request\CreateOrderRequest.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Request\FuturesPing.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\CancelOrderResponese.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\CreateOrderResponse.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\GfAccount.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\GfBaseResponse.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\GfCandle.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\GfMyTrade.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\GfOrders.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\GfPosition.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\GfSubscribeDepthResponse.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\GfTick.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\GfTrade.cs" />
-    <Compile Include="Market\Servers\GateIo\Futures\Response\GfTrades.cs" />
-    <Compile Include="Market\Servers\GateIo\GateIoServer.cs" />
-    <Compile Include="Market\Servers\Hitbtc\HitbtcClient.cs" />
-    <Compile Include="Market\Servers\Hitbtc\HitbtcEntity.cs" />
-    <Compile Include="Market\Servers\Hitbtc\HitbtcServer.cs" />
-    <Compile Include="Market\Servers\Huobi\Entities\GetAccountBalanceResponse.cs" />
-    <Compile Include="Market\Servers\Huobi\Entities\GetAccountInfoResponse.cs" />
-    <Compile Include="Market\Servers\Huobi\Entities\GetSymbolsResponse.cs" />
-    <Compile Include="Market\Servers\Huobi\FuturesSwap\HuobiFuturesSwapServer.cs" />
-    <Compile Include="Market\Servers\Huobi\FuturesSwap\HuobiFuturesSwapServerPermission.cs" />
-    <Compile Include="Market\Servers\Huobi\Futures\Entities\CancelFuturesOrderResponse.cs" />
-    <Compile Include="Market\Servers\Huobi\Futures\Entities\FuturesAccountInfo.cs" />
-    <Compile Include="Market\Servers\Huobi\Futures\Entities\FuturesPing.cs" />
-    <Compile Include="Market\Servers\Huobi\Futures\Entities\FuturesSymbol.cs" />
-    <Compile Include="Market\Servers\Huobi\Futures\Entities\OrderFuturesNotify.cs" />
-    <Compile Include="Market\Servers\Huobi\Futures\Entities\PlaceFuturesOrderResponse.cs" />
-    <Compile Include="Market\Servers\Huobi\Futures\Entities\TradeInfo.cs" />
-    <Compile Include="Market\Servers\Huobi\Futures\HuobiFuturesServer.cs" />
-    <Compile Include="Market\Servers\Huobi\Futures\HuobiFuturesServerPermission.cs" />
-    <Compile Include="Market\Servers\Huobi\Spot\HuobiSpotServerPermission.cs" />
-    <Compile Include="Market\Servers\Huobi\Request\GetRequest.cs" />
-    <Compile Include="Market\Servers\Huobi\Request\PrivateUrlBuilder.cs" />
-    <Compile Include="Market\Servers\Huobi\Request\PublicUrlBuilder.cs" />
-    <Compile Include="Market\Servers\Huobi\Request\Signer.cs" />
-    <Compile Include="Market\Servers\Huobi\Response\CancelOrderByClientResponse.cs" />
-    <Compile Include="Market\Servers\Huobi\Response\GetCandlestickResponse.cs" />
-    <Compile Include="Market\Servers\Huobi\Response\GZipDecompresser.cs" />
-    <Compile Include="Market\Servers\Huobi\Response\MarketDataPingMessage.cs" />
-    <Compile Include="Market\Servers\Huobi\Response\PingMessage.cs" />
-    <Compile Include="Market\Servers\Huobi\Response\PlaceOrderResponse.cs" />
-    <Compile Include="Market\Servers\Huobi\Response\SubscribeDepthResponse.cs" />
-    <Compile Include="Market\Servers\Huobi\Response\SubscribeTradeResponse.cs" />
-    <Compile Include="Market\Servers\Huobi\Response\WebSocketResponseBase.cs" />
-    <Compile Include="Market\Servers\Huobi\Spot\HuobiSpotSecurityCreator.cs" />
-    <Compile Include="Market\Servers\Huobi\Spot\HuobiSpotServer.cs" />
-    <Compile Include="Market\Servers\InteractiveBrokers\IbClient.cs" />
-    <Compile Include="Market\Servers\InteractiveBrokers\IbContractStorageUi.xaml.cs">
-      <DependentUpon>IbContractStorageUi.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Market\Servers\InteractiveBrokers\InteractiveBrokersServer.cs" />
-    <Compile Include="Market\Servers\InteractiveBrokers\InteractiveBrokersServerPermission.cs" />
     <Compile Include="Market\Servers\IServer.cs" />
     <Compile Include="Market\Servers\IServerPermission.cs" />
     <Compile Include="Market\Servers\IServerRealization.cs" />
     <Compile Include="Market\Servers\Entity\RateGate.cs" />
-    <Compile Include="Market\Servers\Kraken\KrakenClient.cs" />
-    <Compile Include="Market\Servers\Kraken\KrakenEntity\EnumerableExtensions.cs" />
-    <Compile Include="Market\Servers\Kraken\KrakenEntity\KrakenOrder.cs" />
-    <Compile Include="Market\Servers\Kraken\KrakenEntity\KrakenRestApi.cs" />
-    <Compile Include="Market\Servers\Kraken\KrakenServer.cs" />
-    <Compile Include="Market\Servers\Kraken\KrakenServerPermission.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Converters\DecimalToStringConverter.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Converters\OrderTypeConverter.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Converters\SideConverter.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Converters\StatusConverter.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\DefaultWebSocket.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Events\KrakenDataEventArgs.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Events\KrakenMessageEventArgs%27.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Events\KrakenMessageEventArgs.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Events\KrakenPrivateEventArgs.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Events\OhlcEventArgs.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Events\SpreadEventArgs.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Events\TickerEventArgs.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Events\TradeMessageEventArgs.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Extensions\EventHandlerExtensions.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\IKrakenApi.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\IKrakenSocket.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\IWebSocket.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\KrakenApi.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\KrakenApiClient.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\KrakenSocket.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\AddOrderCommand.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\AddOrderStatusEvent.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\BestPriceVolume.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\BookSnapshotMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\BookUpdateMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\CancelOrderCommand.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\CancelOrderStatusEvent.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\ClosePriceVolume.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\Heartbeat.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\IKrakenMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\IKrakenMessageSerializer.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\KrakenDataMessageHelper.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\KrakenMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\KrakenMessageSerializer.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\OhlcMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\OpenOrdersMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\Order.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\OrderDescription.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\OrderType.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\OwnTradesMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\Pair.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\Ping.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\PriceLevel.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\PrivateKrakenMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\Side.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\SpreadMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\Status.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\Subscribe.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\SubscribeOptionNames.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\SubscribeOptions.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\SubscriptionStatus.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\SubscriptionStatusNames.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\SystemStatus.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\TickerMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\TodayAnd24HourValue.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\TradeObject.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\TradesMessage.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\TradeValues.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\Messages\Unsubscribe.cs" />
-    <Compile Include="Market\Servers\Kraken\Sockets\SecureStringExtensions.cs" />
-    <Compile Include="Market\Servers\Livecoin\LivecoinClient.cs" />
-    <Compile Include="Market\Servers\Livecoin\LivecoinEntity\LivecoinEntity.cs" />
-    <Compile Include="Market\Servers\Livecoin\LivecoinEntity\protobuf\ProtoB.cs" />
-    <Compile Include="Market\Servers\Livecoin\LivecoinServer.cs" />
-    <Compile Include="Market\Servers\Lmax\LmaxEntity\FixMessageCreator.cs" />
-    <Compile Include="Market\Servers\Lmax\LmaxEntity\FixMessageParser.cs" />
-    <Compile Include="Market\Servers\Lmax\LmaxEntity\RejectReasons.cs" />
-    <Compile Include="Market\Servers\Lmax\LmaxEntity\Session.cs" />
-    <Compile Include="Market\Servers\Lmax\LmaxFixClient.cs" />
-    <Compile Include="Market\Servers\Lmax\LmaxServer.cs" />
-    <Compile Include="Market\Servers\Lmax\Tags.cs" />
-    <Compile Include="Market\Servers\MFD\MfdServer.cs" />
-    <Compile Include="Market\Servers\MFD\MfdServerPermission.cs" />
-    <Compile Include="Market\Servers\MOEX\MoexIssDataServer.cs" />
-    <Compile Include="Market\Servers\MOEX\MoexIssPermission.cs" />
-    <Compile Include="Market\Servers\NinjaTrader\NinjaTraderClient.cs" />
-    <Compile Include="Market\Servers\NinjaTrader\NinjaTraderServer.cs" />
     <Compile Include="Market\Servers\Optimizer\OptimizerServer.cs" />
     <Compile Include="Market\Servers\Optimizer\OptimizerDataStorage.cs" />
     <Compile Include="Market\Servers\Optimizer\OptimizerDataStorageUi.xaml.cs">
       <DependentUpon>OptimizerDataStorageUi.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Market\Servers\Plaza\Internal\PlazaClient.cs" />
-    <Compile Include="Market\Servers\Plaza\Internal\PlazaMarketDepthCreator.cs" />
-    <Compile Include="Market\Servers\Plaza\PlazaServer.cs" />
-    <Compile Include="Market\Servers\QuikLua\QuikLuaServer.cs" />
     <Compile Include="Market\ServerMasterPortfoliosPainter.cs" />
     <Compile Include="Market\Servers\ServerCandleStorage.cs" />
     <Compile Include="Market\Servers\ServerTickStorage.cs" />
@@ -721,9 +498,7 @@
     <Compile Include="Market\Servers\Tester\TesterServerUi.xaml.cs">
       <DependentUpon>TesterServerUi.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Market\Servers\Quik\QuikDde.cs" />
     <Compile Include="Market\Connectors\ConnectorCandles.cs" />
-    <Compile Include="Market\Servers\Quik\Trans2Quik.cs" />
     <Compile Include="Market\Connectors\OrderExecutionEmulator.cs" />
     <Compile Include="Market\ServerMaster.cs" />
     <Compile Include="Market\ServerMasterUi.xaml.cs">
@@ -769,32 +544,7 @@
       <DependentUpon>PositionUi.xaml</DependentUpon>
     </Compile>
     <Compile Include="Journal\Internal\DealStaticticGenerator.cs" />
-    <Compile Include="Market\Servers\Quik\QuikDdeServer.cs" />
     <Compile Include="Market\Servers\Miner\OsMinerServer.cs" />
-    <Compile Include="Market\Servers\Tinkoff\TinkoffClient.cs" />
-    <Compile Include="Market\Servers\Tinkoff\TinkoffJsonSchema\Account.cs" />
-    <Compile Include="Market\Servers\Tinkoff\TinkoffJsonSchema\CandleTinkoff.cs" />
-    <Compile Include="Market\Servers\Tinkoff\TinkoffJsonSchema\LastPrices.cs" />
-    <Compile Include="Market\Servers\Tinkoff\TinkoffJsonSchema\MarketDepthTinkoff.cs" />
-    <Compile Include="Market\Servers\Tinkoff\TinkoffJsonSchema\OrdersTInkoff.cs" />
-    <Compile Include="Market\Servers\Tinkoff\TinkoffJsonSchema\Portfolios.cs" />
-    <Compile Include="Market\Servers\Tinkoff\TinkoffJsonSchema\Securities.cs" />
-    <Compile Include="Market\Servers\Tinkoff\TinkoffServer.cs" />
-    <Compile Include="Market\Servers\Tinkoff\TinkoffServerPermission.cs" />
-    <Compile Include="Market\Servers\Transaq\ChangeTransaqPassword.xaml.cs">
-      <DependentUpon>ChangeTransaqPassword.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Market\Servers\Transaq\TransaqClient.cs" />
-    <Compile Include="Market\Servers\Transaq\TransaqEntity\TransaqEntities.cs" />
-    <Compile Include="Market\Servers\Transaq\TransaqEntity\TransaqPortfolio.cs" />
-    <Compile Include="Market\Servers\Transaq\TransaqEntity\TransaqPositions.cs" />
-    <Compile Include="Market\Servers\Transaq\TransaqServer.cs" />
-    <Compile Include="Market\Servers\ZB\EntityCreators\ZbMarketDepthCreator.cs" />
-    <Compile Include="Market\Servers\ZB\EntityCreators\ZbOrderCreator.cs" />
-    <Compile Include="Market\Servers\ZB\EntityCreators\ZbPortfolioCreator.cs" />
-    <Compile Include="Market\Servers\ZB\EntityCreators\ZbSecurityCreator.cs" />
-    <Compile Include="Market\Servers\ZB\EntityCreators\ZbTradesCreator.cs" />
-    <Compile Include="Market\Servers\ZB\ZBServer.cs" />
     <Compile Include="Market\Services\BaseMarketDepthUpdater.cs" />
     <Compile Include="Market\Services\CandlesCreator.cs" />
     <Compile Include="Market\Services\RestChannel.cs" />
@@ -923,8 +673,6 @@
     <Compile Include="Robots\OnScriptIndicators\BollingerRevers.cs" />
     <Compile Include="Robots\OnScriptIndicators\BollingerTrailing.cs" />
     <Compile Include="Robots\OnScriptIndicators\CciTrade.cs" />
-    <Compile Include="Robots\TechSapmles\BlockIndicatorsSample.cs" />
-    <Compile Include="Robots\TechSapmles\CustomParamsUseBotSample.cs" />
     <Compile Include="Robots\OnScriptIndicators\FundBalanceDivergenceBot.cs" />
     <Compile Include="Robots\OnScriptIndicators\MacdRevers.cs" />
     <Compile Include="Robots\OnScriptIndicators\MacdTrail.cs" />
@@ -937,8 +685,6 @@
     <Compile Include="Robots\OnScriptIndicators\SmaTrendSample.cs" />
     <Compile Include="Robots\OnScriptIndicators\TimeOfDayBot.cs" />
     <Compile Include="Robots\Screeners\SmaScreener.cs" />
-    <Compile Include="Robots\TechSapmles\ElementsOnChartSampleBot.cs" />
-    <Compile Include="Robots\TechSapmles\TinkoffGetRealCandlesSample.cs" />
     <Compile Include="Robots\Trend\EnvelopTrend.cs" />
     <Compile Include="Robots\Trend\MomentumMacd.cs" />
     <Compile Include="Robots\MarketMaker\PairTraderSpreadSma.cs" />
@@ -1308,18 +1054,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Market\Servers\AstsBridge\AstsServerUi.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Market\Servers\Finam\FinamServerUi.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Market\Servers\InteractiveBrokers\IbContractStorageUi.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Market\Servers\Optimizer\OptimizerDataStorageUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1385,10 +1119,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Logging\ServerSmsUi.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Market\Servers\Transaq\ChangeTransaqPassword.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1713,9 +1443,7 @@
   <ItemGroup>
     <Resource Include="Images\MainWIndow\gear.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Market\Servers\Huobi\FuturesSwap\Entities\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Images\generateButton.png" />
   </ItemGroup>

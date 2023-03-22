@@ -956,9 +956,9 @@ namespace OsEngine.Market.Servers.Binance.Futures
         /// <summary>
         /// запросить статус открытых ордеров
         /// </summary>
-        public void GetOpenOrderState(string SecurityNameCode)
+        public void GetOpenOrderState(string SecurityNameCode, List<Order> ord)
         {
-            _client.OpenOrderState(SecurityNameCode);
+            _client.OpenOrderState(SecurityNameCode , ord);
         }
 
 

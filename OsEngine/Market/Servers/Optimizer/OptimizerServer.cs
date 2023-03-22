@@ -2009,6 +2009,11 @@ namespace OsEngine.Market.Servers.Optimizer
             throw new NotImplementedException();
         }
 
+        public void GetOpen(string SecurityNameCode, List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// log manager
         /// лог менеджер

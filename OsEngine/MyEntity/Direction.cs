@@ -1,5 +1,4 @@
-﻿using OsEngine.Market.Servers.BitStamp.BitStampEntity;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

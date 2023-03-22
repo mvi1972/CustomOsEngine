@@ -111,7 +111,7 @@ namespace OsEngine.Market.Servers
         /// <summary>
         /// взять текущие состояния открытых ордеров
         /// </summary>
-        void GetOpenOrderState(string SecurityNameCode);
+        void GetOpenOrderState(string SecurityNameCode, List<Order> orders);
 
         /// <summary>
         /// новые мои ордера

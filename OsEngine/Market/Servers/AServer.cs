@@ -2365,9 +2365,9 @@ namespace OsEngine.Market.Servers
             }
         }
 
-        public void GetOpen(string Secur)
+        public void GetOpen(string Secur, List<Order> orders )
         {
-            _serverRealization.GetOpenOrderState(Secur);
+            _serverRealization.GetOpenOrderState(Secur, orders);
         }
 
         // log messages / сообщения для лога

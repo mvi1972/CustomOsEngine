@@ -242,7 +242,7 @@ namespace OsEngine.Market.Servers
         /// </summary>
         void CancelAllOrders();
 
-        void GetOpen(string SecurityNameCode);
+        void GetOpen(string SecurityNameCode, List<Order> orders);
 
         /// <summary>
         /// order changed

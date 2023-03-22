@@ -5,8 +5,6 @@ using OsEngine.Entity;
 using OsEngine.Logging;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
-using OsEngine.Market.Servers.GateIo.Futures.Response;
-using OsEngine.Market.Servers.Transaq.TransaqEntity;
 using OsEngine.MyEntity;
 using OsEngine.Views;
 using System;

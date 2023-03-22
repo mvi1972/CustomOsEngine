@@ -4,7 +4,6 @@ using OsEngine.Commands;
 using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
-using OsEngine.Market.Servers.GateIo.Futures.Response;
 using OsEngine.MyEntity;
 using OsEngine.OsTrader.Panels.Tab;
 using OsEngine.Views;
@@ -620,6 +619,19 @@ namespace OsEngine.ViewModels
                 return commandAddRow;
             }
         }
+        private DelegateCommand commandTestApi;
+        public DelegateCommand CommandTestApi
+        {
+            get
+            {
+                if (commandTestApi == null)
+                {
+                    commandTestApi = new DelegateCommand(TestApi);
+                }
+                return commandTestApi;
+            }
+        }
+        
 
         #endregion
 
@@ -788,6 +800,10 @@ namespace OsEngine.ViewModels
             }
             Levels.Add(new Level());
             //DesirializerDictionaryOrders();
+        }
+        private void TestApi(object o)
+        {
+            GetOrderStatusOnBoard();
         }
 
         /// <summary>
@@ -1262,6 +1278,7 @@ namespace OsEngine.ViewModels
 
         private void StartStop(object o)
         {
+
             RobotWindowVM.Log(Header, " \n\n StartStop = " + !IsRun);
             Thread.Sleep(300);
 
@@ -1271,6 +1288,7 @@ namespace OsEngine.ViewModels
 
             if (IsRun)
             {
+
                 foreach (Level level in Levels)
                 {
                     level.SetVolumeStart();
@@ -1321,11 +1339,35 @@ namespace OsEngine.ViewModels
         #region  ===== сервисные ======
 
         /// <summary>
-        /// запросить открытые ордера 
+        /// запросить статус ордеров на бирже
         /// </summary>
-        private void GetOpenOrder()
+        private void GetOrderStatusOnBoard()
         {
-            Server.GetOpen(Header);
+            List<Order> odersInLev =  GetOrdersInLevels(Header);
+            Server.GetOpen(Header, odersInLev);
+        }
+        /// <summary>
+        /// Взять ордера на уровнях
+        /// </summary>
+        /// <param name="namSecur"> название бумаги </param>
+        /// <returns> спсиок ордеров на уровнях </returns>
+        private List<Order> GetOrdersInLevels(string namSecur)
+        {
+            List<Order> ordersInLevels = new List<Order>();
+            foreach (Level level in Levels)
+            {
+                for (int i = 0; i < level.OrdersForOpen.Count; i++)
+                {
+                    Order order = level.OrdersForOpen[i];
+                    ordersInLevels.Add(order);
+                }
+                for (int i = 0; i < level.OrdersForClose.Count; i++)
+                {
+                    Order order = level.OrdersForClose[i];
+                    ordersInLevels.Add(order);
+                }
+            }            
+            return ordersInLevels;
         }
 
         ///<summary>
@@ -1627,7 +1669,7 @@ namespace OsEngine.ViewModels
         private void _server_ConnectStatusChangeEvent(string status)
         {
             DesirializerDictionaryOrders();
-            GetOpenOrder();
+            
         }
 
         /// <summary>

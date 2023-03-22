@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
 using OsEngine.Language;
 using OsEngine.Logging;
@@ -882,6 +883,13 @@ namespace OsEngine.Market.Servers.Binance.Futures
         /// </summary>
         public string CreateQuery(Method method, string endpoint, Dictionary<string, string> param = null, bool auth = false)
         {
+            if (param != null) 
+            { if (3 == param.Count)
+                {
+
+                }
+            }
+        
             try
             {
                 lock (_queryHttpLocker)
@@ -1219,6 +1227,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
                     namesSec.Add(oldOpenOrders[i].SecurityNameCode);
                 }
             }
+            
             // OpenOrderState(oldOpenOrders[0].SecurityNameCode);
 
             string endPoint = "/" + type_str_selector + "/v1/allOrders";
@@ -1291,7 +1300,6 @@ namespace OsEngine.Market.Servers.Binance.Futures
                 if (myOrder.status == "NEW")
                 { // order is active. Do nothing / ордер активен. Ничего не делаем
                     continue;
-
                 }
 
                 else if (myOrder.status == "FILLED" ||
@@ -1430,17 +1438,32 @@ namespace OsEngine.Market.Servers.Binance.Futures
 
             return newOrder;
         }
+ 
+        public void OpenOrderState( string NameCode, List<Order> oldOrder)
+        {
+            
+            string str = "";   
+            
+            string endPoint = "/" + type_str_selector + "/v1/allOrders";
+            //string endPoint = "/" + type_str_selector + "/v1/openOrders";
 
-        public void OpenOrderState( string NameCode)
-        { 
-            string endPoint = "/" + type_str_selector + "/v1/openOrders";
 
-            List<HistoryOrderReport> allOrders = new List<HistoryOrderReport>();
+            List<HistoryOrderReport> openOrders = new List<HistoryOrderReport>();
             var param = new Dictionary<string, string>();
+
             param.Add("symbol=", NameCode.ToUpper());
-            param.Add("&recvWindow=", "100");
-            param.Add("&limit=", GetNonce());
-            //param.Add("&limit=", "500");
+
+            //for (int i = 0; i < oldOrder.Count; i++)
+            //{
+            //    foreach (Order order in oldOrder)
+            //    {
+            //        str = order.NumberMarket;
+            //    }
+            //    param.Add("&orderId=", str);
+            //}
+
+            //param.Add("&limit=", GetNonce());
+            param.Add("&limit=", "500");
             //"symbol={symbol.ToUpper()}&recvWindow={recvWindow}"
 
             var res = CreateQuery(Method.GET, endPoint, param, true);
@@ -1454,49 +1477,136 @@ namespace OsEngine.Market.Servers.Binance.Futures
 
             if (orders != null && orders.Length != 0)
             {
-                allOrders.AddRange(orders);
-            }
-            HistoryOrderReport orderOnBoard =
-                allOrders.Find(ord => ord.symbol == NameCode.ToUpper());
+                openOrders.AddRange(orders);
+            } 
 
-            if (orderOnBoard == null)
+            for (int i = 0; i < oldOrder.Count; i++)
             {
-                return;
-            }
+                HistoryOrderReport orderOnBoard =
+                openOrders.Find(ord => ord.clientOrderId.Replace("vv-", "") == oldOrder[i].NumberUser.ToString());
 
-            Order newOrder = new Order();
-            newOrder.NumberMarket = orderOnBoard.orderId;
-            //newOrder.NumberUser = orderOnBoard.clientOrderId;
-            newOrder.SecurityNameCode = orderOnBoard.symbol;
-            newOrder.State = OrderStateType.Cancel;
+         // провеить эту логику 
+                //if (openOrders[i].executedQty.ToDecimal() == oldOrder[i].VolumeExecute)
+                //{
+                //    continue;
+                //}
+                if (orderOnBoard == null)
+                {
+                    return;
+                }
+                HistoryOrderReport myOrder = openOrders.Find(ord => ord.orderId == oldOrder[i].NumberMarket);
 
-            newOrder.Volume = orderOnBoard.origQty.ToDecimal();
-            newOrder.VolumeExecute = orderOnBoard.executedQty.ToDecimal();
-            newOrder.Price = orderOnBoard.price.ToDecimal();
-            //newOrder.TypeOrder = orderOnBoard.type;
-            //newOrder.TimeCallBack = oldOrder.TimeCallBack;
-            //newOrder.TimeCancel = newOrder.TimeCallBack;
-            newOrder.ServerType = ServerType.Binance;
-            //newOrder.PortfolioNumber = oldOrder.PortfolioNumber;
+                if (myOrder == null)
+                {
+                    for (int i2 = 0; i2 < openOrders.Count; i2++)
+                    {
+                        if (string.IsNullOrEmpty(openOrders[i2].clientOrderId))
+                        {
+                            continue;
+                        }
+      // метки ордеров
+                        string id = openOrders[i2].clientOrderId.Replace("vv-", "");
 
-            if (orderOnBoard.status == "NEW" ||
-                orderOnBoard.status == "PARTIALLY_FILLED")
-            { // order is active. Do nothing / ордер активен. Ничего не делаем
-                newOrder.State = OrderStateType.Activ;
-            }
-            else if (orderOnBoard.status == "FILLED")
-            {
-                newOrder.State = OrderStateType.Done;
-            }
-            else
-            {
-                newOrder.State = OrderStateType.Cancel;
-            }
+                        try
+                        {
+                            if (Convert.ToInt32(id) == oldOrder[i].NumberUser)
+                            {
+                                myOrder = openOrders[i2];
+                                break;
+                            }
+                        }
+                        catch
+                        {
+                            // ignore
+                        }
+                    }
+                }
 
-            if (MyOrderEvent != null)
-            {
-                MyOrderEvent(newOrder);
-            }
+                //if (myOrder == null)
+                //{
+                //    continue;
+                //}
+
+                if (myOrder.status == "NEW")
+                { // ордер активен обновляем 
+                    Order newOrder = new Order();
+                    newOrder.NumberMarket = myOrder.orderId;
+                    newOrder.NumberUser = oldOrder[i].NumberUser;
+                    newOrder.SecurityNameCode = oldOrder[i].SecurityNameCode;
+                    newOrder.State = OrderStateType.Activ;
+
+                    newOrder.Volume = oldOrder[i].Volume;
+                    newOrder.VolumeExecute = oldOrder[i].VolumeExecute;
+                    newOrder.Price = oldOrder[i].Price;
+                    newOrder.TypeOrder = oldOrder[i].TypeOrder;
+                    newOrder.TimeCallBack = new DateTime(1970, 1, 1).AddMilliseconds(Convert.ToDouble(myOrder.updateTime));
+                    newOrder.TimeCancel = newOrder.TimeCallBack;
+                    newOrder.ServerType = ServerType.Binance;
+                    newOrder.PortfolioNumber = oldOrder[i].PortfolioNumber;
+
+                    if (MyOrderEvent != null)
+                    {
+                        MyOrderEvent(newOrder);
+                    }
+                }
+
+                else if (myOrder.status == "FILLED" ||
+                    myOrder.status == "PARTIALLY_FILLED")
+                { // order executed / ордер исполнен
+
+                    try
+                    {
+                        if (myOrder.executedQty.ToDecimal() - oldOrder[i].VolumeExecute <= 0)
+                        {
+                            continue;
+                        }
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+
+
+                    MyTrade trade = new MyTrade();
+                    trade.NumberOrderParent = myOrder.orderId;
+                    trade.NumberTrade = NumberGen.GetNumberOrder(StartProgram.IsOsTrader).ToString();
+                    trade.SecurityNameCode = oldOrder[i].SecurityNameCode;
+                    trade.Time = new DateTime(1970, 1, 1).AddMilliseconds(Convert.ToDouble(myOrder.updateTime));
+                    trade.Side = oldOrder[i].Side;
+                    trade.Price = myOrder.price.ToDecimal();
+                    trade.Volume = myOrder.executedQty.ToDecimal() - oldOrder[i].VolumeExecute;
+
+                    oldOrder[i].SetTrade(trade);
+
+                    if (MyTradeEvent != null)
+                    {
+                        MyTradeEvent(trade);
+                    }
+                }
+                else
+                {
+                    Order newOrder = new Order();
+                    newOrder.NumberMarket = myOrder.orderId;
+                    newOrder.NumberUser = oldOrder[i].NumberUser;
+                    newOrder.SecurityNameCode = oldOrder[i].SecurityNameCode;
+                    newOrder.State = OrderStateType.Cancel;
+
+                    newOrder.Volume = oldOrder[i].Volume;
+                    newOrder.VolumeExecute = oldOrder[i].VolumeExecute;
+                    newOrder.Price = oldOrder[i].Price;
+                    newOrder.TypeOrder = oldOrder[i].TypeOrder;
+                    newOrder.TimeCallBack = new DateTime(1970, 1, 1).AddMilliseconds(Convert.ToDouble(myOrder.updateTime));
+                    newOrder.TimeCancel = newOrder.TimeCallBack;
+                    newOrder.ServerType = ServerType.Binance;
+                    newOrder.PortfolioNumber = oldOrder[i].PortfolioNumber;
+
+                    if (MyOrderEvent != null)
+                    {
+                        MyOrderEvent(newOrder);
+                    }
+                }
+            } 
+
         }
 
         // stream data from WEBSOCKET потоковые данные из WEBSOCKET
@@ -2037,12 +2147,6 @@ namespace OsEngine.Market.Servers.Binance.Futures
                 LogMessageEvent(message, type);
             }
         }
-
-        internal void GetOpenOrderState(List<Order> orders)
-        {
-           
-        }
-
 
         /// <summary>
         /// send exeptions

@@ -808,6 +808,11 @@ namespace OsEngine.Market.Servers.Binance.Spot
             throw new NotImplementedException();
         }
 
+        public void GetOpenOrderState(string SecurityNameCode, List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing log message
         /// исходящее сообщение для лога

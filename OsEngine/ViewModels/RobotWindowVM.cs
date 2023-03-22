@@ -225,6 +225,7 @@ namespace OsEngine.ViewModels
                 Order numOrd = numMark.Value;
                 RobotWindowVM.SendStrTextDb(" номер ордера в Orders = " + numOrd.NumberMarket);
                 RobotWindowVM.SendStrTextDb(" статус ордера в Orders = " + numOrd.State);
+                RobotWindowVM.SendStrTextDb(" NameCode ордера в Orders = " + numOrd.SecurityNameCode);
             }
         }
  

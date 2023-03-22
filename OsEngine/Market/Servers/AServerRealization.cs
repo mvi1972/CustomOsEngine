@@ -169,17 +169,7 @@ namespace OsEngine.Market.Servers
             }
         }
 
-        public virtual void GetOpenOrderState(List<Order> orders)
-        {
-           
-        }
-
-        public void GetOpenOrderState()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void GetOpenOrderState(string SecurityNameCode)
+        public void GetOpenOrderState(string SecurityNameCode, List<Order> orders)
         {
             throw new NotImplementedException();
         }

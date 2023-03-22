@@ -9,7 +9,6 @@ using OsEngine.Language;
 using OsEngine.Logging;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
-using OsEngine.Market.Servers.Finam;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -1075,19 +1074,7 @@ namespace OsEngine.OsData
 
                             SaveThisTick(trades[i2], path + "\\" + "Tick", SecuritiesNames[i].Name.RemoveExcessFromSecurityName(), null, path + "\\" + "Tick", isLastTick);
                         }
-                    }
-                    else
-                    { // Finam/Финам
-                        List<string> trades = ((FinamServer)_myServer).GetAllFilesWhithTradeToSecurity(SecuritiesNames[i].Name);
-
-                        if (trades == null ||
-                            trades.Count == 0)
-                        {
-                            trades = ((FinamServer)_myServer).GetAllFilesWhithTradeToSecurity(SecuritiesNames[i].Name.RemoveExcessFromSecurityName());
-                        }
-
-                        SaveThisTickFromFiles(trades, pathToSet + SecuritiesNames[i].Name.RemoveExcessFromSecurityName() + "\\" + "Tick" + "\\", SecuritiesNames[i].Name.RemoveExcessFromSecurityName());
-                    }
+                    }                   
                 }
             }
 
