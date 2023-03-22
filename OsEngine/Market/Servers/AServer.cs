@@ -2280,7 +2280,7 @@ namespace OsEngine.Market.Servers
             //}
             //catch
             //{
-            //    // ignore
+            //    // ignorek.xbk 
             //}
         }
 
