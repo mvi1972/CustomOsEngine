@@ -242,6 +242,9 @@ namespace OsEngine.Market.Servers
         /// </summary>
         void CancelAllOrders();
 
+        /// <summary>
+        ///  тестовый метод взятия статуса ордера на бирже 
+        /// </summary>
         void GetOpen(string SecurityNameCode, List<Order> orders);
 
         /// <summary>

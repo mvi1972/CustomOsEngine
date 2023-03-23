@@ -2217,10 +2217,10 @@ namespace OsEngine.Market.Servers
                         if (_lastTimeCheckOrders == DateTime.MinValue)
                         {
                             _lastTimeCheckOrders = DateTime.Now;
-    
-                            //CheckOrderState();
-                            //SaveOrders();
-                           
+
+                            CheckOrderState();
+                            SaveOrders();
+
                         }
 
                         continue;
@@ -2247,41 +2247,41 @@ namespace OsEngine.Market.Servers
 
         private void SaveOrders()
         {
-            SaveOpenOrders();
-            SaveCanselOrders();
+            //SaveOpenOrders();
+            //SaveCanselOrders();
         }
 
         private void LoadOrders()
-        {            
+        {          
 
-            LoadOpenOrders();
-            LoadCanselOrders();
+            //LoadOpenOrders();
+            //LoadCanselOrders();
         }
 
         private void LoadOpenOrders()
         {
-            //if (!File.Exists(@"Engine\" + ServerType + @" OpenOrders.txt"))
-            //{
-            //    return;
-            //}
-            //try
-            //{
-            //    using (StreamReader reader = new StreamReader(@"Engine\" + ServerType + @" OpenOrders.txt"))
-            //    {
-            //        while(reader.EndOfStream == false)
-            //        {
-            //            string str = reader.ReadLine();
-            //            Order ord = new Order();
-            //            ord.SetOrderFromString(str);
-            //            _myExecuteOrders.Add(ord);
-            //        }
-            //        reader.Close();
-            //    }
-            //}
-            //catch
-            //{
-            //    // ignorek.xbk 
-            //}
+            if (!File.Exists(@"Engine\" + ServerType + @" OpenOrders.txt"))
+            {
+                return;
+            }
+            try
+            {
+                using (StreamReader reader = new StreamReader(@"Engine\" + ServerType + @" OpenOrders.txt"))
+                {
+                    while (reader.EndOfStream == false)
+                    {
+                        string str = reader.ReadLine();
+                        Order ord = new Order();
+                        ord.SetOrderFromString(str);
+                        _myExecuteOrders.Add(ord);
+                    }
+                    reader.Close();
+                }
+            }
+            catch
+            {
+                // ignorek.xbk 
+            }
         }
 
         private void SaveOpenOrders()
@@ -2307,29 +2307,29 @@ namespace OsEngine.Market.Servers
 
         private void LoadCanselOrders()
         {
-            //if (!File.Exists(@"Engine\" + ServerType + @" CanselOrders.txt"))
-            //{
-            //    return;
-            //}
-            //try
-            //{
-            //    using (StreamReader reader = new StreamReader(@"Engine\" + ServerType + @" CanselOrders.txt"))
-            //    {
-            //        while (reader.EndOfStream == false)
-            //        {
-            //            string str = reader.ReadLine();
-            //            Order ord = new Order();
-            //            ord.SetOrderFromString(str);
-            //            _myCanselOrders.Add(ord);
-            //        }
+            if (!File.Exists(@"Engine\" + ServerType + @" CanselOrders.txt"))
+            {
+                return;
+            }
+            try
+            {
+                using (StreamReader reader = new StreamReader(@"Engine\" + ServerType + @" CanselOrders.txt"))
+                {
+                    while (reader.EndOfStream == false)
+                    {
+                        string str = reader.ReadLine();
+                        Order ord = new Order();
+                        ord.SetOrderFromString(str);
+                        _myCanselOrders.Add(ord);
+                    }
 
-            //        reader.Close();
-            //    }
-            //}
-            //catch
-            //{
-            //    // ignore
-            //}
+                    reader.Close();
+                }
+            }
+            catch
+            {
+                // ignore
+            }
         }
 
         private void SaveCanselOrders()

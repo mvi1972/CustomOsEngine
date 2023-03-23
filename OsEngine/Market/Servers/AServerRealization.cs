@@ -168,7 +168,9 @@ namespace OsEngine.Market.Servers
                 LogMessageEvent(message, type);
             }
         }
-
+        /// <summary>
+        /// абстрактный запрос статума ордеров 
+        /// </summary>
         public void GetOpenOrderState(string SecurityNameCode, List<Order> orders)
         {
             throw new NotImplementedException();

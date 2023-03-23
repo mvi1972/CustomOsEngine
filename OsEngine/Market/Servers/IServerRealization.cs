@@ -109,7 +109,7 @@ namespace OsEngine.Market.Servers
         void GetOrdersState(List<Order> orders);
 
         /// <summary>
-        /// взять текущие состояния открытых ордеров
+        /// взять текущие состояния (открытых) ордеров
         /// </summary>
         void GetOpenOrderState(string SecurityNameCode, List<Order> orders);
 

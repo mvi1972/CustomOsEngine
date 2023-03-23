@@ -1601,6 +1601,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         public void DesirializerDictionaryOrders()
         {
+            return;
             DataContractJsonSerializer DictionaryOrdersSerialazer 
                 = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>));
             if (!File.Exists("DictionaryAllOrders.json"))
