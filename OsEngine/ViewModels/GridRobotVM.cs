@@ -44,7 +44,8 @@ namespace OsEngine.ViewModels
             NumberTab = numberTab;
             Header = str[0];    
             LoadParamsBot(header);
-            DesirializerDictionaryOrders();
+            ReloadOrderLevels();
+            //DesirializerDictionaryOrders();
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
             
          }
@@ -645,7 +646,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         void Calculate(object o)
         {
-            
+            //
             decimal volume = 0;
             decimal stepTake = 0;
 
@@ -829,7 +830,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void ExaminationStop()
         {
-            if (SelectSecurBalans == 0) return;
+            //if (SelectSecurBalans == 0) return;
 
             if (StopLong != 0 && Price != 0)
             {
@@ -969,7 +970,7 @@ namespace OsEngine.ViewModels
                         Order order = SendLimitOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
                         if (order != null)
                         {
-                            level.OrdersForOpen.Add(order);
+                            Level.OrdersForOpen.Add(order);
 
                             RobotWindowVM.Log(Header, " Отправляем лимитку в level.OrdersForOpen " + GetStringForSave(order));
                             Thread.Sleep(10);
@@ -1013,7 +1014,7 @@ namespace OsEngine.ViewModels
                             order.State != OrderStateType.Pending)
                         {
                             level.PassVolume = false;
-                            level.OrdersForClose.Add(order);
+                            Level.OrdersForClose.Add(order);
                             RobotWindowVM.Log(Header, "Отправлен Маркет ордер на закрытие \n  " + GetStringForSave(order));
                         }
                     }
@@ -1067,7 +1068,7 @@ namespace OsEngine.ViewModels
                             order.State != OrderStateType.Pending)
                         {
                             level.PassVolume = false;
-                            level.OrdersForClose.Add(order);
+                            Level.OrdersForClose.Add(order);
                             RobotWindowVM.Log(Header,
                             "Отправляем  Лимит ордер на закрытие по цене посленего трейда "
                              + GetStringForSave(order));
@@ -1152,7 +1153,7 @@ namespace OsEngine.ViewModels
                         Order order = SendLimitOrder(SelectedSecurity, price, worklot, side);
                         if (order != null)
                         {
-                            level.OrdersForClose.Add(order);
+                            Level.OrdersForClose.Add(order);
                             RobotWindowVM.Log(Header, "Отправляем Тэйк ордер =  " + GetStringForSave(order));
                         }
                         else
@@ -1176,6 +1177,8 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void CalculateMargin()
         {
+            if (Levels == null) return;
+     
             if (Levels.Count == 0 || SelectedSecurity == null) return;
 
             decimal volume = 0;
@@ -1343,35 +1346,75 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void GetOrderStatusOnBoard()
         {
+            
             List<Order> odersInLev =  GetOrdersInLevels();
+            if (odersInLev == null) return;
             for (int i = 0; i < odersInLev.Count; i++)
             {
                 Order ord = odersInLev[i];
                 Server.GetStatusOrder(ord);
-            }            
+            }
+            RobotWindowVM.Log(Header, " GetOrderStatusOnBoard\n" +
+                " Опросил статусы ордеров ");
         }
         /// <summary>
-        /// Взять ордера на уровнях
+        /// Взять ордера на уровнях после выгрузки изфайла сохранения 
         /// </summary>
-        /// <param name="namSecur"> название бумаги </param>
         /// <returns> спсиок ордеров на уровнях </returns>
         private List<Order> GetOrdersInLevels()
         {
+            if (Levels == null)
+            {
+                return null;
+            }
             List<Order> ordersInLevels = new List<Order>();
             foreach (Level level in Levels)
             {
-                for (int i = 0; i < level.OrdersForOpen.Count; i++)
+                for (int i = 0; i < Level.OrdersForOpen.Count; i++)
                 {
-                    Order order = level.OrdersForOpen[i];
+                    Order order = Level.OrdersForOpen[i];
                     ordersInLevels.Add(order);
                 }
-                for (int i = 0; i < level.OrdersForClose.Count; i++)
+                for (int i = 0; i < Level.OrdersForClose.Count; i++)
                 {
-                    Order order = level.OrdersForClose[i];
+                    Order order = Level.OrdersForClose[i];
                     ordersInLevels.Add(order);
                 }
             }            
             return ordersInLevels;
+        }
+
+        private void ReloadOrderLevels()
+        {
+            if (Levels == null)
+            {
+                return;
+            }
+            List<Order> NewOrdersForOpen = new List<Order>();
+            NewOrdersForOpen.Clear();
+            foreach (Level level in Levels)
+            {
+                                
+                for (int i = 0; i < Level.OrdersForOpen.Count; i++)
+                {
+                    Order order = Level.OrdersForOpen[i];
+                    NewOrdersForOpen.Add(order);
+                }
+                Level.OrdersForOpen = NewOrdersForOpen;
+            }
+            List<Order> NewOrdersForClose = new List<Order>();
+            NewOrdersForClose.Clear();
+
+            foreach (Level level in Levels)
+            {
+
+                for (int i = 0; i < Level.OrdersForClose.Count; i++)
+                {
+                    Order order = Level.OrdersForClose[i];
+                    NewOrdersForClose.Add(order);
+                }
+                Level.OrdersForClose = NewOrdersForClose;
+            }           
         }
 
         ///<summary>
@@ -1671,10 +1714,19 @@ namespace OsEngine.ViewModels
 
         #region ======= события сервера =====
 
+        /// <summary>
+        /// сервер сменил статус
+        /// </summary>
         private void _server_ConnectStatusChangeEvent(string status)
         {
-            DesirializerDictionaryOrders();
-            
+            if (_server != null)
+            {
+                if (Server.ServerStatus == ServerConnectStatus.Connect)
+                {
+                    GetOrderStatusOnBoard();
+                    // DesirializerDictionaryOrders();
+                }    
+            }            
         }
 
         /// <summary>
@@ -1745,8 +1797,8 @@ namespace OsEngine.ViewModels
                 //TradeLogic();
                 if (ActiveLevelAre())
                 {
-                    SerializerDictionaryOrders();
-                    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
+                    //SerializerDictionaryOrders();
+                    //RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
                     // SerializerLevel();
                 }
 
@@ -1784,14 +1836,19 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void Server_NewMyTradeEvent(MyTrade myTrade)
         {
-            if (myTrade == null || myTrade.SecurityNameCode != SelectedSecurity.Name)
+            if (SelectedSecurity == null )
+            {
+                return;
+            }
+            
+            if (myTrade == null || myTrade.SecurityNameCode != SelectedSecurity.Name )
             {
                 return; // нашей бумаги нет
             }
-            if (ActiveLevelAre())
-            {
-                SerializerDictionaryOrders();
-            }
+            //if (ActiveLevelAre())
+            //{
+            //    SerializerDictionaryOrders();
+            //}
 
 
             foreach (Level level in Levels)

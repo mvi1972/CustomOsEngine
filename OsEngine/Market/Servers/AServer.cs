@@ -2189,7 +2189,7 @@ namespace OsEngine.Market.Servers
 
         private void SaveLoadOrdersThreadArea()
         {
-            //LoadOrders();
+            LoadOrders();
             
             myExecureOrdersCount = _myExecuteOrders.Count;
             myCanselOrdersCount = _myCanselOrders.Count;
@@ -2247,15 +2247,14 @@ namespace OsEngine.Market.Servers
 
         private void SaveOrders()
         {
-            //SaveOpenOrders();
-            //SaveCanselOrders();
+            SaveOpenOrders();
+            SaveCanselOrders();
         }
 
         private void LoadOrders()
-        {          
-
-            //LoadOpenOrders();
-            //LoadCanselOrders();
+        {
+            LoadOpenOrders();
+            LoadCanselOrders();
         }
 
         private void LoadOpenOrders()

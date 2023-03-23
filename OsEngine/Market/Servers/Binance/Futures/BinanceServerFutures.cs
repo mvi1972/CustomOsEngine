@@ -317,8 +317,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
         public void GetOrdersState(List<Order> orders)
         {
             _client.GetAllOrders(orders);
-        }
- 
+        } 
 
         /// <summary>
         /// request account info
@@ -873,7 +872,6 @@ namespace OsEngine.Market.Servers.Binance.Futures
 
             return security;
         }
-
 
         void _client_Connected()
         {

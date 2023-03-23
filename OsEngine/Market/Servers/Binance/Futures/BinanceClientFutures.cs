@@ -1318,7 +1318,6 @@ namespace OsEngine.Market.Servers.Binance.Futures
                         continue;
                     }
 
-
                     MyTrade trade = new MyTrade();
                     trade.NumberOrderParent = myOrder.orderId;
                     trade.NumberTrade = NumberGen.GetNumberOrder(StartProgram.IsOsTrader).ToString();
