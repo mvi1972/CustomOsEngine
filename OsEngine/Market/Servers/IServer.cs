@@ -248,6 +248,11 @@ namespace OsEngine.Market.Servers
         void GetOpen(string SecurityNameCode, List<Order> orders);
 
         /// <summary>
+        ///  метод взятия статуса ордера на бирже 
+        /// </summary>
+        void GetStatus(Order order);
+
+        /// <summary>
         /// order changed
         /// изменился ордер
         /// </summary>

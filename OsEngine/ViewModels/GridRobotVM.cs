@@ -1343,15 +1343,19 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void GetOrderStatusOnBoard()
         {
-            List<Order> odersInLev =  GetOrdersInLevels(Header);
-            Server.GetOpen(Header, odersInLev);
+            List<Order> odersInLev =  GetOrdersInLevels();
+            for (int i = 0; i < odersInLev.Count; i++)
+            {
+                Order ord = odersInLev[i];
+                Server.GetStatus(ord);
+            }            
         }
         /// <summary>
         /// Взять ордера на уровнях
         /// </summary>
         /// <param name="namSecur"> название бумаги </param>
         /// <returns> спсиок ордеров на уровнях </returns>
-        private List<Order> GetOrdersInLevels(string namSecur)
+        private List<Order> GetOrdersInLevels()
         {
             List<Order> ordersInLevels = new List<Order>();
             foreach (Level level in Levels)

@@ -22,7 +22,7 @@ namespace OsEngine.Market.Servers.Optimizer
     /// Во время оптимизации для каждого робота разворачивается отдельный экземпляр
     /// со своим потоком
     /// </summary>
-    public class OptimizerServer:IServer
+    public class OptimizerServer : IServer
     {
        /// <summary>
 	   /// constructor
@@ -2010,6 +2010,11 @@ namespace OsEngine.Market.Servers.Optimizer
         }
 
         public void GetOpen(string SecurityNameCode, List<Order> orders)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GetStatus(Order order)
         {
             throw new NotImplementedException();
         }

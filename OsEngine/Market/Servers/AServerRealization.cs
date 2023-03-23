@@ -176,6 +176,11 @@ namespace OsEngine.Market.Servers
             throw new NotImplementedException();
         }
 
+        public void GetStateOneOrder(Order order)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// outgoing lom message
         /// исходящее сообщение для лога

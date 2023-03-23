@@ -961,6 +961,13 @@ namespace OsEngine.Market.Servers.Binance.Futures
             _client.OpenOrderState(SecurityNameCode , ord);
         }
 
+        /// <summary>
+        /// запросить статуса ордера на биже 
+        /// </summary>
+        public void GetStateOneOrder(Order oldOrder)
+        {
+            _client.GetStateOneOrder(oldOrder);
+        }
 
         /// <summary>
         /// outgoing log message

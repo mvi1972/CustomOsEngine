@@ -114,6 +114,11 @@ namespace OsEngine.Market.Servers
         void GetOpenOrderState(string SecurityNameCode, List<Order> orders);
 
         /// <summary>
+        /// взять текущие состояния ордера
+        /// </summary>
+        void GetStateOneOrder(Order order);
+
+        /// <summary>
         /// новые мои ордера
         /// my new orders
         /// </summary>

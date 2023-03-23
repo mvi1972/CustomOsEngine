@@ -3982,6 +3982,11 @@ namespace OsEngine.Market.Servers.Tester
             throw new NotImplementedException();
         }
 
+        public void GetStatus(Order order)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// log manager
         /// лог менеджер

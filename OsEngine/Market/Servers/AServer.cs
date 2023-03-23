@@ -2369,6 +2369,13 @@ namespace OsEngine.Market.Servers
         {
             _serverRealization.GetOpenOrderState(Secur, orders);
         }
+        /// <summary>
+        /// проверка состояние одного ордера
+        /// </summary>
+        public void GetStatus(Order order)
+        {
+            _serverRealization.GetStateOneOrder(order);
+        }
 
         // log messages / сообщения для лога
 
