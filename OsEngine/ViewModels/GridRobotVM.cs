@@ -30,6 +30,7 @@ using ControlzEx.Theming;
 using OsEngine.Market.Servers.Binance.Futures;
 using System.Windows.Controls.Primitives;
 
+
 namespace OsEngine.ViewModels
 {
     
@@ -42,7 +43,9 @@ namespace OsEngine.ViewModels
         {
             string[]str = header.Split('=');
             NumberTab = numberTab;
-            Header = str[0];    
+            Header = str[0];   
+            //Level.OrdersForClose.Clear();
+            //Level.OrdersForOpen.Clear();
             LoadParamsBot(header);
             ReloadOrderLevels();
             //DesirializerDictionaryOrders();
@@ -1384,6 +1387,9 @@ namespace OsEngine.ViewModels
             return ordersInLevels;
         }
 
+        /// <summary>
+        /// презагружает лмты ордеров 
+        /// </summary>
         private void ReloadOrderLevels()
         {
             if (Levels == null)
@@ -1391,30 +1397,23 @@ namespace OsEngine.ViewModels
                 return;
             }
             List<Order> NewOrdersForOpen = new List<Order>();
-            NewOrdersForOpen.Clear();
-            foreach (Level level in Levels)
-            {
-                                
-                for (int i = 0; i < Level.OrdersForOpen.Count; i++)
-                {
-                    Order order = Level.OrdersForOpen[i];
-                    NewOrdersForOpen.Add(order);
-                }
-                Level.OrdersForOpen = NewOrdersForOpen;
-            }
             List<Order> NewOrdersForClose = new List<Order>();
-            NewOrdersForClose.Clear();
-
+ 
             foreach (Level level in Levels)
             {
-
-                for (int i = 0; i < Level.OrdersForClose.Count; i++)
+                List<Order> ordersOp = Level.OrdersForOpen;
+                foreach (var ord in ordersOp)
                 {
-                    Order order = Level.OrdersForClose[i];
-                    NewOrdersForClose.Add(order);
+                    NewOrdersForOpen.Add(ord);
                 }
-                Level.OrdersForClose = NewOrdersForClose;
-            }           
+                List<Order> orderCl = Level.OrdersForClose;
+                foreach (var ord in orderCl)
+                {
+                    NewOrdersForClose.Add(ord);
+                } 
+            }   
+            Level.OrdersForOpen = NewOrdersForOpen;
+            Level.OrdersForClose = NewOrdersForClose;
         }
 
         ///<summary>
@@ -1794,6 +1793,7 @@ namespace OsEngine.ViewModels
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType) // 
             {
+                TradeLogic();
                 //TradeLogic();
                 if (ActiveLevelAre())
                 {
@@ -1840,7 +1840,9 @@ namespace OsEngine.ViewModels
             {
                 return;
             }
-            
+   
+            TradeLogic();
+
             if (myTrade == null || myTrade.SecurityNameCode != SelectedSecurity.Name )
             {
                 return; // нашей бумаги нет
@@ -1849,7 +1851,6 @@ namespace OsEngine.ViewModels
             //{
             //    SerializerDictionaryOrders();
             //}
-
 
             foreach (Level level in Levels)
             {
