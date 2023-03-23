@@ -2372,7 +2372,7 @@ namespace OsEngine.Market.Servers
         /// <summary>
         /// проверка состояние одного ордера
         /// </summary>
-        public void GetStatus(Order order)
+        public void GetStatusOrder(Order order)
         {
             _serverRealization.GetStateOneOrder(order);
         }

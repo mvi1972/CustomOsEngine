@@ -1347,7 +1347,7 @@ namespace OsEngine.ViewModels
             for (int i = 0; i < odersInLev.Count; i++)
             {
                 Order ord = odersInLev[i];
-                Server.GetStatus(ord);
+                Server.GetStatusOrder(ord);
             }            
         }
         /// <summary>

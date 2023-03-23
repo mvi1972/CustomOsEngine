@@ -3982,7 +3982,7 @@ namespace OsEngine.Market.Servers.Tester
             throw new NotImplementedException();
         }
 
-        public void GetStatus(Order order)
+        public void GetStatusOrder(Order order)
         {
             throw new NotImplementedException();
         }

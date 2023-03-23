@@ -250,7 +250,7 @@ namespace OsEngine.Market.Servers
         /// <summary>
         ///  метод взятия статуса ордера на бирже 
         /// </summary>
-        void GetStatus(Order order);
+        void GetStatusOrder(Order order);
 
         /// <summary>
         /// order changed

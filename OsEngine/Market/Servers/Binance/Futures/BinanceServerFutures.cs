@@ -966,7 +966,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
         /// </summary>
         public void GetStateOneOrder(Order oldOrder)
         {
-            _client.GetStateOneOrder(oldOrder);
+            _client.GetStatusOneOrder(oldOrder);
         }
 
         /// <summary>

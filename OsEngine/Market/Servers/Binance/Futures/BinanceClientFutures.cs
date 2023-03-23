@@ -1613,7 +1613,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
 
         }
 
-        public void GetStateOneOrder(Order oldOrder)
+        public void GetStatusOneOrder(Order oldOrder)
         {
             string endPoint = "/" + type_str_selector + "/v1/allOrders";
             //string endPoint = "/" + type_str_selector + "/v1/openOrders";
