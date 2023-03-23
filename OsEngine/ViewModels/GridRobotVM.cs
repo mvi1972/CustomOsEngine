@@ -1388,7 +1388,7 @@ namespace OsEngine.ViewModels
         }
 
         /// <summary>
-        /// презагружает лмты ордеров 
+        /// презагружает листы ордеров 
         /// </summary>
         private void ReloadOrderLevels()
         {
