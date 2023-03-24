@@ -43,9 +43,10 @@ namespace OsEngine.ViewModels
         {
             string[]str = header.Split('=');
             NumberTab = numberTab;
-            Header = str[0];   
-            //Level.OrdersForClose.Clear();
-            //Level.OrdersForOpen.Clear();
+            Header = str[0];
+            Level.OrdersForClose = null; 
+            Level.OrdersForOpen = null;
+    
             LoadParamsBot(header);
             ReloadOrderLevels();
             //DesirializerDictionaryOrders();
@@ -1351,7 +1352,7 @@ namespace OsEngine.ViewModels
         {
             
             List<Order> odersInLev =  GetOrdersInLevels();
-            if (odersInLev == null) return;
+            if (odersInLev == null || odersInLev.Count ==0) return;
             for (int i = 0; i < odersInLev.Count; i++)
             {
                 Order ord = odersInLev[i];
@@ -1376,11 +1377,19 @@ namespace OsEngine.ViewModels
                 for (int i = 0; i < Level.OrdersForOpen.Count; i++)
                 {
                     Order order = Level.OrdersForOpen[i];
+                    if (order == null)
+                    {
+                        continue;
+                    }
                     ordersInLevels.Add(order);
                 }
                 for (int i = 0; i < Level.OrdersForClose.Count; i++)
                 {
                     Order order = Level.OrdersForClose[i];
+                    if (order == null)
+                    {
+                        continue;
+                    }
                     ordersInLevels.Add(order);
                 }
             }            
@@ -1404,11 +1413,13 @@ namespace OsEngine.ViewModels
                 List<Order> ordersOp = Level.OrdersForOpen;
                 foreach (var ord in ordersOp)
                 {
+                    if (ord == null) continue;
                     NewOrdersForOpen.Add(ord);
                 }
                 List<Order> orderCl = Level.OrdersForClose;
                 foreach (var ord in orderCl)
                 {
+                    if (ord == null) continue;
                     NewOrdersForClose.Add(ord);
                 } 
             }   
@@ -1722,7 +1733,7 @@ namespace OsEngine.ViewModels
             {
                 if (Server.ServerStatus == ServerConnectStatus.Connect)
                 {
-                    GetOrderStatusOnBoard();
+                    //GetOrderStatusOnBoard();
                     // DesirializerDictionaryOrders();
                 }    
             }            
@@ -1755,7 +1766,8 @@ namespace OsEngine.ViewModels
             if (namesecur.Name == SelectedSecurity.Name)
             {
                 _bestAsk = ask;
-                _bestBid = bid;
+                _bestBid = bid;                
+
             }
         }
 
@@ -1775,13 +1787,21 @@ namespace OsEngine.ViewModels
                 {
                     // TradeLogic();
                 }
+                //bool rec = true;
+                //if (trade.Time.AddSeconds(1) < Server.ServerTime)
+                //{
+                //    rec = false;
+                //}
+                //if (rec)
+                //{
+                //    GetOrderStatusOnBoard();
+                //}
             }
-            
         }
 
         private void Server_NewCandleIncomeEvent(CandleSeries candle)
         {
-
+            //
         }
 
         /// <summary>
@@ -1825,9 +1845,7 @@ namespace OsEngine.ViewModels
                         }
                     }
                 }
-
-                SaveParamsBot();
-                //Get();
+                SaveParamsBot();                
             }
         }
 

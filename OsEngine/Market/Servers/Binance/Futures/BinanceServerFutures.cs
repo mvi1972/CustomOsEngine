@@ -963,7 +963,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
         /// запросить статуса ордера на биже 
         /// </summary>
         public void GetStateOneOrder(Order oldOrder)
-        {
+        { if (oldOrder == null) return;
             _client.GetStatusOneOrder(oldOrder);
         }
 

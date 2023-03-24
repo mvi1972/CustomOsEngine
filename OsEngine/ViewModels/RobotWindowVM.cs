@@ -104,7 +104,6 @@ namespace OsEngine.ViewModels
         public static ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>
             Orders = new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();
 
-
         CultureInfo CultureInfo = new CultureInfo("ru-RU");
 
         #endregion
