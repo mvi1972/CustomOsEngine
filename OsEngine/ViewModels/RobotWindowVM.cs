@@ -38,8 +38,7 @@ namespace OsEngine.ViewModels
 
             LoadHeaderBot();
 
-            ServerMaster.ActivateAutoConnection();     
-
+            ServerMaster.ActivateAutoConnection();
            
         }
 

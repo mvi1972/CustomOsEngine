@@ -255,12 +255,12 @@ namespace OsEngine.MyEntity
             }
         }
 
-
         /// <summary>
         /// принадлежит ли ордер уровню 
         /// </summary>
         public bool NewOrder(Order newOrder)
         {
+            //if(OrdersForOpen == null || OrdersForOpen.Count == 0) return false;
             foreach (Order order in OrdersForOpen)
             {
                 if (order.NumberMarket == newOrder.NumberMarket)
@@ -342,14 +342,16 @@ namespace OsEngine.MyEntity
             PassVolume = passLimit;
             PassTake= passTake;
         }
-        private void ClearOrders(ref List<Order> orders)
+        public void ClearOrders(ref List<Order> orders)
         {
+            if (orders == null) return;
             List<Order> newOrders = new List<Order>();
             foreach (Order order in orders)
             {
                 if (order!= null
                     && order.State != OrderStateType.Cancel
-                    && order.State != OrderStateType.Done)
+                    && order.State != OrderStateType.Done
+                    && order.State != OrderStateType.Fail)
                 {
                     newOrders.Add(order);
                     RobotWindowVM.SendStrTextDb(" Удалили ордера Cancel и Done " );
@@ -402,50 +404,50 @@ namespace OsEngine.MyEntity
         /// </summary>
         public void CancelAllOrders(IServer server, DelegateGetStringForSave getStringForSave)
         {
-            //CanselCloseOrders(server, getStringForSave);
-            //CanselOpenOrders(server, getStringForSave);
+            CanselCloseOrders(server, getStringForSave);
+            CanselOpenOrders(server, getStringForSave);
             Task.Run(() =>
             {
-                while (true)
-                {
-                    string namsec = "";
-                    if (OrdersForOpen.Count != 0) // эта конструкция что бы взять имя бумаги для отправки в лог 
-                    {
-                        Order order = OrdersForOpen[0];
-                        namsec = order.SecurityNameCode;
+                //while (true)
+                //{
+                //    string namsec = "";
+                //    if (OrdersForOpen.Count != 0) // эта конструкция что бы взять имя бумаги для отправки в лог 
+                //    {
+                //        Order order = OrdersForOpen[0];
+                //        namsec = order.SecurityNameCode;
 
-                        RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток для отзыва ордеров на открытие \n");
-                    }
-                    if (OrdersForClose.Count != 0)
-                    {
-                        Order order = OrdersForClose[0];
-                        namsec = order.SecurityNameCode;
+                //        RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток для отзыва ордеров на открытие \n");
+                //    }
+                //    if (OrdersForClose.Count != 0)
+                //    {
+                //        Order order = OrdersForClose[0];
+                //        namsec = order.SecurityNameCode;
 
-                        RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток отзыва ордеров на закрытие \n");
-                    }
-                    CanselCloseOrders(server, getStringForSave);
-                    CanselOpenOrders(server, getStringForSave);
+                //        RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток отзыва ордеров на закрытие \n");
+                //    }
+                //    CanselCloseOrders(server, getStringForSave);
+                //    CanselOpenOrders(server, getStringForSave);
 
-                    string str = "ВКЛЮЧЕН поток для отзыва ордеров \n";
-                    Debug.WriteLine(str);
+                //    string str = "ВКЛЮЧЕН поток для отзыва ордеров \n";
+                //    Debug.WriteLine(str);
 
-                    Thread.Sleep(2000);
-                    if (LimitVolume == 0 && TakeVolume == 0)
-                    {
-                        string str2 = "Поток для отзыва ордеров ОТКЛЮЧЕН \n";
-                        Debug.WriteLine(str2);
-                        if (namsec != "")
-                        {
-                            RobotWindowVM.Log(namsec, "Поток для отзыва ордеров ОТКЛЮЧЕН \n");
-                        }
-                        break;
-                    }
-                }
+                //    Thread.Sleep(2000);
+                //    if (LimitVolume == 0 && TakeVolume == 0)
+                //    {
+                //        string str2 = "Поток для отзыва ордеров ОТКЛЮЧЕН \n";
+                //        Debug.WriteLine(str2);
+                //        if (namsec != "")
+                //        {
+                //            RobotWindowVM.Log(namsec, "Поток для отзыва ордеров ОТКЛЮЧЕН \n");
+                //        }
+                //        break;
+                //    }
+                //}
             });
         }
 
         /// <summary>
-        /// отозвать ордера на открытие с биржи
+        /// отозвать  открытые ордера с биржи
         /// </summary>
         private void CanselOpenOrders(IServer server, DelegateGetStringForSave getStringForSave)
         {

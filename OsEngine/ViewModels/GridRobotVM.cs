@@ -19,7 +19,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
+
 using Action = OsEngine.MyEntity.Action;
 using Level = OsEngine.MyEntity.Level;
 using Direction = OsEngine.MyEntity.Direction;
@@ -29,7 +29,9 @@ using System.Collections.Concurrent;
 using ControlzEx.Theming;
 using OsEngine.Market.Servers.Binance.Futures;
 using System.Windows.Controls.Primitives;
-
+using System.Windows;
+using System.Security.Cryptography;
+using OsEngine.Charts.CandleChart.Indicators;
 
 namespace OsEngine.ViewModels
 {
@@ -44,11 +46,12 @@ namespace OsEngine.ViewModels
             string[]str = header.Split('=');
             NumberTab = numberTab;
             Header = str[0];
-            Level.OrdersForClose = null; 
-            Level.OrdersForOpen = null;
+            //Level.OrdersForClose = null; 
+            //Level.OrdersForOpen = null;
     
             LoadParamsBot(header);
-            ReloadOrderLevels();
+
+            //ReloadOrderLevels();
             //DesirializerDictionaryOrders();
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
             
@@ -660,13 +663,27 @@ namespace OsEngine.ViewModels
             }
             if (volume > 0)
             {
-                MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно пресчитать? ", " ВНИМАНИЕ !!! ",
+                System.Windows.MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно пресчитать? ", " ВНИМАНИЕ !!! ",
                     MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.No)
                 {
                     return;
                 }
+                // опрашиваем ордера 
+                GetOrderStatusOnBoard();
+                // закрываем все открытое
+                foreach (Level level in Levels)
+                {
+                    level.CancelAllOrders(Server, GetStringForSave);
+
+                    LevelTradeLogicClose(level, Action.CLOSE);
+                }
             }
+            foreach (Level level in Levels)
+            {
+                level.CancelAllOrders(Server, GetStringForSave);
+            }
+
 
             ObservableCollection<Level> levels = new ObservableCollection<Level>();
 
@@ -769,6 +786,7 @@ namespace OsEngine.ViewModels
                         RobotWindowVM.Log(Header, "StartSecuritiy  security = " + series.Security.Name);
                         // DesirializerLevels();
                         SaveParamsBot();
+                        GetOrderStatusOnBoard();
                         break;
                     }
                     Thread.Sleep(1000);
@@ -1344,13 +1362,23 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region  ===== сервисные ======
+        /// <summary>
+        /// удалять ошибочные и законченные 
+        /// </summary>
+        private void ClearOrd()
+        {
+            foreach (Level level in Levels)
+            {
+                level.ClearOrders(ref Level.OrdersForOpen);
+                level.ClearOrders(ref Level.OrdersForClose);
+            }
+        }
 
         /// <summary>
         /// запросить статус ордеров на бирже
         /// </summary>
         private void GetOrderStatusOnBoard()
         {
-            
             List<Order> odersInLev =  GetOrdersInLevels();
             if (odersInLev == null || odersInLev.Count ==0) return;
             for (int i = 0; i < odersInLev.Count; i++)
@@ -1359,14 +1387,17 @@ namespace OsEngine.ViewModels
                 Server.GetStatusOrder(ord);
             }
             RobotWindowVM.Log(Header, " GetOrderStatusOnBoard\n" +
-                " Опросил статусы ордеров ");
+                " Опросил статус ордера ");
         }
         /// <summary>
-        /// Взять ордера на уровнях после выгрузки изфайла сохранения 
+        /// Взять номера ордера на уровнях после выгрузки изфайла сохранения 
         /// </summary>
         /// <returns> спсиок ордеров на уровнях </returns>
         private List<Order> GetOrdersInLevels()
         {
+            //if (Level.OrdersForOpen == null) return null;
+            ClearOrd();
+
             if (Levels == null)
             {
                 return null;
@@ -1374,10 +1405,11 @@ namespace OsEngine.ViewModels
             List<Order> ordersInLevels = new List<Order>();
             foreach (Level level in Levels)
             {
+                //level.ClearOrders(ref Level.OrdersForOpen);
                 for (int i = 0; i < Level.OrdersForOpen.Count; i++)
                 {
                     Order order = Level.OrdersForOpen[i];
-                    if (order == null)
+                    if (order == null || order.NumberMarket=="")
                     {
                         continue;
                     }
@@ -1394,37 +1426,6 @@ namespace OsEngine.ViewModels
                 }
             }            
             return ordersInLevels;
-        }
-
-        /// <summary>
-        /// презагружает листы ордеров 
-        /// </summary>
-        private void ReloadOrderLevels()
-        {
-            if (Levels == null)
-            {
-                return;
-            }
-            List<Order> NewOrdersForOpen = new List<Order>();
-            List<Order> NewOrdersForClose = new List<Order>();
- 
-            foreach (Level level in Levels)
-            {
-                List<Order> ordersOp = Level.OrdersForOpen;
-                foreach (var ord in ordersOp)
-                {
-                    if (ord == null) continue;
-                    NewOrdersForOpen.Add(ord);
-                }
-                List<Order> orderCl = Level.OrdersForClose;
-                foreach (var ord in orderCl)
-                {
-                    if (ord == null) continue;
-                    NewOrdersForClose.Add(ord);
-                } 
-            }   
-            Level.OrdersForOpen = NewOrdersForOpen;
-            Level.OrdersForClose = NewOrdersForClose;
         }
 
         ///<summary>
@@ -1766,8 +1767,7 @@ namespace OsEngine.ViewModels
             if (namesecur.Name == SelectedSecurity.Name)
             {
                 _bestAsk = ask;
-                _bestBid = bid;                
-
+                _bestBid = bid;   
             }
         }
 
@@ -1965,6 +1965,31 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region == ЗАГОТОВКИ =====
+
+        /// <summary>
+        /// презагружает листы ордеров 
+        /// </summary>
+        private void ReloadOrderLevels()
+        {
+            if (Levels == null)
+            {
+                return;
+            }
+            List<Order> NewOrdersForOpen = new List<Order>();
+            List<Order> NewOrdersForClose = new List<Order>();
+
+            foreach (Level level in Levels)
+            {
+                //var or = Level.OrdersForOpen[0];
+                List<Order> ordersOp = Level.OrdersForOpen;
+                NewOrdersForOpen = ordersOp;
+                Level.OrdersForOpen = NewOrdersForOpen;
+
+                List<Order> orderCl = Level.OrdersForClose;
+                NewOrdersForClose = orderCl;
+                Level.OrdersForClose = NewOrdersForClose;
+            }
+        }
 
         /// <summary>
         /// сериализация словарz активных ордеров
