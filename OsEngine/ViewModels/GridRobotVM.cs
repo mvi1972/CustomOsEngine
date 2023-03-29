@@ -949,7 +949,6 @@ namespace OsEngine.ViewModels
             }
         }
 
-
         /// <summary>
         /// после трейда или ррдера с бижжи по бумаге гоняет по уровням  логику отправки ореров на открытип и закрытие 
         /// </summary>
@@ -1121,8 +1120,10 @@ namespace OsEngine.ViewModels
                     Order order = SendMarketOrder(SelectedSecurity, price, worklot, side);
                     if (order != null)
                     {
-                        RobotWindowVM.Log(Header, " SendMarketOrder "
+                        RobotWindowVM.Log(Header, " SendMarketOrder в режиме  Close \n"
                              + GetStringForSave(order));
+
+                        RobotWindowVM.SendStrTextDb(" SendMarketOrder в режиме  Close\n " + order.NumberUser);
 
                         //if (order.State != OrderStateType.Activ ||                            
                         //    order.State != OrderStateType.Pending)
@@ -1133,7 +1134,7 @@ namespace OsEngine.ViewModels
                         //    " поместили отправленный Лимит ордер в OrdersForClose"
                         //     + GetStringForSave(order));
                         //}
-             
+
                         //else if (order.State != OrderStateType.Patrial )
                         //{
                         //    RobotWindowVM.SendStrTextDb(" SendLimitOrder Close исполнился частично \n " + order.NumberUser);
@@ -1237,7 +1238,7 @@ namespace OsEngine.ViewModels
                         RobotWindowVM.Log(Header, "ВНИМАНИЕ action ТЭЙК ордер меньше 6 $ не отрпавлен \n" +
                             " worklot  =  " + worklot);
                         // ждем Н секунд
-                        Thread.Sleep(3000);
+                        // Thread.Sleep(3000);
                         level.CalculateOrders();
                         // проверяем открытый объем на уровне - Volum и объем лимитки тейка 
                         // и если 
