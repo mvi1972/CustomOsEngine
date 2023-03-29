@@ -32,6 +32,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows;
 using System.Security.Cryptography;
 using OsEngine.Charts.CandleChart.Indicators;
+using static OsEngine.MyEntity.Level;
 
 namespace OsEngine.ViewModels
 {
@@ -50,7 +51,8 @@ namespace OsEngine.ViewModels
             //Level.OrdersForOpen = null;
     
             LoadParamsBot(header);
-
+            ClearOrd();
+           
             //ReloadOrderLevels();
             //DesirializerDictionaryOrders();
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
@@ -638,8 +640,7 @@ namespace OsEngine.ViewModels
                 }
                 return commandTestApi;
             }
-        }
-        
+        }        
 
         #endregion
 
@@ -907,6 +908,48 @@ namespace OsEngine.ViewModels
             }
         }
 
+        private void StartStop(object o)
+        {
+
+            RobotWindowVM.Log(Header, " \n\n StartStop = " + !IsRun);
+            Thread.Sleep(300);
+
+            SaveParamsBot();
+
+            IsRun = !IsRun;
+
+            if (IsRun)
+            {
+
+                foreach (Level level in Levels)
+                {
+                    level.SetVolumeStart();
+                    level.PassVolume = true;
+                    level.PassTake = true;
+                }
+                TradeLogic();
+            }
+            else
+            {
+                foreach (Level level in Levels)
+                {
+                    level.CancelAllOrders(Server, GetStringForSave);
+                }
+                Thread.Sleep(3000);
+                bool flag = true;
+                foreach (Level level in Levels)
+                {
+                    if (flag && level.LimitVolume != 0
+                        || level.TakeVolume != 0)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+
         /// <summary>
         /// после трейда или ррдера с бижжи по бумаге гоняет по уровням  логику отправки ореров на открытип и закрытие 
         /// </summary>
@@ -963,8 +1006,7 @@ namespace OsEngine.ViewModels
             decimal borderUp = Price + stepLevel * MaxActiveLevel;
             decimal borderDown = Price - stepLevel * MaxActiveLevel;
 
-            if (level.PassVolume
-                  && level.PriceLevel != 0
+            if (level.PassVolume  && level.PriceLevel != 0
                   && Math.Abs(level.Volume) + level.LimitVolume < Lot)
             {
                 if ((level.Side == Side.Buy && level.PriceLevel >= borderDown)
@@ -985,7 +1027,7 @@ namespace OsEngine.ViewModels
                         if (worklot == 0)
                         {
                             level.PassVolume = true;
-                            LevelTradeLogicOpen(level);
+                            // LevelTradeLogicOpen(level);
                             RobotWindowVM.Log(Header, " worklot = 0 ретурн ");
                             return;
                         }
@@ -1031,24 +1073,20 @@ namespace OsEngine.ViewModels
                     Order order = SendMarketOrder(SelectedSecurity, Price, worklot, side);
                     if (order != null)
                     {
-                        if (order.State != OrderStateType.Activ ||
-                            order.State != OrderStateType.Patrial ||
-                            order.State != OrderStateType.Pending)
-                        {
-                            level.PassVolume = false;
-                            Level.OrdersForClose.Add(order);
-                            RobotWindowVM.Log(Header, "Отправлен Маркет ордер на закрытие \n  " + GetStringForSave(order));
-                        }
+                        level.PassVolume = false;
+                        Level.OrdersForClose.Add(order);
+                        RobotWindowVM.Log(Header, "Отправлен Маркет ордер в  OrdersForClose \n  "
+                                                    + GetStringForSave(order));
                     }
                     else level.PassVolume = true;
                 }
                 else if (worklot * level.PriceLevel <= 6 && worklot != 0)
                 {
-                    RobotWindowVM.Log(Header, "ВНИМАНИЕ объём МАРКЕТ ордера <= 6 $ \n ордер не отправлен\n" +
-                        "action == Action.STOP \n " +
+                    RobotWindowVM.Log(Header, "ВНИМАНИЕ объём МАРКЕТ ордера  бред!! <= 6 $ \n ордер не отправлен\n" +
+                        "action == Action.STOP \n " + 
                         " worklot  =  " + worklot);
-                    level.PassVolume = true;
-                    LevelTradeLogicClose(level, Action.STOP);
+                    // надо добавить объем в позицию и закрыть ёё
+                    // бред такого не должно случаться 
                     return;
                 }
             }
@@ -1072,44 +1110,54 @@ namespace OsEngine.ViewModels
                 }
                 level.PassTake = false;
 
-                decimal worklot = Math.Abs(level.Volume) - level.TakeVolume;
+                decimal worklot = Math.Abs(level.Volume);
                 if (IsChekCurrency && worklot * level.PriceLevel > 6 || !IsChekCurrency)
                 {
-                    Order order = SendLimitOrder(SelectedSecurity, price, worklot, side);
+                    if (price == 0)
+                    {
+                        level.PassTake = true;
+                        return;
+                    }
+                    Order order = SendMarketOrder(SelectedSecurity, price, worklot, side);
                     if (order != null)
                     {
-                        if (price == 0)
-                        {
-                            level.PassTake = true;
-                            LevelTradeLogicClose(level, Action.CLOSE);
-                            return;
-                        }
-
-                        if (order.State != OrderStateType.Activ ||
-                            order.State != OrderStateType.Patrial ||
-                            order.State != OrderStateType.Pending)
-                        {
-                            level.PassVolume = false;
-                            Level.OrdersForClose.Add(order);
-                            RobotWindowVM.Log(Header,
-                            "Отправляем  Лимит ордер на закрытие по цене посленего трейда "
+                        RobotWindowVM.Log(Header, " SendMarketOrder "
                              + GetStringForSave(order));
-                        }
+
+                        //if (order.State != OrderStateType.Activ ||                            
+                        //    order.State != OrderStateType.Pending)
+                        //{
+                        //    level.PassVolume = false;
+                        //    Level.OrdersForClose.Add(order);
+                        //    RobotWindowVM.Log(Header,
+                        //    " поместили отправленный Лимит ордер в OrdersForClose"
+                        //     + GetStringForSave(order));
+                        //}
+             
+                        //else if (order.State != OrderStateType.Patrial )
+                        //{
+                        //    RobotWindowVM.SendStrTextDb(" SendLimitOrder Close исполнился частично \n " + order.NumberUser);
+                        //    RobotWindowVM.Log(Header, "ВНИМАНИЕ ордер исполнился частично \n ");
+
+                        //    if (worklot * level.PriceLevel <= 6 && worklot != 0)
+                        //    {
+                        //        RobotWindowVM.Log(Header, "ВНИМАНИЕ ордер <= 6 $ \n " +
+                        //            "action == Acon.CLOSE ордер не отправлен \n" +
+                        //            " worklot  =  " + worklot);
+                        //        // ждем Н секунд
+                        //        Thread.Sleep(3000);
+                        //        // проверяем статус ордера и цену 
+                        //        // переставить ордер - удалить маленький, докупить обем и закрыть весь обем 
+                        //        // надо обдумать логику 
+                        //        return;
+                        //    }
+                        //}
                     }
                     else
                     {
                         level.PassVolume = true;
                     }
-                }
-                else if (worklot * level.PriceLevel <= 6 && worklot != 0)
-                {
-                    RobotWindowVM.Log(Header, "ВНИМАНИЕ ордер <= 6 $ \n " +
-                        "action == Action.CLOSE ордер не отправлен \n" +
-                        " worklot  =  " + worklot);
-                    level.PassVolume = true;
-                    LevelTradeLogicClose(level, Action.CLOSE);
-                    return;
-                }
+                } 
             }
 
             if (IsRun == false || SelectedSecurity == null && action == Action.TAKE)
@@ -1176,19 +1224,29 @@ namespace OsEngine.ViewModels
                         if (order != null)
                         {
                             Level.OrdersForClose.Add(order);
-                            RobotWindowVM.Log(Header, "Отправляем Тэйк ордер =  " + GetStringForSave(order));
+                            RobotWindowVM.Log(Header, " сохраняем Тэйк ордер в OrdersForClose " + GetStringForSave(order));
                         }
                         else
                         {
                             level.PassTake = true;
+                            return;
                         }
                     }
                     else if (worklot * level.PriceLevel <= 6 && worklot != 0)
                     {
                         RobotWindowVM.Log(Header, "ВНИМАНИЕ action ТЭЙК ордер меньше 6 $ не отрпавлен \n" +
                             " worklot  =  " + worklot);
-                        level.PassTake = true;
-                        LevelTradeLogicClose(level, Action.TAKE); ;
+                        // ждем Н секунд
+                        Thread.Sleep(3000);
+                        level.CalculateOrders();
+                        // проверяем открытый объем на уровне - Volum и объем лимитки тейка 
+                        // и если 
+                        if (Math.Abs(level.Volume) == Math.Abs(level.TakeVolume) && level.Volume !=0)
+                        {
+                            level.CanselPatrialOrders( Server);
+                        }
+                        // переставить ордер - удалить маленький, докупить обем и закрыть весь обем 
+                        // надо обдумать логику 
                     }
                 }
             }
@@ -1229,7 +1287,9 @@ namespace OsEngine.ViewModels
             Total = Accum + VarMargine;
             PriceAverege = averagePrice;
         }
-
+        /// <summary>
+        /// расчитывает количество монет (лот)
+        /// </summary>
         private decimal CalcWorkLot(decimal lot, decimal price)
         {
             decimal workLot = lot;
@@ -1268,7 +1328,6 @@ namespace OsEngine.ViewModels
             RobotWindowVM.SendStrTextDb(" SendLimitOrder " + order.NumberUser);
             Server.ExecuteOrder(order);
 
-
             return order;
         }
 
@@ -1299,47 +1358,6 @@ namespace OsEngine.ViewModels
             Server.ExecuteOrder(order);
 
             return order;
-        }
-
-        private void StartStop(object o)
-        {
-
-            RobotWindowVM.Log(Header, " \n\n StartStop = " + !IsRun);
-            Thread.Sleep(300);
-
-            SaveParamsBot();
-
-            IsRun = !IsRun;
-
-            if (IsRun)
-            {
-
-                foreach (Level level in Levels)
-                {
-                    level.SetVolumeStart();
-                    level.PassVolume = true;
-                    level.PassTake = true;
-                }
-                TradeLogic();
-            }
-            else
-            {
-                foreach (Level level in Levels)
-                {
-                    level.CancelAllOrders(Server, GetStringForSave);
-                }
-                Thread.Sleep(3000);
-                bool flag = true;
-                foreach (Level level in Levels)
-                {
-                    if (flag && level.LimitVolume != 0
-                        || level.TakeVolume != 0)
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-            }
         }
 
         /// <summary>

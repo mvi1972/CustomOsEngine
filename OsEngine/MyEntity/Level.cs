@@ -286,7 +286,7 @@ namespace OsEngine.MyEntity
         /// <summary>
         /// проверка объема исполненых ордеров на уровне + смена статусов сделки уровня
         /// </summary>
-        private void CalculateOrders()
+        public void CalculateOrders()
         {
             decimal activeVolume = 0;
             decimal volumeExecute = 0;
@@ -342,6 +342,10 @@ namespace OsEngine.MyEntity
             PassVolume = passLimit;
             PassTake= passTake;
         }
+
+        /// <summary>
+        /// Удаляет ордера Cancel  Done и Fail из списков ордеров 
+        /// </summary>
         public void ClearOrders(ref List<Order> orders)
         {
             if (orders == null) return;
@@ -454,7 +458,7 @@ namespace OsEngine.MyEntity
             foreach (Order order in OrdersForOpen)
             {
 
-                RobotWindowVM.SendStrTextDb("OrdersForOpen[0].NumberMarket " + OrdersForOpen[0].NumberMarket.ToString());
+                RobotWindowVM.SendStrTextDb("ConselOrders ForOpen[0].NumberMarket " + OrdersForOpen[0].NumberMarket.ToString());
                 if (order != null
                        && order.State == OrderStateType.Activ
                         || order.State == OrderStateType.Patrial
@@ -469,13 +473,33 @@ namespace OsEngine.MyEntity
         }
 
         /// <summary>
+        /// удаляет частично исполненые ордера на открытие 
+        /// </summary>
+        public void CanselPatrialOrders(IServer server)
+        {
+            foreach (Order order in OrdersForOpen)
+            {
+
+                RobotWindowVM.SendStrTextDb("Consel Patrial Orders ForOpen[0].NumberMarket " + OrdersForOpen[0].NumberMarket.ToString());
+                if (order != null
+                       && order.State == OrderStateType.Patrial)
+                {
+                    server.CancelOrder(order);
+
+                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем частичную лимитку на открытие с биржи \n" );
+                    Thread.Sleep(30);
+                }
+            }
+        }
+
+        /// <summary>
         /// отозвать ордера на закрытие с биржи
         /// </summary>
         private void CanselCloseOrders(IServer server, DelegateGetStringForSave getStringForSave)
         {
             foreach (Order order in OrdersForClose)
             {
-                RobotWindowVM.SendStrTextDb("OrdersForClose[0].NumberMarket " + OrdersForClose[0].NumberMarket.ToString());
+                RobotWindowVM.SendStrTextDb("CanselOrders ForClose[0].NumberMarket " + OrdersForClose[0].NumberMarket.ToString());
                 if (order != null
                        && order.State == OrderStateType.Activ
                         || order.State == OrderStateType.Patrial
