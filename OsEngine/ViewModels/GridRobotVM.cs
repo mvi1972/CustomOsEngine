@@ -52,6 +52,7 @@ namespace OsEngine.ViewModels
     
             LoadParamsBot(header);
             ClearOrd();
+            SelectSecurBalans = 0;
            
             //ReloadOrderLevels();
             //DesirializerDictionaryOrders();
@@ -654,7 +655,26 @@ namespace OsEngine.ViewModels
         /// </summary>
         void Calculate(object o)
         {
-            //
+            #region пробовал доавить условия 
+            //// опрашиваем ордера 
+            //GetOrderStatusOnBoard();
+            //GetBalansSecur();
+            //// закрываем все открытое
+            //foreach (Level level in Levels)
+            //{
+            //    level.CancelAllOrders(Server, GetStringForSave);
+            //    // если есть монеты на бирже
+            //    if (SelectSecurBalans != 0)
+            //    {
+            //        LevelTradeLogicClose(level, Action.CLOSE);
+            //    }
+            //}
+            //foreach (Level level in Levels)
+            //{
+            //    level.CancelAllOrders(Server, GetStringForSave);
+            //}
+            #endregion
+
             decimal volume = 0;
             decimal stepTake = 0;
 
@@ -669,22 +689,8 @@ namespace OsEngine.ViewModels
                 if (result == MessageBoxResult.No)
                 {
                     return;
-                }
-                // опрашиваем ордера 
-                GetOrderStatusOnBoard();
-                // закрываем все открытое
-                foreach (Level level in Levels)
-                {
-                    level.CancelAllOrders(Server, GetStringForSave);
-
-                    LevelTradeLogicClose(level, Action.CLOSE);
-                }
-            }
-            foreach (Level level in Levels)
-            {
-                level.CancelAllOrders(Server, GetStringForSave);
-            }
-
+                }  
+            } 
 
             ObservableCollection<Level> levels = new ObservableCollection<Level>();
 
@@ -838,12 +844,18 @@ namespace OsEngine.ViewModels
             MessageBoxResult resut = MessageBox.Show("Закрыть все позиции по " + Header, " Уверен? ", MessageBoxButton.YesNo);
             if (resut == MessageBoxResult.Yes)
             {
+                GetBalansSecur();
                 IsRun = false;
                 foreach (Level level in Levels)
                 {
                     level.CancelAllOrders(Server, GetStringForSave);
-
                     LevelTradeLogicClose(level, Action.CLOSE);
+
+                    if (SelectSecurBalans != 0)
+                    {
+                        // level.PassTake = false;
+                        LevelTradeLogicClose(level, Action.CLOSE);
+                    }
                 }
             }
         }
@@ -853,7 +865,7 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void ExaminationStop()
         {
-            //if (SelectSecurBalans == 0) return;
+            if (SelectSecurBalans == 0 || IsRun == false) return;
 
             if (StopLong != 0 && Price != 0)
             {
@@ -1033,6 +1045,7 @@ namespace OsEngine.ViewModels
                         Order order = SendLimitOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
                         if (order != null)
                         {
+                            level.PassVolume = false;
                             Level.OrdersForOpen.Add(order);
 
                             RobotWindowVM.Log(Header, " Отправляем лимитку в level.OrdersForOpen " + GetStringForSave(order));
@@ -1117,6 +1130,7 @@ namespace OsEngine.ViewModels
                         level.PassTake = true;
                         return;
                     }
+                    level.PassTake = false;
                     Order order = SendMarketOrder(SelectedSecurity, price, worklot, side);
                     if (order != null)
                     {
@@ -1224,6 +1238,7 @@ namespace OsEngine.ViewModels
                         Order order = SendLimitOrder(SelectedSecurity, price, worklot, side);
                         if (order != null)
                         {
+                            level.PassTake = false;
                             Level.OrdersForClose.Add(order);
                             RobotWindowVM.Log(Header, " сохраняем Тэйк ордер в OrdersForClose " + GetStringForSave(order));
                         }
@@ -1428,7 +1443,8 @@ namespace OsEngine.ViewModels
                 for (int i = 0; i < Level.OrdersForOpen.Count; i++)
                 {
                     Order order = Level.OrdersForOpen[i];
-                    if (order == null || order.NumberMarket=="")
+                    // || order.NumberMarket==""
+                    if (order == null || order.NumberMarket == "") // || order.Comment == null                         
                     {
                         continue;
                     }
@@ -1437,7 +1453,7 @@ namespace OsEngine.ViewModels
                 for (int i = 0; i < Level.OrdersForClose.Count; i++)
                 {
                     Order order = Level.OrdersForClose[i];
-                    if (order == null)
+                    if (order == null || order.Comment == null || order.NumberMarket == "")
                     {
                         continue;
                     }
@@ -1786,7 +1802,8 @@ namespace OsEngine.ViewModels
             if (namesecur.Name == SelectedSecurity.Name)
             {
                 _bestAsk = ask;
-                _bestBid = bid;   
+                _bestBid = bid;
+                TradeLogic();
             }
         }
 
@@ -1802,10 +1819,10 @@ namespace OsEngine.ViewModels
                 CalculateMargin();
                 ExaminationStop();
 
-                if (trade.Time.Second % 5 == 0)
-                {
-                    // TradeLogic();
-                }
+                //if (trade.Time.Second % 5 == 0)
+                //{
+                //    TradeLogic();
+                //}
                 //bool rec = true;
                 //if (trade.Time.AddSeconds(1) < Server.ServerTime)
                 //{
@@ -1877,8 +1894,8 @@ namespace OsEngine.ViewModels
             {
                 return;
             }
-   
-            TradeLogic();
+            
+            //TradeLogic();
 
             if (myTrade == null || myTrade.SecurityNameCode != SelectedSecurity.Name )
             {

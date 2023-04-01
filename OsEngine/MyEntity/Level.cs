@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -205,7 +206,7 @@ namespace OsEngine.MyEntity
         ///  список лимиток на закрытие
         /// </summary>
         [DataMember]
-        public static List<Order> OrdersForClose = new List<Order>();
+        public static List<Order> OrdersForClose  = new List<Order>();
 
         /// <summary>
         /// лимитки на открытие позиций 
@@ -256,7 +257,7 @@ namespace OsEngine.MyEntity
         }
 
         /// <summary>
-        /// принадлежит ли ордер уровню 
+        /// принадлежит ли ордер списку
         /// </summary>
         public bool NewOrder(Order newOrder)
         {
@@ -350,6 +351,7 @@ namespace OsEngine.MyEntity
         {
             if (orders == null) return;
             List<Order> newOrders = new List<Order>();
+            string num = "";
             foreach (Order order in orders)
             {
                 if (order!= null
@@ -357,10 +359,14 @@ namespace OsEngine.MyEntity
                     && order.State != OrderStateType.Done
                     && order.State != OrderStateType.Fail)
                 {
-                    newOrders.Add(order);
-                    RobotWindowVM.SendStrTextDb(" Удалили ордера Cancel и Done " );
+                    if (num != order.NumberMarket)
+                    {
+                        newOrders.Add(order);
+                        num = order.NumberMarket;
+                    }  
                 }
             }
+            RobotWindowVM.SendStrTextDb(" Удалили ордера Cancel  Done и Fail");
             orders = newOrders;  
         }
 
@@ -408,45 +414,46 @@ namespace OsEngine.MyEntity
         /// </summary>
         public void CancelAllOrders(IServer server, DelegateGetStringForSave getStringForSave)
         {
-            CanselCloseOrders(server, getStringForSave);
-            CanselOpenOrders(server, getStringForSave);
+            //CanselCloseOrders(server, getStringForSave);
+            //CanselOpenOrders(server, getStringForSave);
             Task.Run(() =>
             {
-                //while (true)
-                //{
-                //    string namsec = "";
-                //    if (OrdersForOpen.Count != 0) // эта конструкция что бы взять имя бумаги для отправки в лог 
-                //    {
-                //        Order order = OrdersForOpen[0];
-                //        namsec = order.SecurityNameCode;
+                while (true)
+                {
+                    //string namsec = "";
+                    //if (OrdersForOpen.Count != 0 && OrdersForOpen != null) // эта конструкция что бы взять имя бумаги для отправки в лог 
+                    //{
+                    //    ClearOrders(ref OrdersForOpen);
+                    //    Order order = OrdersForOpen[0];
+                    //    namsec = order.SecurityNameCode;
 
-                //        RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток для отзыва ордеров на открытие \n");
-                //    }
-                //    if (OrdersForClose.Count != 0)
-                //    {
-                //        Order order = OrdersForClose[0];
-                //        namsec = order.SecurityNameCode;
+                    //    RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток для отзыва ордеров на открытие \n");
+                    //}
+                    //if (OrdersForClose.Count != 0 && OrdersForClose != null)
+                    //{
+                    //    ClearOrders(ref OrdersForClose);
+                    //    Order order = OrdersForClose[0];
+                    //    namsec = order.SecurityNameCode;
 
-                //        RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток отзыва ордеров на закрытие \n");
-                //    }
-                //    CanselCloseOrders(server, getStringForSave);
-                //    CanselOpenOrders(server, getStringForSave);
+                    //    RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток отзыва ордеров на закрытие \n");
+                    //}
+                    CanselCloseOrders(server, getStringForSave);
+                    CanselOpenOrders(server, getStringForSave);
 
-                //    string str = "ВКЛЮЧЕН поток для отзыва ордеров \n";
-                //    Debug.WriteLine(str);
+                    string str = "ВКЛЮЧЕН поток для отзыва ордеров \n";
+                    Debug.WriteLine(str);
 
-                //    Thread.Sleep(2000);
-                //    if (LimitVolume == 0 && TakeVolume == 0)
-                //    {
-                //        string str2 = "Поток для отзыва ордеров ОТКЛЮЧЕН \n";
-                //        Debug.WriteLine(str2);
-                //        if (namsec != "")
-                //        {
-                //            RobotWindowVM.Log(namsec, "Поток для отзыва ордеров ОТКЛЮЧЕН \n");
-                //        }
-                //        break;
-                //    }
-                //}
+                    Thread.Sleep(3000);
+                    if (LimitVolume == 0 && TakeVolume == 0)
+                    {
+                        string str2 = "Поток для отзыва ордеров ОТКЛЮЧЕН \n";
+                        Debug.WriteLine(str2);
+    
+                        //RobotWindowVM.Log(Header, "Поток для отзыва ордеров ОТКЛЮЧЕН \n");
+ 
+                        break;
+                    }
+                }
             });
         }
 
@@ -457,8 +464,7 @@ namespace OsEngine.MyEntity
         {
             foreach (Order order in OrdersForOpen)
             {
-
-                RobotWindowVM.SendStrTextDb("ConselOrders ForOpen[0].NumberMarket " + OrdersForOpen[0].NumberMarket.ToString());
+                RobotWindowVM.SendStrTextDb("ConselOrders ForOpen order.NumberUser " + order.NumberUser.ToString());
                 if (order != null
                        && order.State == OrderStateType.Activ
                         || order.State == OrderStateType.Patrial
@@ -479,14 +485,14 @@ namespace OsEngine.MyEntity
         {
             foreach (Order order in OrdersForOpen)
             {
-
-                RobotWindowVM.SendStrTextDb("Consel Patrial Orders ForOpen[0].NumberMarket " + OrdersForOpen[0].NumberMarket.ToString());
+                RobotWindowVM.SendStrTextDb("Consel Patrial Orders ForOpen order.NumberUse " + order.NumberUser.ToString());
                 if (order != null
                        && order.State == OrderStateType.Patrial)
                 {
                     server.CancelOrder(order);
 
-                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем частичную лимитку на открытие с биржи \n" );
+                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем частичную лимитку на открытие с биржи \n"
+                        + order.NumberUser.ToString());
                     Thread.Sleep(30);
                 }
             }
@@ -499,7 +505,11 @@ namespace OsEngine.MyEntity
         {
             foreach (Order order in OrdersForClose)
             {
-                RobotWindowVM.SendStrTextDb("CanselOrders ForClose[0].NumberMarket " + OrdersForClose[0].NumberMarket.ToString());
+                RobotWindowVM.SendStrTextDb("CanselOrders ForClose order.NumberUser " + order.NumberUser.ToString());
+                if (order.Comment == null)
+                {
+                    continue;
+                }
                 if (order != null
                        && order.State == OrderStateType.Activ
                         || order.State == OrderStateType.Patrial
@@ -535,6 +545,7 @@ namespace OsEngine.MyEntity
             }
             return false;
         }
+
         /// <summary>
         /// расчет объема позиции (по лотам)
         /// </summary>
@@ -586,7 +597,7 @@ namespace OsEngine.MyEntity
                     else   
                     {
     // изсенил расчет 
-                        //_calcVolume *= -1;
+                        _calcVolume *= -1;
                         openPrice = (Math.Abs(_calcVolume) * openPrice + myTrade.Volume * myTrade.Price) / (Math.Abs(_calcVolume) + myTrade.Volume);
                     }
                 }
