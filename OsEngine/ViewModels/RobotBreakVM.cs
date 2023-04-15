@@ -44,7 +44,7 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region ======================================поля================================
-        public int NumberTab = 0;
+        //public int NumberTab = 0;
         Portfolio _portfolio;
 
         public List<Side> Sides { get; set; } = new List<Side>()
@@ -55,6 +55,16 @@ namespace OsEngine.ViewModels
         #endregion
 
         #region ==============================Свойтсва===========================================
+        public int NumberTab
+        {
+            get => _numberTab;
+            set
+            {
+                _numberTab = value;
+                OnPropertyChanged(nameof(NumberTab));
+            }
+        }
+        private int _numberTab;
         public string Header
         {
             get

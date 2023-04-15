@@ -539,6 +539,18 @@ namespace OsEngine.ViewModels
         }
         private decimal _stopLong=0;
 
+   
+        public int NumberTab
+        {
+            get => _numberTab;
+            set
+            {
+                _numberTab = value;
+                OnPropertyChanged(nameof(NumberTab));
+            }
+        }
+        private int _numberTab;
+
         #endregion
 
         #region Поля =======================================================================================
@@ -560,8 +572,6 @@ namespace OsEngine.ViewModels
             Side.Buy,
             Side.Sell,
         };
-
-        public int NumberTab=0;
 
         CultureInfo CultureInfo = new CultureInfo("ru-RU");
         #endregion
@@ -1547,7 +1557,7 @@ namespace OsEngine.ViewModels
 
             try
             {
-                using (StreamWriter writer = new StreamWriter(@"Parametrs\Tabs\param_" + Header + "=" + NumberTab + ".txt", false))
+                using (StreamWriter writer = new StreamWriter(@"Parametrs\Tabs\param_" + NumberTab + ".txt", false))
                 {
                     writer.WriteLine(Header);
                     writer.WriteLine(ServerType);
@@ -1594,7 +1604,7 @@ namespace OsEngine.ViewModels
             string servType = "";
             try
             {
-                using (StreamReader reader = new StreamReader(@"Parametrs\Tabs\param_" + name + ".txt"))
+                using (StreamReader reader = new StreamReader(@"Parametrs\Tabs\param_" + NumberTab + ".txt"))
                 {
                     Header = reader.ReadLine(); // загружаем заголовок
                     servType = reader.ReadLine(); // загружаем название сервера

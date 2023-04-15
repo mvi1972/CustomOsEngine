@@ -18,6 +18,11 @@ namespace OsEngine.ViewModels
         public string Header { get; set; }
 
         /// <summary>
+        /// номер вкладки
+        /// </summary>
+        public int NumberTab { get; set; }
+
+        /// <summary>
         /// название статегии 
         /// </summary>
         public NameStrat NameStrat { get; set; }

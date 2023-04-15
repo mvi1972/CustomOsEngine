@@ -23,7 +23,7 @@ using System.Runtime.Serialization.Json;
 
 namespace OsEngine.ViewModels
 {
-    [DataContract]  
+    [DataContract]
     public class RobotWindowVM : BaseVM
     {
         public RobotWindowVM()
@@ -39,7 +39,7 @@ namespace OsEngine.ViewModels
             LoadHeaderBot();
 
             ServerMaster.ActivateAutoConnection();
-           
+
         }
 
         #region  ================================ Свойства =====================================
@@ -75,12 +75,14 @@ namespace OsEngine.ViewModels
         public IRobotVM SelectedRobot
         {
             get => _selectedRobot;
+
             set
             {
                 _selectedRobot = value;
                 OnPropertyChanged(nameof(SelectedRobot));
             }
-        }
+        }  
+
         private IRobotVM _selectedRobot;
 
         #endregion
@@ -102,6 +104,12 @@ namespace OsEngine.ViewModels
         /// </summary>
         public static ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>
             Orders = new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();
+
+        /// <summary>
+        /// многопоточный слоарь для трейдов 
+        /// </summary>
+        public static ConcurrentDictionary<string, ConcurrentDictionary<string, MyTrade>>
+            MyTrades = new ConcurrentDictionary<string, ConcurrentDictionary<string, MyTrade>>();
 
         CultureInfo CultureInfo = new CultureInfo("ru-RU");
 
@@ -159,7 +167,46 @@ namespace OsEngine.ViewModels
             server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
             // изменились портфели
             server.PortfoliosChangeEvent += Server_PortfoliosChangeEvent;
+            // сервер конект
+            server.ConnectStatusChangeEvent += Server_ConnectStatusChangeEvent;
+            // мои трейды
+            server.NewMyTradeEvent += Server_NewMyTradeEvent;
            
+        }
+
+        private void Server_NewMyTradeEvent(MyTrade myTrade)
+        {
+            ConcurrentDictionary<string, MyTrade> myTrades = null;
+
+            if (MyTrades.TryGetValue(myTrade.SecurityNameCode, out myTrades))
+            {
+                myTrades.AddOrUpdate(myTrade.NumberTrade, myTrade, (key, value)=> value = myTrade);
+            }
+            else
+            {
+                myTrades = new ConcurrentDictionary<string, MyTrade>();
+                myTrades.AddOrUpdate(myTrade.NumberTrade, myTrade, (key, value) => value = myTrade);
+                MyTrades.AddOrUpdate(myTrade.SecurityNameCode, myTrades, (key, value) => value = myTrades);
+            }
+        }
+
+        private void Server_ConnectStatusChangeEvent(string state)
+        {
+            if (state == "Connect")
+            {
+                Task.Run(async () =>
+                {
+                    DateTime dt = DateTime.Now;
+                    while (dt.AddMinutes(1) > DateTime.Now)
+                    {
+                        await Task.Delay(5000);
+                        foreach (IRobotVM robot in Robots)
+                        {
+                            // поверяем ордера и трейды
+                        }
+                    }
+                });
+            }            
         }
 
         private void Server_PortfoliosChangeEvent(List<Portfolio> portfolios)
@@ -249,11 +296,11 @@ namespace OsEngine.ViewModels
             {
                 if (strat == NameStrat.GRID)
                 {
-                    Robots.Add(new GridRobotVM(name, Robots.Count));
+                    Robots.Add(new GridRobotVM(name, Robots.Count+1));
                 }
                 if (strat == NameStrat.BREAKDOWN)
                 {
-                    Robots.Add(new RobotBreakVM(name, Robots.Count));
+                    Robots.Add(new RobotBreakVM(name, Robots.Count+1));
                 }
                 
                 //Robots.Last().Header = name;
@@ -262,13 +309,13 @@ namespace OsEngine.ViewModels
             {
                 if (strat == NameStrat.GRID)
                 {
-                    Robots.Add(new GridRobotVM(Robots.Count));
-                    Robots.Last().Header = "Tab " + (Robots.Count + 1);
+                    Robots.Add(new GridRobotVM(Robots.Count + 1));
+                    //Robots.Last().Header = "Tab " + (Robots.Count + 1);
                 }
                 if (strat == NameStrat.BREAKDOWN)
                 {
-                    Robots.Add(new RobotBreakVM(Robots.Count));
-                    Robots.Last().Header = "Tab " + (Robots.Count + 1);
+                    Robots.Add(new RobotBreakVM(Robots.Count + 1));
+                   // Robots.Last().Header = "Tab " + (Robots.Count + 1);
                 }
  
             }
@@ -346,7 +393,7 @@ namespace OsEngine.ViewModels
                         writer.Close();
                     }
                 }
-                Thread.Sleep(10);
+                Thread.Sleep(5);
             }
         }
 
@@ -364,22 +411,24 @@ namespace OsEngine.ViewModels
 
             for (int i=0; i< Robots.Count; i++)
             {
-                str += Robots[i].Header  + "=" + i + ";";
+                str += Robots[i].Header  + ";";
             }
             try
             {
-                using ( StreamWriter writer = new StreamWriter(@"Parametrs\param.txt"))
+                using ( StreamWriter writer = new StreamWriter(@"Parametrs\param.txt", false))
                 {
                     writer.WriteLine(str);
-                    if (SelectedRobot == null)
-                    {
-                        writer.WriteLine("none tab");
-                    }
-                    else writer.WriteLine(SelectedRobot.Header);
+
+                    writer.WriteLine(SelectedRobot.NumberTab);
 
                     writer.WriteLine(SelectedRobot.NameStrat);
 
                     writer.Close();
+                    //if (SelectedRobot == null)
+                    //{
+                    //    writer.WriteLine("none tab");
+                    //}
+                    //else writer.WriteLine(SelectedRobot.Header);
                 }
             }
             catch (Exception ex)
@@ -398,6 +447,7 @@ namespace OsEngine.ViewModels
                 return;
             }
             string strTabs = "";
+            int selectedNumber = 0;
             string header = "";
             string strStrat = "";
             try
@@ -405,7 +455,8 @@ namespace OsEngine.ViewModels
                 using (StreamReader reader = new StreamReader(@"Parametrs\param.txt"))
                 {
                     strTabs = reader.ReadLine();
-                    header = reader.ReadLine();
+                    selectedNumber = Convert.ToInt32(reader.ReadLine());
+                    //header = reader.ReadLine();
                     strStrat = reader.ReadLine();
                 }
             }
@@ -414,6 +465,7 @@ namespace OsEngine.ViewModels
                 Log("App", " Ошибка выгрузки параметров = " + ex.Message);
             }
             string[] tabs = strTabs.Split(';');
+  
             //string[] strat = strStrat.Split(';');
             foreach (string tab in tabs)
             {
@@ -430,11 +482,14 @@ namespace OsEngine.ViewModels
                         {
                             SelectedRobot = (RobotBreakVM)Robots.Last();
                         }
-                    }
+                    }     
                 }
             }
-
-        }
+            if (Robots.Count > selectedNumber - 1)
+            {
+                SelectedRobot = Robots[selectedNumber - 1];
+            }
+        } 
 
         /// <summary>
         /// отправить строку в дебаг
