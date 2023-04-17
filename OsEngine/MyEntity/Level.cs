@@ -49,7 +49,7 @@ namespace OsEngine.MyEntity
                 OnPropertyChanged(nameof(Side));
             }
         }
-        public Side _side;
+        public Side _side =0 ;
 
         /// <summary>
         /// Статус сделок на уровне
@@ -206,13 +206,13 @@ namespace OsEngine.MyEntity
         ///  список лимиток на закрытие
         /// </summary>
         [DataMember]
-        public static List<Order> OrdersForClose  = new List<Order>();
+        public  List<Order> OrdersForClose  = new List<Order>();
 
         /// <summary>
         /// лимитки на открытие позиций 
         /// </summary>
         [DataMember]
-        public static List<Order> OrdersForOpen = new List<Order>();
+        public  List<Order> OrdersForOpen = new List<Order>();
 
         /// <summary>
         ///  список моих трейдов принадлежащих уровню
@@ -285,6 +285,28 @@ namespace OsEngine.MyEntity
         }
 
         /// <summary>
+        /// принадлежит ли трейд ордеру проверка
+        /// </summary>
+        private bool IsMyTrade (MyTrade newTrade)
+        {
+            foreach (Order order in OrdersForOpen)
+            {
+                if (order.NumberMarket == newTrade.NumberOrderParent)
+                {                   
+                    return true;
+                }
+            }
+            foreach (Order order in OrdersForClose)
+            {
+                if (order.NumberMarket == newTrade.NumberOrderParent)
+                {                  
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// проверка объема исполненых ордеров на уровне + смена статусов сделки уровня
         /// </summary>
         public void CalculateOrders()
@@ -342,6 +364,19 @@ namespace OsEngine.MyEntity
             TakeVolume = activeTake;
             PassVolume = passLimit;
             PassTake= passTake;
+        }
+
+        private Order CopyOrder(Order newOrder,Order order)
+        {
+            order.State = newOrder.State;
+            order.TimeCancel = newOrder.TimeCancel;
+            order.Volume = newOrder.Volume;
+            order.VolumeExecute = newOrder.VolumeExecute;
+            order.TimeDone = newOrder.TimeDone;
+            order.TimeCallBack = newOrder.TimeCallBack;
+            order.NumberUser = newOrder.NumberUser;
+
+            return order;
         }
 
         /// <summary>
@@ -525,22 +560,22 @@ namespace OsEngine.MyEntity
         /// <summary>
         /// проверяет принадлежность трейд к уроню и добавляет если да
         /// </summary>
-        public bool AddMyTrade(MyTrade myTrade, decimal contLot)
+        public bool AddMyTrade(MyTrade newTrade, Security security)
         {
             foreach (MyTrade trade in _myTrades)
             {
-                if (trade.NumberTrade == myTrade.NumberTrade)
+                if (trade.NumberTrade == newTrade.NumberTrade)
                 {
                     return false;
                 }
             }
 
-            if (IsMyTrade(myTrade))
+            if (IsMyTrade(newTrade))
             {
-                _myTrades.Add(myTrade);
+                _myTrades.Add(newTrade);
 
                 CalculateOrders();
-                CalculatePosition(contLot);
+                CalculatePosition(newTrade, security);
                 return true;
             }
             return false;
@@ -549,102 +584,98 @@ namespace OsEngine.MyEntity
         /// <summary>
         /// расчет объема позиции (по лотам)
         /// </summary>
-        private void CalculatePosition(decimal contLot)
+        private void CalculatePosition(MyTrade myTrade, Security security)
         {            
             //decimal volume =0;
             decimal openPrice = 0;
             decimal accum = 0;
 
-            foreach (MyTrade myTrade in _myTrades) 
+            if (_calcVolume == 0)
             {
-                if (_calcVolume == 0)
+                OpenPrice = myTrade.Price;
+            }
+            else if (_calcVolume > 0)
+            {
+                if (myTrade.Side == Side.Buy)
                 {
-                    openPrice = myTrade.Price;
+                    OpenPrice = (_calcVolume * OpenPrice + myTrade.Volume * myTrade.Price) /
+                        (_calcVolume + myTrade.Volume);
                 }
-                else if (_calcVolume > 0)
+                else
                 {
-                    if (myTrade.Side == Side.Buy)
+                    if (myTrade.Volume <= _calcVolume)
                     {
-                        openPrice = (_calcVolume * openPrice + myTrade.Volume * myTrade.Price) / (_calcVolume + myTrade.Volume);
+                        accum = (myTrade.Price - OpenPrice) * myTrade.Volume;
                     }
                     else
                     {
-                        if (myTrade.Volume <= Math.Abs(_calcVolume))
-                        {
-                            accum += (myTrade.Price - openPrice) * myTrade.Volume;
-                        }
-                        else
-                        {
-                            accum += (myTrade.Price - openPrice) * _calcVolume;
-                            openPrice = myTrade.Price;
-                        }
+                        accum = (myTrade.Price - OpenPrice) * _calcVolume;
+                        OpenPrice = myTrade.Price;
                     }
                 }
-                else if (_calcVolume < 0)
-                {
-                    if (myTrade.Side == Side.Buy)
-                    {
-                        if (myTrade.Volume <= Math.Abs(_calcVolume))
-                        {
-                            accum += (myTrade.Price - openPrice) * myTrade.Volume;
-                        }
-                        else
-                        {
-                            accum += (myTrade.Price - openPrice) * _calcVolume;
-                            openPrice = myTrade.Price;
-                        }
-                    }
-                    else   
-                    {
-    // изсенил расчет 
-                        _calcVolume *= -1;
-                        openPrice = (Math.Abs(_calcVolume) * openPrice + myTrade.Volume * myTrade.Price) / (Math.Abs(_calcVolume) + myTrade.Volume);
-                    }
-                }
-             
+            }
+            else if (_calcVolume < 0)
+            {
                 if (myTrade.Side == Side.Buy)
                 {
-                    _calcVolume += myTrade.Volume;
+                    if (myTrade.Volume <= Math.Abs(_calcVolume))
+                    {
+                        accum = (OpenPrice - myTrade.Price  ) * myTrade.Volume;
+                    }
+                    else
+                    {
+                        accum = (OpenPrice - myTrade.Price) * Math.Abs(_calcVolume);
+                        OpenPrice = myTrade.Price;
+                    }
                 }
-                else if (myTrade.Side == Side.Sell)
+                else
                 {
-                    _calcVolume -= myTrade.Volume;
-                }
-             
-                if (_calcVolume == 0)
-                {
-                    openPrice = 0;
+                    OpenPrice = (Math.Abs(_calcVolume) * OpenPrice + myTrade.Volume * myTrade.Price) /
+                        (Math.Abs(_calcVolume) + myTrade.Volume);
                 }
             }
-            OpenPrice = openPrice;
-            Accum = accum * contLot;
+
+            if (myTrade.Side == Side.Buy)
+            {
+                _calcVolume += myTrade.Volume;
+            }
+            else if (myTrade.Side == Side.Sell)
+            {
+                _calcVolume -= myTrade.Volume;
+            }
+
+            if (_calcVolume == 0)
+            {
+                OpenPrice = 0;
+            }
+
+            OpenPrice = Math.Round(OpenPrice, security.Decimals);
+            Accum += accum * security.Lot;
         }
 
-        /// <summary>
-        /// принадлежит ли трейд ордеру проверка
-        /// </summary>
-        private bool IsMyTrade(MyTrade myTrade)
-        {
-            foreach (Order order in OrdersForOpen)
-            {
-                if (order.NumberMarket == myTrade.NumberOrderParent)
-                {
-                    // номер трейда принадлежит ордеру открытия позы на бирже
-                    // StatusLevel = PositionStatus.OPEN;
-                    return true;                   
-                }
-            }
-            foreach (Order order in OrdersForClose)
-            {
-                if (order.NumberMarket == myTrade.NumberOrderParent)
-                {
-                    // номер трейда принадлежит ордеру закрытия позы на бирже
-                    // StatusLevel = PositionStatus.DONE;
-                    return true;
-                }
-            }
-            return false;
-        } 
+ 
+        //private bool IsMyTrade(MyTrade myTrade)
+        //{
+        //    foreach (Order order in OrdersForOpen)
+        //    {
+        //        if (order.NumberMarket == myTrade.NumberOrderParent)
+        //        {
+        //            // номер трейда принадлежит ордеру открытия позы на бирже
+        //            // StatusLevel = PositionStatus.OPEN;
+        //            return true;                   
+        //        }
+        //    }
+        //    foreach (Order order in OrdersForClose)
+        //    {
+        //        if (order.NumberMarket == myTrade.NumberOrderParent)
+        //        {
+        //            // номер трейда принадлежит ордеру закрытия позы на бирже
+        //            // StatusLevel = PositionStatus.DONE;
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //} 
 
         #endregion
 

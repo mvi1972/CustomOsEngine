@@ -53,7 +53,7 @@ namespace OsEngine.ViewModels
             LoadParamsBot(header);
             ClearOrd();
             SelectSecurBalans = 0;
-           
+            
             //ReloadOrderLevels();
             //DesirializerDictionaryOrders();
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
@@ -441,17 +441,12 @@ namespace OsEngine.ViewModels
             set
             {
                 _isRun = value;
+                OnPropertyChanged(nameof(IsRun));
+
                 if (IsRun)
                 {
-                    IsReadOnly = true;
-                    IsEnabled = false;
-                }
-                else
-                {
-                    IsReadOnly = false;
-                    IsEnabled = true;   
-                }
-                OnPropertyChanged(nameof(IsRun));
+                    TradeLogic();
+                } 
             }
         }
         private bool _isRun;
@@ -549,7 +544,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(NumberTab));
             }
         }
-        private int _numberTab;
+        private int _numberTab = 0;
 
         #endregion
 
@@ -938,37 +933,7 @@ namespace OsEngine.ViewModels
 
             SaveParamsBot();
 
-            IsRun = !IsRun;
-
-            if (IsRun)
-            {
-
-                foreach (Level level in Levels)
-                {
-                    level.SetVolumeStart();
-                    level.PassVolume = true;
-                    level.PassTake = true;
-                }
-                TradeLogic();
-            }
-            else
-            {
-                foreach (Level level in Levels)
-                {
-                    level.CancelAllOrders(Server, GetStringForSave);
-                }
-                Thread.Sleep(3000);
-                bool flag = true;
-                foreach (Level level in Levels)
-                {
-                    if (flag && level.LimitVolume != 0
-                        || level.TakeVolume != 0)
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-            }
+            IsRun = !IsRun;   
         }
 
         /// <summary>
@@ -976,12 +941,30 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void TradeLogic()
         {
+            if (IsRun == false || SelectedSecurity == null)
+            {
+                return;
+            }
             foreach (Level level in Levels)
             {
                 LevelTradeLogicOpen(level);
 
                 LevelTradeLogicClose(level, Action.TAKE);
             }
+        }
+        private decimal GetStepLevel()
+        {
+            decimal stepLevel = 0;
+            if (StepType == StepType.PUNKT)
+            {
+                stepLevel = StepLevel * SelectedSecurity.PriceStep;
+            }
+            else if (StepType == StepType.PERCENT)
+            {
+                stepLevel = StepLevel * Price / 100;
+                stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
+            }
+            return stepLevel;
         }
 
         /// <summary>
@@ -1013,18 +996,10 @@ namespace OsEngine.ViewModels
                 return;
             }
 
-            decimal stepLevel = 0;
-            if (StepType == StepType.PUNKT)
-            {
-                stepLevel = StepLevel * SelectedSecurity.PriceStep;
-            }
-            else if (StepType == StepType.PERCENT)
-            {
-                stepLevel = StepLevel * Price / 100;
-                stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
-            }
-
+            decimal stepLevel = GetStepLevel();
+ 
             decimal borderUp = Price + stepLevel * MaxActiveLevel;
+
             decimal borderDown = Price - stepLevel * MaxActiveLevel;
 
             if (level.PassVolume  && level.PriceLevel != 0
@@ -1043,28 +1018,17 @@ namespace OsEngine.ViewModels
 
                     level.PassVolume = false;
 
-                    if (IsChekCurrency && Lot > 6 || !IsChekCurrency)
+                    Order order = SendLimitOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
+                    if (order != null)
                     {
-                        if (worklot == 0)
-                        {
-                            level.PassVolume = true;
-                            // LevelTradeLogicOpen(level);
-                            RobotWindowVM.Log(Header, " worklot = 0 ретурн ");
-                            return;
-                        }
-                        Order order = SendLimitOrder(SelectedSecurity, level.PriceLevel, worklot, level.Side);
-                        if (order != null)
-                        {
-                            level.PassVolume = false;
-                            Level.OrdersForOpen.Add(order);
+                        level.OrdersForOpen.Add(order);
 
-                            RobotWindowVM.Log(Header, " Отправляем лимитку в level.OrdersForOpen " + GetStringForSave(order));
-                            Thread.Sleep(10);
-                        }
-                        else
-                        {
-                            level.PassVolume = true;
-                        }
+                        RobotWindowVM.Log(Header, " Отправляем лимитку в level.OrdersForOpen " + GetStringForSave(order));
+                        Thread.Sleep(10);
+                    }
+                    else
+                    {
+                        level.PassVolume = true;
                     }
                 }
             }
@@ -1096,7 +1060,7 @@ namespace OsEngine.ViewModels
                     if (order != null)
                     {
                         level.PassVolume = false;
-                        Level.OrdersForClose.Add(order);
+                        level.OrdersForClose.Add(order);
                         RobotWindowVM.Log(Header, "Отправлен Маркет ордер в  OrdersForClose \n  "
                                                     + GetStringForSave(order));
                     }
@@ -1249,7 +1213,7 @@ namespace OsEngine.ViewModels
                         if (order != null)
                         {
                             level.PassTake = false;
-                            Level.OrdersForClose.Add(order);
+                            level.OrdersForClose.Add(order);
                             RobotWindowVM.Log(Header, " сохраняем Тэйк ордер в OrdersForClose " + GetStringForSave(order));
                         }
                         else
@@ -1306,12 +1270,12 @@ namespace OsEngine.ViewModels
                 margine += level.Margin;
             }
 
-            AllPositionsCount = volume;
-            PriceAverege = averagePrice;
-            Accum = accum;
-            VarMargine = margine;
+            AllPositionsCount = Math.Round(volume, SelectedSecurity.Decimals);
+            PriceAverege = Math.Round(averagePrice, SelectedSecurity.Decimals); 
+            Accum = Math.Round(accum, SelectedSecurity.Decimals);
+            VarMargine = Math.Round(margine, SelectedSecurity.Decimals);
             Total = Accum + VarMargine;
-            PriceAverege = averagePrice;
+            
         }
         /// <summary>
         /// расчитывает количество монет (лот)
@@ -1413,8 +1377,8 @@ namespace OsEngine.ViewModels
         {
             foreach (Level level in Levels)
             {
-                level.ClearOrders(ref Level.OrdersForOpen);
-                level.ClearOrders(ref Level.OrdersForClose);
+                level.ClearOrders(ref level.OrdersForOpen);
+                level.ClearOrders(ref level.OrdersForClose);
             }
         }
 
@@ -1450,9 +1414,9 @@ namespace OsEngine.ViewModels
             foreach (Level level in Levels)
             {
                 //level.ClearOrders(ref Level.OrdersForOpen);
-                for (int i = 0; i < Level.OrdersForOpen.Count; i++)
+                for (int i = 0; i < level.OrdersForOpen.Count; i++)
                 {
-                    Order order = Level.OrdersForOpen[i];
+                    Order order = level.OrdersForOpen[i];
                     // || order.NumberMarket==""
                     if (order == null || order.NumberMarket == "") // || order.Comment == null                         
                     {
@@ -1460,9 +1424,9 @@ namespace OsEngine.ViewModels
                     }
                     ordersInLevels.Add(order);
                 }
-                for (int i = 0; i < Level.OrdersForClose.Count; i++)
+                for (int i = 0; i < level.OrdersForClose.Count; i++)
                 {
-                    Order order = Level.OrdersForClose[i];
+                    Order order = level.OrdersForClose[i];
                     if (order == null || order.Comment == null || order.NumberMarket == "")
                     {
                         continue;
@@ -1916,27 +1880,6 @@ namespace OsEngine.ViewModels
             //    SerializerDictionaryOrders();
             //}
 
-            foreach (Level level in Levels)
-            {
-                bool newTrade = level.AddMyTrade(myTrade, SelectedSecurity.Lot);
-                if (newTrade)
-                {
-                    RobotWindowVM.SendStrTextDb(" Trade ордера " + myTrade.NumberOrderParent + "\n " +
-                                                    "NumberTrade " + myTrade.NumberTrade);
-
-                    RobotWindowVM.Log(Header, "MyTrade =  " + GetStringForSave(myTrade));
-                    if (myTrade.Side == level.Side)
-                    {
-                        LevelTradeLogicClose(level, Action.TAKE);
-                    }
-                    else
-                    {
-                        LevelTradeLogicOpen(level);
-                    }
-                    RobotWindowVM.Log(Header, " MyTrade \n Уровень  =  " + level.GetStringForSave());
-                    SaveParamsBot();
-                }
-            }
         }
         /// <summary>
         /// Сервер мастер создан сервер
@@ -1945,8 +1888,7 @@ namespace OsEngine.ViewModels
         {
             if (server.ServerType == ServerType)
             {
-                Server = server;
-               
+                Server = server;               
             }
         }
 
@@ -1973,7 +1915,7 @@ namespace OsEngine.ViewModels
         private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
         {
             GetBalansSecur();// запросить объем монеты на бирже 
-            if (portfolios == null || _portfoliosCount >= portfolios.Count) // нет новых портфелей 
+            if (portfolios == null ||portfolios.Count == 0) // нет новых портфелей 
             {
                 return;
             }
@@ -2027,13 +1969,13 @@ namespace OsEngine.ViewModels
             foreach (Level level in Levels)
             {
                 //var or = Level.OrdersForOpen[0];
-                List<Order> ordersOp = Level.OrdersForOpen;
+                List<Order> ordersOp = level.OrdersForOpen;
                 NewOrdersForOpen = ordersOp;
-                Level.OrdersForOpen = NewOrdersForOpen;
+                level.OrdersForOpen = NewOrdersForOpen;
 
-                List<Order> orderCl = Level.OrdersForClose;
+                List<Order> orderCl = level.OrdersForClose;
                 NewOrdersForClose = orderCl;
-                Level.OrdersForClose = NewOrdersForClose;
+                level.OrdersForClose = NewOrdersForClose;
             }
         }
 
