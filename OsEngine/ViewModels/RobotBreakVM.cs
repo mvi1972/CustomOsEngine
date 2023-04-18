@@ -164,7 +164,7 @@ namespace OsEngine.ViewModels
                 if (SelectedSecurity != null)
                 {
                     StartSecuritiy(SelectedSecurity); // запуск бумаги 
-                    OnSelectedSecurity?.Invoke(SelectedSecurity.Name);
+                    OnSelectedSecurity?.Invoke();
                 }
             }
         }

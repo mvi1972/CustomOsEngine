@@ -262,21 +262,27 @@ namespace OsEngine.MyEntity
         public bool NewOrder(Order newOrder)
         {
             //if(OrdersForOpen == null || OrdersForOpen.Count == 0) return false;
-            foreach (Order order in OrdersForOpen)
+            for (int i=0; i<OrdersForOpen.Count; i++)
             {
-                if (order.NumberMarket == newOrder.NumberMarket)
+                if (OrdersForOpen[i].NumberMarket == newOrder.NumberMarket)
                 {
+                    CopyOrder(newOrder, OrdersForOpen[i]);
+
                     CalculateOrders();
+
                     StatusLevel = PositionStatus.OPEN;
 
                     return true;
                 }
             }
-            foreach (Order order in OrdersForClose)
+            for (int i = 0; i < OrdersForClose.Count; i++) 
             {
-                if (order.NumberMarket == newOrder.NumberMarket)
+                if (OrdersForClose[i].NumberMarket == newOrder.NumberMarket)
                 {
+                    CopyOrder(newOrder, OrdersForClose[i]);
+
                     CalculateOrders();
+
                     StatusLevel = PositionStatus.DONE;
                     return true;
                 }
@@ -575,6 +581,7 @@ namespace OsEngine.MyEntity
                 _myTrades.Add(newTrade);
 
                 CalculateOrders();
+
                 CalculatePosition(newTrade, security);
                 return true;
             }
@@ -654,7 +661,7 @@ namespace OsEngine.MyEntity
         }
 
  
-        //private bool IsMyTrade(MyTrade myTrade)
+          //private bool IsMyTrade(MyTrade myTrade)
         //{
         //    foreach (Order order in OrdersForOpen)
         //    {

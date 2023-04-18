@@ -203,6 +203,7 @@ namespace OsEngine.ViewModels
                         foreach (IRobotVM robot in Robots)
                         {
                             // поверяем ордера и трейды
+                           
                         }
                     }
                 });
@@ -309,12 +310,12 @@ namespace OsEngine.ViewModels
             {
                 if (strat == NameStrat.GRID)
                 {
-                    Robots.Add(new GridRobotVM(Robots.Count + 1));
+                    Robots.Add(new GridRobotVM("Tab " + Robots.Count + 1, Robots.Count + 1));
                     //Robots.Last().Header = "Tab " + (Robots.Count + 1);
                 }
                 if (strat == NameStrat.BREAKDOWN)
                 {
-                    Robots.Add(new RobotBreakVM(Robots.Count + 1));
+                    Robots.Add(new RobotBreakVM("Tab " + Robots.Count + 1, Robots.Count + 1));
                    // Robots.Last().Header = "Tab " + (Robots.Count + 1);
                 }
  
@@ -322,7 +323,7 @@ namespace OsEngine.ViewModels
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
         }
 
-        private void RobotWindowVM_OnSelectedSecurity(string name)
+        private void RobotWindowVM_OnSelectedSecurity()
         {
             SaveHeaderBot();
         }
@@ -332,7 +333,20 @@ namespace OsEngine.ViewModels
         /// </summary>
         void DeleteTabRobot(object obj)
         {
-            if (SelectedRobot != null)
+            string header = (string)obj;
+
+            IRobotVM delRobot = null;
+
+            foreach (var robot in Robots)
+            {
+                if (robot.Header == header)
+                {
+                    delRobot = robot;
+                    break;
+                }
+            }
+
+            if (delRobot != null)
             {
                 MessageBoxResult res = MessageBox.Show("Удалить вкладку " + SelectedRobot.Header + "?", SelectedRobot.Header, MessageBoxButton.YesNo);
                 if (res == MessageBoxResult.Yes)
@@ -448,7 +462,7 @@ namespace OsEngine.ViewModels
             }
             string strTabs = "";
             int selectedNumber = 0;
-            string header = "";
+            //string header = "";
             string strStrat = "";
             try
             {
@@ -472,17 +486,14 @@ namespace OsEngine.ViewModels
                 if (tab != "")
                 {
                     AddTab(tab, NameStrat);
-                    if (Robots.Last().Header == header) 
+                    if (NameStrat == NameStrat.GRID)
                     {
-                        if (NameStrat == NameStrat.GRID)
-                        {
-                            SelectedRobot = (GridRobotVM)Robots.Last();
-                        }
-                        if (NameStrat == NameStrat.BREAKDOWN)
-                        {
-                            SelectedRobot = (RobotBreakVM)Robots.Last();
-                        }
-                    }     
+                        SelectedRobot = (GridRobotVM)Robots.Last();
+                    }
+                    if (NameStrat == NameStrat.BREAKDOWN)
+                    {
+                        SelectedRobot = (RobotBreakVM)Robots.Last();
+                    }
                 }
             }
             if (Robots.Count > selectedNumber - 1)

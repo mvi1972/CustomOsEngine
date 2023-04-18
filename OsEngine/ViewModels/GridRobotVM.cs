@@ -44,14 +44,14 @@ namespace OsEngine.ViewModels
         /// </summary>
         public GridRobotVM(string header, int numberTab)
         {
-            string[]str = header.Split('=');
+            //string[]str = header.Split('=');
             NumberTab = numberTab;
-            Header = str[0];
+            Header = header;
             //Level.OrdersForClose = null; 
             //Level.OrdersForOpen = null;
     
             LoadParamsBot(header);
-            ClearOrd();
+            //ClearOrd();
             SelectSecurBalans = 0;
             
             //ReloadOrderLevels();
@@ -94,8 +94,7 @@ namespace OsEngine.ViewModels
         public string Header
         {
             get
-            {
-                
+            {                
                 if (SelectedSecurity !=null)
                 {
                      return SelectedSecurity.Name;
@@ -139,11 +138,7 @@ namespace OsEngine.ViewModels
                 if (SelectedSecurity != null )
                 {
                     StartSecuritiy(SelectedSecurity); // запуск бумаги 
-                    OnSelectedSecurity?.Invoke(SelectedSecurity.Name);
-                    if (SelectedSecurity == null)
-                    {
-                        StartSecuritiy(SelectedSecurity);
-                    }
+                    OnSelectedSecurity?.Invoke();     
                 }
             }
         }
@@ -163,7 +158,7 @@ namespace OsEngine.ViewModels
                 if (NameClass != null)
                 {
                     // string klass = SelectedSecurity.NameClass;
-                    OnSelectedSecurity?.Invoke(SelectedSecurity.NameClass);
+                    OnSelectedSecurity?.Invoke();
                 }
             }
         }
@@ -264,7 +259,7 @@ namespace OsEngine.ViewModels
 
         /// <summary>
         /// свойство список направления сделок
-        /// </summary>
+        /// </summary> 
         public List<Direction> Directions { get; set; } = new List<Direction>()
         {
             Direction.BUY, Direction.SELL, Direction.BUYSELL
@@ -554,11 +549,6 @@ namespace OsEngine.ViewModels
 
         decimal _bestBid;
         decimal _bestAsk;
-
-        /// <summary>
-        /// количество  портфелей
-        /// </summary>
-        int _portfoliosCount = 0;
 
         Portfolio _portfolio;
 
@@ -1918,8 +1908,7 @@ namespace OsEngine.ViewModels
             if (portfolios == null ||portfolios.Count == 0) // нет новых портфелей 
             {
                 return;
-            }
-            _portfoliosCount = portfolios.Count;
+            }           
 
             StringPortfolios = GetStringPortfolios(_server); // грузим портфели
 
@@ -1947,7 +1936,7 @@ namespace OsEngine.ViewModels
 
         #region ============================================События============================================
 
-        public delegate void selectedSecurity(string name);
+        public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;
 
         #endregion
