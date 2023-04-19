@@ -204,7 +204,7 @@ namespace OsEngine.ViewModels
                         {
                             robot.CheckMissedOrders();
 
-                            robot.CheckMissedMyTrades();                           
+                            robot.CheckMissedMyTrades();                  
                         }
                     }
                 });
