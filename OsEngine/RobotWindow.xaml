@@ -72,9 +72,10 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Header}"/>
                             <Button Width="20"
-                            Command="{Binding DataContext.ComandDeleteRobot,
+                            Command="{Binding DataContext.ComandDeleteRobot, 
                             RelativeSource= {RelativeSource AncestorType={x:Type Window}}}"
-                            Style="{StaticResource WindowButtonStyleIconClose}">
+                            Style="{StaticResource WindowButtonStyleIconClose}"
+                            CommandParameter="{Binding Header}">
                             </Button>
                         </StackPanel>
                     </DataTemplate>

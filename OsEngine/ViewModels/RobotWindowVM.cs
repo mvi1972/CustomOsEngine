@@ -20,6 +20,7 @@ using System.Windows;
 using System.Runtime.Serialization;
 using static OsEngine.ViewModels.GridRobotVM;
 using System.Runtime.Serialization.Json;
+using System.Runtime.Remoting.Messaging;
 
 namespace OsEngine.ViewModels
 {
@@ -304,8 +305,8 @@ namespace OsEngine.ViewModels
                 {
                     Robots.Add(new RobotBreakVM(name, Robots.Count+1));
                 }
-                
-                //Robots.Last().Header = name;
+
+                Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity;
             }
             else
             {
@@ -322,7 +323,7 @@ namespace OsEngine.ViewModels
  
             }
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
-        }
+        } 
 
         private void RobotWindowVM_OnSelectedSecurity()
         {
@@ -336,13 +337,13 @@ namespace OsEngine.ViewModels
         {
             string header = (string)obj;
 
-            IRobotVM delRobot = null;
+            GridRobotVM delRobot = null;
 
             foreach (var robot in Robots)
             {
                 if (robot.Header == header)
                 {
-                    delRobot = robot;
+                    delRobot = (GridRobotVM)robot;
                     break;
                 }
             }
@@ -352,7 +353,7 @@ namespace OsEngine.ViewModels
                 MessageBoxResult res = MessageBox.Show("Удалить вкладку " + SelectedRobot.Header + "?", SelectedRobot.Header, MessageBoxButton.YesNo);
                 if (res == MessageBoxResult.Yes)
                 {
-                    Robots.Remove(SelectedRobot);
+                    Robots.Remove(delRobot);
                     SaveHeaderBot();
                 }
             }
@@ -497,6 +498,8 @@ namespace OsEngine.ViewModels
                     }
                 }
             }
+            if (Robots.Count == 0 ) return;
+       
             if (Robots.Count > selectedNumber - 1)
             {
                 SelectedRobot = Robots[selectedNumber - 1];

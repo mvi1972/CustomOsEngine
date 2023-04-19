@@ -1728,7 +1728,7 @@ namespace OsEngine.ViewModels
 
             foreach (Portfolio portf in server.Portfolios)
             {
-                RobotWindowVM.Log(Header, "GetStringPortfolios  портфель =  " + portf.Number);
+                //RobotWindowVM.Log(Header, "GetStringPortfolios  портфель =  " + portf.Number);
                 stringPortfolios.Add(portf.Number);
             }
             return stringPortfolios;
