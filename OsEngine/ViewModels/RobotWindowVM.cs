@@ -178,15 +178,15 @@ namespace OsEngine.ViewModels
         {
             ConcurrentDictionary<string, MyTrade> myTrades = null;
 
-            if (MyTrades.TryGetValue(myTrade.SecurityNameCode, out myTrades))
+            if (RobotWindowVM.MyTrades.TryGetValue(myTrade.SecurityNameCode, out myTrades))
             {
-                myTrades.AddOrUpdate(myTrade.NumberTrade, myTrade, (key, value)=> value = myTrade);
+                myTrades.AddOrUpdate(myTrade.NumberTrade, myTrade, (key, value) => value = myTrade);
             }
             else
             {
                 myTrades = new ConcurrentDictionary<string, MyTrade>();
                 myTrades.AddOrUpdate(myTrade.NumberTrade, myTrade, (key, value) => value = myTrade);
-                MyTrades.AddOrUpdate(myTrade.SecurityNameCode, myTrades, (key, value) => value = myTrades);
+                RobotWindowVM.MyTrades.AddOrUpdate(myTrade.SecurityNameCode, myTrades, (key, value) => value = myTrades);
             }
         }
 
@@ -200,10 +200,11 @@ namespace OsEngine.ViewModels
                     while (dt.AddMinutes(1) > DateTime.Now)
                     {
                         await Task.Delay(5000);
-                        foreach (IRobotVM robot in Robots)
+                        foreach (GridRobotVM robot in Robots)
                         {
-                            // поверяем ордера и трейды
-                           
+                            robot.CheckMissedOrders();
+
+                            robot.CheckMissedMyTrades();                           
                         }
                     }
                 });

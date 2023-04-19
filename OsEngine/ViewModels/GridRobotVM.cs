@@ -7,6 +7,7 @@ using OsEngine.Market.Servers;
 using OsEngine.MyEntity;
 using OsEngine.OsTrader.Panels.Tab;
 using OsEngine.Views;
+using OsEngine.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -644,7 +645,6 @@ namespace OsEngine.ViewModels
 
         #region ===== логика ======
 
-
         /// <summary>
         /// расчитывает уровни (цены открвтия и профитов)
         /// </summary>
@@ -788,7 +788,7 @@ namespace OsEngine.ViewModels
                         RobotWindowVM.Log(Header, "StartSecuritiy  security = " + series.Security.Name);
                         // DesirializerLevels();
                         SaveParamsBot();
-                        GetOrderStatusOnBoard();
+                        //GetOrderStatusOnBoard();
                         break;
                     }
                     Thread.Sleep(1000);
@@ -919,11 +919,11 @@ namespace OsEngine.ViewModels
         {
 
             RobotWindowVM.Log(Header, " \n\n StartStop = " + !IsRun);
-            Thread.Sleep(300);
+            Thread.Sleep(300);        
+
+            IsRun = !IsRun;
 
             SaveParamsBot();
-
-            IsRun = !IsRun;   
         }
 
         /// <summary>
@@ -1029,7 +1029,8 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void LevelTradeLogicClose(Level level, Action action)
         {
-            decimal stepLevel = 0;
+            decimal stepLevel = GetStepLevel();
+
             if (action == Action.STOP)
             {
                 Side side = Side.None;
@@ -1146,33 +1147,13 @@ namespace OsEngine.ViewModels
 
             // выбрана бумага и робот включен следует логика выставления тейков 
 
-            if (StepType == StepType.PUNKT)
-            {
-                stepLevel = StepLevel * SelectedSecurity.PriceStep;
-            }
-            else if (StepType == StepType.PERCENT)
-            {
-                stepLevel = StepLevel * Price / 100;
-                stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
-            }
-
             if (level.PassTake && level.PriceLevel != 0)
             {
                 if (level.Volume != 0 && level.TakeVolume != Math.Abs(level.Volume))
-                {
-                    stepLevel = 0;
+                {   
                     decimal price = 0;
                     Side side = Side.None;
 
-                    if (StepType == StepType.PUNKT)
-                    {
-                        stepLevel = TakeLevel * SelectedSecurity.PriceStep;
-                    }
-                    else if (StepType == StepType.PERCENT)
-                    {
-                        stepLevel = TakeLevel * Price / 100;
-                        stepLevel = Decimal.Round(stepLevel, SelectedSecurity.Decimals);
-                    }
                     if (level.Volume > 0)
                     {
                         if (action == Action.TAKE)
@@ -1306,6 +1287,7 @@ namespace OsEngine.ViewModels
             };
             RobotWindowVM.Log(Header, "SendLimitOrder\n " + " отправляем лимитку на биржу\n" + GetStringForSave(order));
             RobotWindowVM.SendStrTextDb(" SendLimitOrder " + order.NumberUser);
+
             Server.ExecuteOrder(order);
 
             return order;
@@ -1355,6 +1337,23 @@ namespace OsEngine.ViewModels
             _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
 
             RobotWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
+        }
+
+        /// <summary>
+        ///  отключиться от сервера 
+        /// </summary>
+        private void UnSubscribeToServer()
+        {
+            _server.NewMyTradeEvent -= Server_NewMyTradeEvent;
+            _server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
+            _server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
+            _server.NewTradeEvent -= Server_NewTradeEvent;
+            _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
+            _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
+            _server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
+            _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
+
+            RobotWindowVM.Log(Header, " Отключаем от сервера = " + _server.ServerType);
         }
 
         #endregion
@@ -1720,6 +1719,47 @@ namespace OsEngine.ViewModels
             RobotWindowVM.Log(Header, "GetStringPortfolios  портфель = null ");
             return null;
         }
+
+        /// <summary>
+        /// проверить состояние ордеров
+        /// </summary>
+        public void CheckMissedOrders()
+        {
+            if (SelectedSecurity == null) return;
+            if (RobotWindowVM.Orders == null || RobotWindowVM.Orders.Count == 0 ) return;
+
+            foreach (var val in RobotWindowVM.Orders)
+            {
+                if (val.Key == SelectedSecurity.Name)
+                {
+                    foreach (var value in val.Value)
+                    {
+                        Server_NewOrderIncomeEvent(value.Value);
+                    }
+                }
+            }  
+        }
+
+        /// <summary>
+        /// проверить состояние моих трейдов
+        /// </summary>
+        public void CheckMissedMyTrades()
+        {
+            if (SelectedSecurity == null) return;
+            if (RobotWindowVM.MyTrades == null || RobotWindowVM.MyTrades.Count == 0) return;
+
+            foreach (var val in RobotWindowVM.MyTrades)
+            {
+                if (val.Key == SelectedSecurity.Name)
+                {
+                    foreach (var value in val.Value)
+                    {
+                        Server_NewMyTradeEvent(value.Value);
+                    }
+                }
+            }
+
+        }
         #endregion
 
         #region ======= события сервера =====
@@ -1737,23 +1777,6 @@ namespace OsEngine.ViewModels
                     // DesirializerDictionaryOrders();
                 }    
             }            
-        }
-
-        /// <summary>
-        ///  отключиться от сервера 
-        /// </summary>
-        private void UnSubscribeToServer()
-        {
-            _server.NewMyTradeEvent -= Server_NewMyTradeEvent;
-            _server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
-            _server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
-            _server.NewTradeEvent -= Server_NewTradeEvent;
-            _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
-            _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
-            _server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
-            _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
-
-            RobotWindowVM.Log(Header, " Отключаем от сервера = " + _server.ServerType);
         }
 
         /// <summary>
@@ -1839,9 +1862,9 @@ namespace OsEngine.ViewModels
                     {
                         bool newOrderBool = level.NewOrder(order);
 
-                        if (newOrderBool && rec)
+                        if (newOrderBool)
                         {
-                            RobotWindowVM.Log(Header, "Уровень = " + level.GetStringForSave());
+                            RobotWindowVM.Log(Header, " Обновился Уровень = " + level.GetStringForSave());
                         }
                     }
                 }
@@ -1854,22 +1877,28 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void Server_NewMyTradeEvent(MyTrade myTrade)
         {
-            if (SelectedSecurity == null )
-            {
-                return;
-            }
-            
-            //TradeLogic();
+            if (myTrade == null ||
+                SelectedSecurity == null ||
+                myTrade.SecurityNameCode != SelectedSecurity.Name) { return; }
 
-            if (myTrade == null || myTrade.SecurityNameCode != SelectedSecurity.Name )
+            foreach (Level level in Levels)
             {
-                return; // нашей бумаги нет
-            }
-            //if (ActiveLevelAre())
-            //{
-            //    SerializerDictionaryOrders();
-            //}
+                bool res = level.AddMyTrade(myTrade, SelectedSecurity);
+                if (res)
+                {
+                    RobotWindowVM.Log (Header, GetStringForSave (myTrade));
 
+                    if (myTrade.Side == level.Side)
+                    {
+                        LevelTradeLogicClose(level, Action.TAKE);
+                    }
+                    else
+                    {
+                        LevelTradeLogicOpen(level);
+                    }
+                }
+            }
+  
         }
         /// <summary>
         /// Сервер мастер создан сервер
@@ -1893,7 +1922,7 @@ namespace OsEngine.ViewModels
                 if (securities[i].Name == Header)
                 {
                     SelectedSecurity = securities[i];
-                    StartSecuritiy(securities[i]);
+                    //StartSecuritiy(securities[i]);
                     break;
                 }
             }
