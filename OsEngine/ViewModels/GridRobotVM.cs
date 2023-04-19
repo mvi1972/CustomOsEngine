@@ -530,7 +530,6 @@ namespace OsEngine.ViewModels
         }
         private decimal _stopLong=0;
 
-   
         public int NumberTab
         {
             get => _numberTab;
