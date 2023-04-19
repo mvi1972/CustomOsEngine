@@ -843,7 +843,7 @@ namespace OsEngine.ViewModels
                 IsRun = false;
                 foreach (Level level in Levels)
                 {
-                    level.CancelAllOrders(Server, GetStringForSave);
+                    level.CancelAllOrders(Server, Header);
                     LevelTradeLogicClose(level, Action.CLOSE);
 
                     if (SelectSecurBalans != 0)
@@ -873,7 +873,7 @@ namespace OsEngine.ViewModels
                     Debug.WriteLine(str);
                     foreach (Level level in Levels)
                     {
-                        level.CancelAllOrders(Server, GetStringForSave);
+                        level.CancelAllOrders(Server, Header);
                         string str3 = "level long = " + level.PriceLevel;
                         Debug.WriteLine(str3);
 
@@ -899,7 +899,7 @@ namespace OsEngine.ViewModels
                     StopShort = 0;
                     foreach (Level level in Levels)
                     {
-                        level.CancelAllOrders(Server, GetStringForSave);
+                        level.CancelAllOrders(Server, Header);
 
                         RobotWindowVM.Log(Header, "ExaminationStop \n " + " Сработал СТОП ШОРТА ");
                         string str4 = "level Short = " + level.PriceLevel;
@@ -924,6 +924,41 @@ namespace OsEngine.ViewModels
             IsRun = !IsRun;
 
             SaveParamsBot();
+            if (IsRun)
+            {
+                foreach (Level level in Levels)
+                {
+                    level.SetVolumeStart();
+                    level.PassVolume = true;
+                    level.PassTake = true;  
+                }
+            }
+            else
+            {
+                Task.Run(() =>
+                {
+                    while (true)
+                    {
+                        foreach(Level level in Levels)
+                        {
+                            level.CancelAllOrders(Server, Header);
+                        }
+                        Thread.Sleep(3000);
+
+                        bool flag = true;
+                        foreach (Level level in Levels) 
+                        {
+                            if (level.LimitVolume !=0 ||
+                            level.TakeVolume !=0)
+                            {
+                                flag = false;
+                                break;
+                            }
+                        }
+                        if (flag) break;
+                    }                  
+                });
+            }
         }
 
         /// <summary>
@@ -1760,6 +1795,51 @@ namespace OsEngine.ViewModels
             }
 
         }
+
+        /// <summary>
+        /// запросить статусы выбранных оредров 
+        /// </summary>
+        private void GetStateOrdeps()
+        {
+            if (Server != null)
+            {
+                if (Server.ServerType == ServerType.BinanceFutures)
+                {
+                    AServer aServer = (AServer)Server;
+
+                    List<Order> orders = new List<Order>(); // ордера чьи статусы надо опросить
+
+                    foreach (Level level in Levels)
+                    {
+                        GetStateOrdeps(level.OrdersForOpen, ref orders);
+                        GetStateOrdeps(level.OrdersForClose, ref orders);
+                    }
+                    if (orders.Count > 0)
+                    {
+                        aServer.ServerRealization.GetOrdersState(orders);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///  выбирает ордера для опроса 
+        /// </summary>
+        private void GetStateOrdeps(List<Order> orders, ref List<Order> stateOrders)
+        {
+            foreach(Order order in orders)
+            {
+                if (order != null) 
+                {
+                    if(order.State == OrderStateType.None ||
+                       order.State == OrderStateType.Patrial ||
+                       order.State == OrderStateType.Pending)
+                    {
+                        stateOrders.Add(order);
+                    }                    
+                }
+            }
+        }
         #endregion
 
         #region ======= события сервера =====
@@ -1773,9 +1853,12 @@ namespace OsEngine.ViewModels
             {
                 if (Server.ServerStatus == ServerConnectStatus.Connect)
                 {
+                    GetStateOrdeps();
+                    //  ЕЩЁ Смотри реализацию в робот виндов вм
                     //GetOrderStatusOnBoard();
                     // DesirializerDictionaryOrders();
-                }    
+                } 
+                else IsRun = false;
             }            
         }
 
@@ -1806,10 +1889,10 @@ namespace OsEngine.ViewModels
                 CalculateMargin();
                 ExaminationStop();
 
-                //if (trade.Time.Second % 5 == 0)
-                //{
-                //    TradeLogic();
-                //}
+                if (trade.Time.Second % 5 == 0)
+                {
+                    TradeLogic();
+                }
                 //bool rec = true;
                 //if (trade.Time.AddSeconds(1) < Server.ServerTime)
                 //{
@@ -1835,8 +1918,7 @@ namespace OsEngine.ViewModels
             if (order == null || _portfolio == null || SelectedSecurity == null) return;
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType) // 
-            {
-                TradeLogic();
+            {                
                 //TradeLogic();
                 if (ActiveLevelAre())
                 {

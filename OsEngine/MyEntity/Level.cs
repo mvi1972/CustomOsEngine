@@ -453,7 +453,7 @@ namespace OsEngine.MyEntity
         /// <summary>
         /// отозвать все ордера с биржи
         /// </summary>
-        public void CancelAllOrders(IServer server, DelegateGetStringForSave getStringForSave)
+        public void CancelAllOrders(IServer server, string header)
         {
             //CanselCloseOrders(server, getStringForSave);
             //CanselOpenOrders(server, getStringForSave);
@@ -478,8 +478,8 @@ namespace OsEngine.MyEntity
 
                     //    RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток отзыва ордеров на закрытие \n");
                     //}
-                    CanselCloseOrders(server, getStringForSave);
-                    CanselOpenOrders(server, getStringForSave);
+                    CanselOpenOrders(OrdersForOpen, server);
+                    CanselCloseOrders(OrdersForClose, server);
 
                     string str = "ВКЛЮЧЕН поток для отзыва ордеров \n";
                     Debug.WriteLine(str);
@@ -501,7 +501,7 @@ namespace OsEngine.MyEntity
         /// <summary>
         /// отозвать  открытые ордера с биржи
         /// </summary>
-        private void CanselOpenOrders(IServer server, DelegateGetStringForSave getStringForSave)
+        private void CanselOpenOrders( List<Order> orders, IServer server)
         {
             foreach (Order order in OrdersForOpen)
             {
@@ -513,7 +513,7 @@ namespace OsEngine.MyEntity
                 {
                     server.CancelOrder(order);
                   
-                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитку на открытие с биржи \n" + getStringForSave(order));
+                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем лимитку на открытие с биржи \n" + GetStringForSave());
                     Thread.Sleep(30); 
                 }
             }
@@ -542,7 +542,7 @@ namespace OsEngine.MyEntity
         /// <summary>
         /// отозвать ордера на закрытие с биржи
         /// </summary>
-        private void CanselCloseOrders(IServer server, DelegateGetStringForSave getStringForSave)
+        private void CanselCloseOrders(List<Order> orders, IServer server)
         {
             foreach (Order order in OrdersForClose)
             {
@@ -557,7 +557,7 @@ namespace OsEngine.MyEntity
                         || order.State == OrderStateType.Pending)
                 {
                     server.CancelOrder(order);
-                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем тейк на сервере \n" + getStringForSave(order));
+                    RobotWindowVM.Log(order.SecurityNameCode, " Снимаем тейк на сервере \n" + GetStringForSave());
                     Thread.Sleep(30);
                 }
             }
