@@ -392,22 +392,18 @@ namespace OsEngine.MyEntity
         {
             if (orders == null) return;
             List<Order> newOrders = new List<Order>();
-            string num = "";
+            
             foreach (Order order in orders)
             {
                 if (order!= null
                     && order.State != OrderStateType.Cancel
-                    && order.State != OrderStateType.Done
-                    && order.State != OrderStateType.Fail)
-                {
-                    if (num != order.NumberMarket)
-                    {
+                    && order.State != OrderStateType.Done)
+                    //&& order.State != OrderStateType.Fail)
+                {                  
                         newOrders.Add(order);
-                        num = order.NumberMarket;
-                    }  
                 }
             }
-            RobotWindowVM.SendStrTextDb(" Удалили ордера Cancel  Done и Fail");
+            RobotWindowVM.SendStrTextDb(" Удалили ордера Cancel  Done");
             orders = newOrders;  
         }
 
@@ -461,23 +457,7 @@ namespace OsEngine.MyEntity
             {
                 while (true)
                 {
-                    //string namsec = "";
-                    //if (OrdersForOpen.Count != 0 && OrdersForOpen != null) // эта конструкция что бы взять имя бумаги для отправки в лог 
-                    //{
-                    //    ClearOrders(ref OrdersForOpen);
-                    //    Order order = OrdersForOpen[0];
-                    //    namsec = order.SecurityNameCode;
 
-                    //    RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток для отзыва ордеров на открытие \n");
-                    //}
-                    //if (OrdersForClose.Count != 0 && OrdersForClose != null)
-                    //{
-                    //    ClearOrders(ref OrdersForClose);
-                    //    Order order = OrdersForClose[0];
-                    //    namsec = order.SecurityNameCode;
-
-                    //    RobotWindowVM.Log(order.SecurityNameCode, "ВКЛЮЧЕН поток отзыва ордеров на закрытие \n");
-                    //}
                     CanselOpenOrders(OrdersForOpen, server);
                     CanselCloseOrders(OrdersForClose, server);
 

@@ -827,7 +827,7 @@ namespace OsEngine.ViewModels
         }
         private void TestApi(object o)
         {
-            GetOrderStatusOnBoard();
+            //GetOrderStatusOnBoard();
         }
 
         /// <summary>
@@ -1015,10 +1015,10 @@ namespace OsEngine.ViewModels
         /// </summary>
         private void LevelTradeLogicOpen(Level level)
         {
-            if (IsRun == false || SelectedSecurity == null)
-            {
-                return;
-            }
+            //if (IsRun == false || SelectedSecurity == null)
+            //{
+            //    return;
+            //}
 
             decimal stepLevel = GetStepLevel();
  
@@ -1052,7 +1052,7 @@ namespace OsEngine.ViewModels
                     }
                     else
                     {
-                        level.PassVolume = true;
+                        // level.PassVolume = true;
                     }
                 }
             }
@@ -1404,22 +1404,7 @@ namespace OsEngine.ViewModels
                 level.ClearOrders(ref level.OrdersForClose);
             }
         }
-
-        /// <summary>
-        /// запросить статус ордеров на бирже
-        /// </summary>
-        private void GetOrderStatusOnBoard()
-        {
-            List<Order> odersInLev =  GetOrdersInLevels();
-            if (odersInLev == null || odersInLev.Count ==0) return;
-            for (int i = 0; i < odersInLev.Count; i++)
-            {
-                Order ord = odersInLev[i];
-                Server.GetStatusOrder(ord);
-            }
-            RobotWindowVM.Log(Header, " GetOrderStatusOnBoard\n" +
-                " Опросил статус ордера ");
-        }
+  
         /// <summary>
         /// Взять номера ордера на уровнях после выгрузки изфайла сохранения 
         /// </summary>
@@ -1672,43 +1657,7 @@ namespace OsEngine.ViewModels
             }
             return false;
         }
-
-        /// <summary>
-        /// сериализация словаря  ордеров
-        /// </summary>
-        public void SerializerDictionaryOrders()
-        {
-            DataContractJsonSerializer DictionaryOrdersSerialazer 
-              = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>));
-            using (var file = new FileStream("DictionaryAllOrders.json", FileMode.OpenOrCreate))
-            {
-                DictionaryOrdersSerialazer.WriteObject(file, RobotWindowVM.Orders);
-            }
-        }
-
-        /// <summary>
-        ///  десериализация словаря ордеров 
-        /// </summary>
-        public void DesirializerDictionaryOrders()
-        {
-            return;
-            DataContractJsonSerializer DictionaryOrdersSerialazer 
-                = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>));
-            if (!File.Exists("DictionaryAllOrders.json"))
-            {
-                return;
-            }
-            using (var file = new FileStream("DictionaryAllOrders.json", FileMode.Open))
-            {
-                ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> DictionaryOrders 
-                 = DictionaryOrdersSerialazer.ReadObject(file) as ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>;
-                if (DictionaryOrders != null)
-                {
-                    RobotWindowVM.Orders = DictionaryOrders;
-                }
-            }
-        }
-  
+ 
         /// <summary>
         /// берет названия кошельков (бирж)
         /// </summary>
@@ -1872,7 +1821,7 @@ namespace OsEngine.ViewModels
             {
                 _bestAsk = ask;
                 _bestBid = bid;
-                TradeLogic();
+                //TradeLogic();
             }
         }
 
@@ -1888,7 +1837,7 @@ namespace OsEngine.ViewModels
                 CalculateMargin();
                 ExaminationStop();
 
-                if (trade.Time.Second % 5 == 0)
+                if (trade.Time.Second % 10 == 0)
                 {
                     TradeLogic();
                 }
@@ -1903,7 +1852,6 @@ namespace OsEngine.ViewModels
                 //}
             }
         }
-
         private void Server_NewCandleIncomeEvent(CandleSeries candle)
         {
             //
@@ -1929,7 +1877,7 @@ namespace OsEngine.ViewModels
                 //  дальше запись в лог ответа с биржи по ордеру  и уровню 
                 bool rec = true;
                 if (order.State == OrderStateType.Activ
-                    && order.TimeCallBack.AddSeconds(15) < Server.ServerTime)
+                    && order.TimeCallBack.AddSeconds(5) < Server.ServerTime)
                 {
                     rec = false;
                 }
@@ -1977,9 +1925,9 @@ namespace OsEngine.ViewModels
                     {
                         LevelTradeLogicOpen(level);
                     }
+                    SaveParamsBot();
                 }
-            }
-  
+            }  
         }
         /// <summary>
         /// Сервер мастер создан сервер
@@ -2054,6 +2002,58 @@ namespace OsEngine.ViewModels
         #region == ЗАГОТОВКИ =====
 
         /// <summary>
+        /// запросить статус ордеров на бирже
+        /// </summary>
+        private void GetOrderStatusOnBoard()
+        {
+            List<Order> odersInLev = GetOrdersInLevels();
+            if (odersInLev == null || odersInLev.Count == 0) return;
+            for (int i = 0; i < odersInLev.Count; i++)
+            {
+                Order ord = odersInLev[i];
+                Server.GetStatusOrder(ord);
+            }
+            RobotWindowVM.Log(Header, " GetOrderStatusOnBoard\n" +
+                " Опросил статус ордера ");
+        }
+
+        /// <summary>
+        /// сериализация словаря  ордеров
+        /// </summary>
+        public void SerializerDictionaryOrders()
+        {
+            DataContractJsonSerializer DictionaryOrdersSerialazer
+              = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>));
+            using (var file = new FileStream("DictionaryAllOrders.json", FileMode.OpenOrCreate))
+            {
+                DictionaryOrdersSerialazer.WriteObject(file, RobotWindowVM.Orders);
+            }
+        }
+
+        /// <summary>
+        ///  десериализация словаря ордеров 
+        /// </summary>
+        public void DesirializerDictionaryOrders()
+        {
+            return;
+            DataContractJsonSerializer DictionaryOrdersSerialazer
+                = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>));
+            if (!File.Exists("DictionaryAllOrders.json"))
+            {
+                return;
+            }
+            using (var file = new FileStream("DictionaryAllOrders.json", FileMode.Open))
+            {
+                ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> DictionaryOrders
+                 = DictionaryOrdersSerialazer.ReadObject(file) as ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>;
+                if (DictionaryOrders != null)
+                {
+                    RobotWindowVM.Orders = DictionaryOrders;
+                }
+            }
+        }
+
+        /// <summary>
         /// презагружает листы ордеров 
         /// </summary>
         private void ReloadOrderLevels()
@@ -2109,7 +2109,6 @@ namespace OsEngine.ViewModels
             }
         }
 
-
         /// <summary>
         /// сохраяие уровни в файл 
         /// </summary>
@@ -2163,8 +2162,6 @@ namespace OsEngine.ViewModels
         //    //SerializerDictionaryOrders();
         //    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
         //}
-
-
 
         #endregion
 
