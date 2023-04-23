@@ -1052,7 +1052,7 @@ namespace OsEngine.ViewModels
                     }
                     else
                     {
-                        // level.PassVolume = true;
+                         level.PassVolume = true;
                     }
                 }
             }
