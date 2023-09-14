@@ -24,6 +24,9 @@ using System.Runtime.Remoting.Messaging;
 
 namespace OsEngine.ViewModels
 {
+    /// <summary>
+    /// Модель отображения окна рботов 
+    /// </summary>
     [DataContract]
     public class RobotWindowVM : BaseVM
     {
@@ -174,7 +177,6 @@ namespace OsEngine.ViewModels
             server.NewMyTradeEvent += Server_NewMyTradeEvent;
            
         }
-
         private void Server_NewMyTradeEvent(MyTrade myTrade)
         {
             ConcurrentDictionary<string, MyTrade> myTrades = null;
@@ -319,8 +321,7 @@ namespace OsEngine.ViewModels
                 {
                     Robots.Add(new RobotBreakVM("Tab " + Robots.Count + 1, Robots.Count + 1));
                    // Robots.Last().Header = "Tab " + (Robots.Count + 1);
-                }
- 
+                } 
             }
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
         } 

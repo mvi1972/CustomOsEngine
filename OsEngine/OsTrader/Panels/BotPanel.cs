@@ -121,7 +121,7 @@ namespace OsEngine.OsTrader.Panels
                 {
                     List<Journal.Journal> journalsOnTab = ((BotTabScreener)_botTabs[i]).GetJournals();
 
-                    if(journalsOnTab == null ||
+                    if (journalsOnTab == null ||
                         journalsOnTab.Count == 0)
                     {
                         continue;
@@ -201,16 +201,16 @@ namespace OsEngine.OsTrader.Panels
 
             try
             {
-                if(_tabBotTab == null)
+                if (_tabBotTab == null)
                 {
                     return;
                 }
 
                 if (!_tabBotTab.Dispatcher.CheckAccess())
                 {
-                    _tabBotTab.Dispatcher.Invoke(new Action<Grid,WindowsFormsHost, WindowsFormsHost, WindowsFormsHost,
+                    _tabBotTab.Dispatcher.Invoke(new Action<Grid, WindowsFormsHost, WindowsFormsHost, WindowsFormsHost,
                     WindowsFormsHost, WindowsFormsHost, Rectangle, WindowsFormsHost, TabControl, TextBox, Grid>
-                    (StartPaint), gridChart, hostChart, glass, hostOpenDeals, hostCloseDeals, 
+                    (StartPaint), gridChart, hostChart, glass, hostOpenDeals, hostCloseDeals,
                     boxLog, rectangle, hostAlerts, tabBotTab, textBoxLimitPrice, gridChartControlPanel);
                     return;
                 }
@@ -279,11 +279,11 @@ namespace OsEngine.OsTrader.Panels
                     LogMessageEvent(error.ToString(), LogMessageType.Error);
                 }
 
-                if(_tabBotTab != null)
+                if (_tabBotTab != null)
                 {
                     _tabBotTab.SelectionChanged -= _tabBotTab_SelectionChanged;
                 }
-           
+
                 _tabBotTab = null;
                 _hostChart = null;
                 _hostGlass = null;
@@ -409,7 +409,7 @@ namespace OsEngine.OsTrader.Panels
                     _botTabs = null;
                 }
 
-                if(ParamGuiSettings != null)
+                if (ParamGuiSettings != null)
                 {
                     ParamGuiSettings.LogMessageEvent -= SendNewLogMessage;
                     ParamGuiSettings = null;
@@ -420,15 +420,15 @@ namespace OsEngine.OsTrader.Panels
                     }
                 }
 
-                if(_log != null)
+                if (_log != null)
                 {
                     _log.Delete();
                     _log = null;
                 }
 
-                if(_parameters != null)
+                if (_parameters != null)
                 {
-                    for(int i = 0;i < _parameters.Count;i++)
+                    for (int i = 0; i < _parameters.Count; i++)
                     {
                         _parameters[i].ValueChange -= Parameter_ValueChange;
                     }
@@ -436,7 +436,7 @@ namespace OsEngine.OsTrader.Panels
                     _parameters = null;
                 }
 
-                if(_tabBotTab != null)
+                if (_tabBotTab != null)
                 {
                     _tabBotTab.SelectionChanged -= _tabBotTab_SelectionChanged;
                     _tabBotTab = null;
@@ -468,12 +468,12 @@ namespace OsEngine.OsTrader.Panels
         /// </summary>
         public void MoveChartToTheRight()
         {
-            if(ActivTab == null)
+            if (ActivTab == null)
             {
                 return;
             }
 
-            if(ActivTab.GetType().Name == "BotTabSimple")
+            if (ActivTab.GetType().Name == "BotTabSimple")
             {
                 ((BotTabSimple)ActivTab).MoveChartToTheRight();
             }
@@ -867,7 +867,7 @@ position => position.State != PositionStateType.OpeningFail
             return (StrategyParameterButton)LoadParameterValues(newParameter);
         }
 
-        public StrategyParameterLabel CreateParameterLabel(string name, string label, string value, int rowHeight,  int textHeight, System.Drawing.Color color, string tabControlName = null)
+        public StrategyParameterLabel CreateParameterLabel(string name, string label, string value, int rowHeight, int textHeight, System.Drawing.Color color, string tabControlName = null)
         {
             StrategyParameterLabel newParameter = new StrategyParameterLabel(name, label, value, rowHeight, textHeight, color, tabControlName);
 
@@ -1110,9 +1110,9 @@ position => position.State != PositionStateType.OpeningFail
             {
                 try
                 {
-                    if (ActivTab == null 
-                        || _tabBotTab == null 
-                        || _tabBotTab.Items == null 
+                    if (ActivTab == null
+                        || _tabBotTab == null
+                        || _tabBotTab.Items == null
                         || _tabBotTab.Items.Count == 0)
                     {
                         return -1;
@@ -1198,7 +1198,7 @@ position => position.State != PositionStateType.OpeningFail
                 {
                     ChangeActivTab(_tabBotTab.SelectedIndex);
                 }
-                
+
             }
             catch (Exception error)
             {
@@ -1384,7 +1384,7 @@ position => position.State != PositionStateType.OpeningFail
                     return;
                 }
 
-                if(_tabBotTab.IsVisible == false)
+                if (_tabBotTab.IsVisible == false)
                 {
 
                 }
@@ -1404,7 +1404,7 @@ position => position.State != PositionStateType.OpeningFail
 
                 if (ActivTab.GetType().Name == "BotTabSimple")
                 {
-                    ((BotTabSimple)ActivTab).StartPaint(_gridChart,_hostChart, _hostGlass, _hostOpenDeals, _hostCloseDeals,
+                    ((BotTabSimple)ActivTab).StartPaint(_gridChart, _hostChart, _hostGlass, _hostOpenDeals, _hostCloseDeals,
                         _rectangle, _hostAlerts, _textBoxLimitPrice, _gridChartControlPanel);
                 }
                 else if (ActivTab.GetType().Name == "BotTabIndex")
@@ -1513,7 +1513,7 @@ position => position.State != PositionStateType.OpeningFail
 
             ActivTab = null;
 
-            if(NewTabCreateEvent != null)
+            if (NewTabCreateEvent != null)
             {
                 NewTabCreateEvent();
             }
@@ -1628,7 +1628,7 @@ position => position.State != PositionStateType.OpeningFail
         {
             CustomTabToParametersUi newTab = CustomTabs.Find(tab => tab.Label == tabLabel);
 
-            if(newTab != null)
+            if (newTab != null)
             {
                 SendNewLogMessage
                     ("An attempt was intercepted to create a second tab of parameters with the same name that is already in the collection.",
@@ -1710,7 +1710,7 @@ position => position.State != PositionStateType.OpeningFail
 
         public void AddChildren(object children)
         {
-            if(GridToPaint.Dispatcher.CheckAccess() == false)
+            if (GridToPaint.Dispatcher.CheckAccess() == false)
             {
                 GridToPaint.Dispatcher.Invoke(new Action<object>(AddChildren), children);
                 return;

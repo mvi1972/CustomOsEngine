@@ -5,12 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -457,7 +452,6 @@ namespace OsEngine.MyEntity
             {
                 while (true)
                 {
-
                     CanselOpenOrders(OrdersForOpen, server);
                     CanselCloseOrders(OrdersForClose, server);
 

@@ -1,43 +1,29 @@
 ﻿using Newtonsoft.Json;
-using OkonkwoOandaV20.TradeLibrary.DataTypes.Pricing;
 using OsEngine.Commands;
 using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.MyEntity;
-using OsEngine.OsTrader.Panels.Tab;
 using OsEngine.Views;
-using OsEngine.ViewModels;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Lifetime;
+using System.Runtime.Serialization.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Action = OsEngine.MyEntity.Action;
-using Level = OsEngine.MyEntity.Level;
-using Direction = OsEngine.MyEntity.Direction;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Collections.Concurrent;
-using ControlzEx.Theming;
-using OsEngine.Market.Servers.Binance.Futures;
-using System.Windows.Controls.Primitives;
 using System.Windows;
-using System.Security.Cryptography;
-using OsEngine.Charts.CandleChart.Indicators;
-using static OsEngine.MyEntity.Level;
+using Action = OsEngine.MyEntity.Action;
+using Direction = OsEngine.MyEntity.Direction;
+using Level = OsEngine.MyEntity.Level;
 
 namespace OsEngine.ViewModels
 {
-    
+
     public class GridRobotVM : BaseVM, IRobotVM
     {
         /// <summary>
@@ -281,7 +267,7 @@ namespace OsEngine.ViewModels
         private decimal _lot;
 
         /// <summary>
-        /// тип расчета  
+        /// тип расчета шага уровня 
         /// </summary>
         public StepType StepType
         {
@@ -1138,34 +1124,6 @@ namespace OsEngine.ViewModels
 
                         RobotWindowVM.SendStrTextDb(" SendMarketOrder в режиме  Close\n " + order.NumberUser);
 
-                        //if (order.State != OrderStateType.Activ ||                            
-                        //    order.State != OrderStateType.Pending)
-                        //{
-                        //    level.PassVolume = false;
-                        //    Level.OrdersForClose.Add(order);
-                        //    RobotWindowVM.Log(Header,
-                        //    " поместили отправленный Лимит ордер в OrdersForClose"
-                        //     + GetStringForSave(order));
-                        //}
-
-                        //else if (order.State != OrderStateType.Patrial )
-                        //{
-                        //    RobotWindowVM.SendStrTextDb(" SendLimitOrder Close исполнился частично \n " + order.NumberUser);
-                        //    RobotWindowVM.Log(Header, "ВНИМАНИЕ ордер исполнился частично \n ");
-
-                        //    if (worklot * level.PriceLevel <= 6 && worklot != 0)
-                        //    {
-                        //        RobotWindowVM.Log(Header, "ВНИМАНИЕ ордер <= 6 $ \n " +
-                        //            "action == Acon.CLOSE ордер не отправлен \n" +
-                        //            " worklot  =  " + worklot);
-                        //        // ждем Н секунд
-                        //        Thread.Sleep(3000);
-                        //        // проверяем статус ордера и цену 
-                        //        // переставить ордер - удалить маленький, докупить обем и закрыть весь обем 
-                        //        // надо обдумать логику 
-                        //        return;
-                        //    }
-                        //}
                     }
                     else
                     {
@@ -1741,7 +1699,6 @@ namespace OsEngine.ViewModels
                     }
                 }
             }
-
         }
 
         /// <summary>
@@ -1755,7 +1712,7 @@ namespace OsEngine.ViewModels
                 {
                     AServer aServer = (AServer)Server;
 
-                    List<Order> orders = new List<Order>(); // ордера чьи статусы надо опросить
+                    List<Order> orders = new List<Order>(); // ордера статусы которых надо опросить
 
                     foreach (Level level in Levels)
                     {
@@ -1877,7 +1834,7 @@ namespace OsEngine.ViewModels
                 //  дальше запись в лог ответа с биржи по ордеру  и уровню 
                 bool rec = true;
                 if (order.State == OrderStateType.Activ
-                    && order.TimeCallBack.AddSeconds(5) < Server.ServerTime)
+                    && order.TimeCallBack.AddSeconds(2) < Server.ServerTime)
                 {
                     rec = false;
                 }
@@ -2005,13 +1962,13 @@ namespace OsEngine.ViewModels
         /// запросить статус ордеров на бирже
         /// </summary>
         private void GetOrderStatusOnBoard()
-        {
+        { // отключил 
             List<Order> odersInLev = GetOrdersInLevels();
             if (odersInLev == null || odersInLev.Count == 0) return;
             for (int i = 0; i < odersInLev.Count; i++)
             {
                 Order ord = odersInLev[i];
-                Server.GetStatusOrder(ord);
+                // Server.GetStatusOrder(ord);
             }
             RobotWindowVM.Log(Header, " GetOrderStatusOnBoard\n" +
                 " Опросил статус ордера ");

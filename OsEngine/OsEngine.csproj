@@ -789,6 +789,7 @@
     <Compile Include="RobotWindow.xaml.cs">
       <DependentUpon>RobotWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TestBot\TestBot.cs" />
     <Compile Include="ViewModels\ChangeEmitentVM.cs" />
     <Compile Include="ViewModels\IRobotVM.cs" />
     <Compile Include="ViewModels\GridRobotVM.cs" />
