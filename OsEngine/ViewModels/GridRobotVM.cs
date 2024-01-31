@@ -1598,6 +1598,7 @@ namespace OsEngine.ViewModels
             decimal.TryParse(str, out value);
             return value;
         }
+
         /// <summary>
         /// является ли уровень активным 
         /// </summary>
